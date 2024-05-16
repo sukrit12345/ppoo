@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<title>เพิ่มข้อมูลลูกหนี้</title>
+
+<style>
+.navbar {
+        overflow: hidden;
+        background-color: #333;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        left: 0;
+        right: 0;
+    }
+.navbar a {
+        float: left;
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+    }
+.navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+.navbar a.active {
+        background-color: #555;
+        color: white;
+    }
+    
+
+body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        margin-top: 100px;
+    }
+
+.container {
+  width: 60%;
+  margin: auto;
+  margin-top: 50px;
+}
+
+input[type=text] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
+
+
+.button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-container {
+    width: 50%;
+  }
+
+  form {
+    width: 100%;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+  }
+
+  input[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  input[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
+    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+}
+  
+
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="active" href="/">ข้อมูลลูกหนี้</a>
+    <a href="รายงานผล.html">รายงานผล</a>
+    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="กองทุน.html">กองทุน</a>
+    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+    <a href="ตั้งค่า.html">ตั้งค่า</a>
+ </div> 
+
+
+
+<div class="container">
+  <form action= method="post">
+    
+    <label for="date">วันที่บันทึก (ปี-เดือน-วัน):</label>
+    <input type="text" id="date" name="date" placeholder="YYYY-MM-DD">
+    <br><br>
+
+    <label for="id_card">เลขบัตรประชาชน:</label>
+    <input type="text" id="id_card" name="id_card" placeholder="กรอกเลขบัตรประชาชน" required>
+
+    <label for="fname">ชื่อจริง:</label>
+    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+
+    <label for="lname">นามสกุล:</label>
+    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+
+    <label for="ig">ไอจี:</label>
+    <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี">
+
+    <label for="facebook">เฟสบุ๊ค:</label>
+    <input type="text" id="facebook" name="facebook" placeholder="กรอกชื่อเฟสบุ๊ค">
+
+    <label for="line">ไลน์:</label>
+    <input type="text" id="line" name="line" placeholder="กรอกไลน์">
+
+    <label for="phone">เบอร์โทรศัพท์:</label>
+    <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+
+    <label for="monthly_income">เงินเดือน (เงินที่ได้ทุกเดือน, เงินจากผู้ปกครอง, เงินทำงาน):</label>
+    <input type="text" id="monthly_income" name="monthly_income" placeholder="กรอกจำนวนเงินเดือน" required>
+
+    <label for="occupation">อาชีพ:</label>
+    <input type="text" id="occupation" name="occupation" placeholder="กรอกอาชีพ" required>
+
+    <label for="grade">ชั้นปี (สำหรับคนที่กำลังศึกษา) ม.6, ปี1:</label>
+    <input type="text" id="grade" name="grade" placeholder="กรอกชั้นปี" >
+
+    <label for="course">หลักสูตร (สำหรับคนที่กำลังศึกษา) คณะ, สาขา, เลขห้อง:</label>
+    <input type="text" id="course" name="course" placeholder="กรอกหลักสูตร" >
+
+    <label for="province">จังหวัด (ที่กำลังอาศัยอยู่):</label>
+    <input type="text" id="province" name="province" placeholder="กรอกจังหวัด" required>
+
+    <label for="current_address">ที่อยู่ (ที่กำลังพักอาศัยอยู่) อำเภอ, ตำบล, หมู่, บ้านเลขที่ หรือ ชื่อหอ, เลขห้อง:</label>
+    <input type="text" id="current_address" name="current_address" placeholder="กรอกที่อยู่ปัจจุบัน" required>
+
+    <label for="work_or_study_address">ที่อยู่ (ที่ทำงาน, ชื่อมหาลัย, ชื่อโรงเรียน) อธิบายให้สามารถไปหาได้:</label>
+    <input type="text" id="work_or_study_address" name="work_or_study_address" placeholder="กรอกที่อยู่ที่ทำงานหรือเรียน" required>
+
+    <input type="submit" value="บันทึกข้อมูล" class="button">
+  </form>
+ 
+</div>
+
+
+
+<script>
+  // เรียกฟังก์ชัน setDate เมื่อหน้าเว็บโหลด
+  window.onload = setDate;
+
+  function setDate() {
+      // สร้างวันที่ปัจจุบัน
+      var today = new Date();
+
+      // หากเดือนหรือวันเป็นเลขเดียว ให้เพิ่ม "0" ข้างหน้า
+      var month = (today.getMonth() + 1 < 10) ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
+      var day = (today.getDate() < 10) ? '0' + today.getDate() : today.getDate();
+
+      // กำหนดค่าวันที่ให้กับ input element "return_date_input"
+      document.getElementById('date').value = today.getFullYear() + '-' + month + '-' + day;
+  }
+</script>
+
+
+<script>
+  function validateForm() {
+      var input = document.getElementById('id_card');
+      // ตรวจสอบว่าข้อมูลที่ป้อนเข้ามาเป็นตัวเลขและมีความยาว 13 หลัก
+      var numericInput = /^[0-9]+$/;
+      if (!input.value.match(numericInput) || input.value.length !== 13) {
+          // แสดงข้อความเตือน
+          alert("กรุณากรอกเลขบัตรประชาชนให้ถูกต้อง (13 หลัก)");
+          // ยกเลิกการยื่นแบบฟอร์ม
+          return false;
+      }
+      // หากข้อมูลถูกต้อง ให้ส่งแบบฟอร์ม
+      return true;
+  }
+</script>
+
+
+</body>
+</html>

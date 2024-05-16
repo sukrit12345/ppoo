@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<title>สร้างสัญญา</title>
+
+<style>
+.navbar {
+        overflow: hidden;
+        background-color: #333;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        left: 0;
+        right: 0;
+    }
+.navbar a {
+        float: left;
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+    }
+.navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+.navbar a.active {
+        background-color: #555;
+        color: white;
+    }
+    
+
+body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        margin-top: 100px;
+    }
+
+.container {
+  width: 60%;
+  margin: auto;
+  margin-top: 50px;
+}
+
+input[type=text] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
+
+
+
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-container {
+    width: 50%;
+  }
+
+  form {
+    width: 100%;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+  }
+
+  input[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  input[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
+    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+}
+  
+
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="รายงานผล.html">รายงานผล</a>
+    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="กองทุน.html">กองทุน</a>
+    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+    <a href="ตั้งค่า.html">ตั้งค่า</a>
+ </div> 
+
+
+
+<div class="container">
+  <form action="/submit_form" method="post">
+
+    <label for="contractCode">รหัสสร้างสัญญา:</label>
+    <input type="text" id="contractCode" name="contractCode" placeholder="กรอกรหัสสร้างสัญญา">
+    
+    <label for="billNumber">เลขบิล:</label>
+    <input type="text" id="billNumber" name="billNumber" placeholder="กรอกเลขบิล">
+    
+    <label for="loanDate">วันที่กู้:</label>
+    <input type="date" id="loanDate" name="loanDate" placeholder="เลือกวันที่กู้"required>
+    <br>
+    <br>
+    
+    <label for="returnDate">วันที่คืน:</label>
+    <input type="date" id="returnDate" name="returnDate" placeholder="เลือกวันที่คืน"required>
+    <br>
+    <br>
+    
+    <label for="principal">เงินต้น:</label>
+    <input type="text" id="principal" name="principal" placeholder="กรอกจำนวนเงินต้น"required>
+    
+    <label for="loanPeriod">ระยะเวลากู้ (วัน):</label>
+    <input type="text" id="loanPeriod" name="loanPeriod" placeholder="กรอกจำนวนวันที่กู้"required>
+    
+    <label for="interestRate">ดอกเบี้ยต่อวัน(%):</label>
+    <input type="text" id="interestRate" name="interestRate" placeholder="กรอกอัตราดอกเบี้ยต่อวัน (%)"required>
+    
+    <label for="totalInterest">ดอกเบี้ยทั้งหมด(บาท):</label>
+    <input type="text" id="totalInterest" name="totalInterest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมด"required>
+    
+    <label for="totalRefund">เงินที่ต้องคืนทั้งหมด:</label>
+    <input type="text" id="totalRefund" name="totalRefund" placeholder="กรอกจำนวนเงินที่ต้องคืนทั้งหมด"required>
+    
+
+   <input type="submit" value="ส่งคำขอสร้างสัญญา" class="button">
+    
+  </form>
+</div>
+
+<script>
+  // เรียกฟังก์ชันเมื่อหน้าเว็บโหลด
+  window.onload = generateContractCodeAndBillNumber;
+
+  function generateContractCodeAndBillNumber() {
+    // คำนวณรหัสสัญญาและเลขบิลใหม่โดยเริ่มต้นจาก "01"
+    var lastContractCode = "01";
+    var lastBillNumber = "01";
+
+    // ถ้ามีการป้อนข้อมูลรหัสสัญญาและเลขบิลล่าสุดในฟอร์ม ให้ใช้ข้อมูลนั้นเป็นเริ่มต้น
+    var contractCodeInput = document.getElementById('contractCode').value;
+    var billNumberInput = document.getElementById('billNumber').value;
+    
+    if (contractCodeInput) {
+      lastContractCode = contractCodeInput;
+    }
+    
+    if (billNumberInput) {
+      lastBillNumber = billNumberInput;
+    }
+
+    // แปลงรหัสสัญญาและเลขบิลเป็นตัวเลข
+    var lastContractCodeNumber = parseInt(lastContractCode);
+    var lastBillNumberNumber = parseInt(lastBillNumber);
+
+    // เพิ่มหนึ่งไปยังรหัสสัญญาและเลขบิลล่าสุด
+    var newContractCodeNumber = lastContractCodeNumber + 1;
+    var newBillNumberNumber = lastBillNumberNumber + 1;
+
+    // กำหนดรหัสสัญญาและเลขบิลใหม่ในฟอร์ม
+    document.getElementById('contractCode').value = formatCode(newContractCodeNumber);
+    document.getElementById('billNumber').value = formatCode(newBillNumberNumber);
+  }
+
+  // ฟังก์ชันเพิ่มเลข 0 ด้านหน้าเมื่อจำนวนไม่ครบ 2 หลัก
+  function formatCode(code) {
+    return code.toString().padStart(2, '0');
+  }
+</script>
+
+
+
+<script>
+  // เรียกฟังก์ชัน setLoanDate เมื่อหน้าเว็บโหลด
+  window.onload = setLoanDate;
+
+  function setLoanDate() {
+      // สร้างวันที่ปัจจุบัน
+      var today = new Date();
+
+      // หากเดือนหรือวันเป็นเลขเดียว ให้เพิ่ม "0" ข้างหน้า
+      var month = (today.getMonth() + 1 < 10) ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
+      var day = (today.getDate() < 10) ? '0' + today.getDate() : today.getDate();
+
+      // กำหนดค่าวันที่ให้กับ input element "loanDate"
+      document.getElementById('loanDate').value = today.getFullYear() + '-' + month + '-' + day;
+  }
+</script>
+
+
+<script>
+  document.getElementById('loanDate').addEventListener('change', calculateLoanPeriod);
+  document.getElementById('returnDate').addEventListener('change', calculateLoanPeriod);
+
+  function calculateLoanPeriod() {
+      var loanDate = new Date(document.getElementById('loanDate').value);
+      var returnDate = new Date(document.getElementById('returnDate').value);
+
+      var timeDiff = Math.abs(returnDate.getTime() - loanDate.getTime());
+      var loanPeriod = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Convert milliseconds to days and round up
+      document.getElementById('loanPeriod').value = loanPeriod;
+  }
+</script>
+
+<script>
+  document.getElementById('loanDate').addEventListener('change', calculateReturnDate);
+  document.getElementById('loanPeriod').addEventListener('input', calculateReturnDate);
+
+  function calculateReturnDate() {
+      var loanDate = new Date(document.getElementById('loanDate').value);
+      var loanPeriod = parseInt(document.getElementById('loanPeriod').value);
+      
+      if (!isNaN(loanPeriod)) {
+          var returnDate = new Date(loanDate.getTime() + (loanPeriod * 24 * 60 * 60 * 1000));
+          var year = returnDate.getFullYear();
+          var month = (returnDate.getMonth() + 1 < 10) ? '0' + (returnDate.getMonth() + 1) : returnDate.getMonth() + 1;
+          var day = (returnDate.getDate() < 10) ? '0' + returnDate.getDate() : returnDate.getDate();
+          var formattedReturnDate = year + '-' + month + '-' + day;
+          document.getElementById('returnDate').value = formattedReturnDate;
+      }
+  }
+</script>
+
+  
+<script>
+  // ฟังก์ชันที่เรียกเมื่อมีการเปลี่ยนแปลงในค่าของ input fields
+  function calculateInterest() {
+    // ดึงค่าจาก input fields
+    var principal = parseFloat(document.getElementById('principal').value); // เงินต้น
+    var duration = parseInt(document.getElementById('loanPeriod').value); // ระยะเวลากู้ (วัน)
+    var interestRate = parseFloat(document.getElementById('interestRate').value); // ดอกเบี้ยต่อวัน (%)
+
+    // ตรวจสอบว่าข้อมูลถูกต้องหรือไม่
+    if (isNaN(principal) || isNaN(duration) || isNaN(interestRate)) {
+      // หากข้อมูลไม่ถูกต้อง ไม่ต้องทำการคำนวณ
+      document.getElementById('totalInterest').value = ''; // เคลียร์ค่าใน input field "ดอกเบี้ยทั้งหมด"
+      document.getElementById('totalRefund').value = ''; // เคลียร์ค่าใน input field "เงินที่ต้องคืนทั้งหมด"
+      return; // ออกจากฟังก์ชัน
+    }
+
+    // คำนวณดอกเบี้ยต่อวัน
+    var dailyInterest = (principal * interestRate) / 100;
+
+    // คำนวณดอกเบี้ยทั้งหมด
+    var totalInterest = dailyInterest * duration;
+
+    // แสดงผลลัพธ์ใน input field "ดอกเบี้ยทั้งหมด"
+    document.getElementById('totalInterest').value = totalInterest;
+
+    // คำนวณเงินที่ต้องคืนทั้งหมด
+    var totalPayment = principal + totalInterest;
+
+    // แสดงผลลัพธ์ใน input field "เงินที่ต้องคืนทั้งหมด"
+    document.getElementById('totalRefund').value = totalPayment;
+  }
+
+  // เรียกใช้งานฟังก์ชัน calculateInterest เมื่อมีการเปลี่ยนแปลงในค่าของ input fields
+  document.getElementById('principal').addEventListener('input', calculateInterest);
+  document.getElementById('loanPeriod').addEventListener('input', calculateInterest);
+  document.getElementById('interestRate').addEventListener('input', calculateInterest);
+</script>
+
+
+
+
+</body>
+</html>

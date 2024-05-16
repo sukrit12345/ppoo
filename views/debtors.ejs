@@ -1,0 +1,46 @@
+<table id="your_table_id">
+    <thead>
+        <tr>
+            <th>ลำดับ</th>
+            <th>วันที่บันทึก</th>
+            <th>เลขบัตรประชาชน</th>
+            <th>ชื่อ</th>
+            <th>นามสกุล</th>
+            <th>เงินต้น</th>
+            <th>ดอกเบี้ย</th>
+            <th>ยอดเงินคืน</th>
+            <th>สถานะ</th>
+            <th>ยอดเงินต้นสะสม</th>
+            <th>ดอกเบี้ยสะสม</th>
+            <th>กำไรสะสม</th>
+            <th>ผู้จัดการ</th>
+            <th>ผู้ช่วยผู้จัดการ</th>
+            <th>ผู้จัดการสาขา</th>
+            <th>จัดการ</th>
+            <th>สัญญา</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% debtors.forEach((debtor, index) => { %>
+            <tr>
+                <td><%= index + 1 %></td>
+                <td><%= debtor.date %></td>
+                <td><%= debtor.id_card %></td>
+                <td><%= debtor.fname %></td>
+                <td><%= debtor.lname %></td>
+                <td><%= debtor.principal %></td>
+                <td><%= debtor.interest %></td>
+                <td><%= debtor.totalRefund %></td>
+                <td><%= debtor.status %></td>
+                <td><%= debtor.totalPrincipalAccumulated %></td>
+                <td><%= debtor.totalInterestAccumulated %></td>
+                <td><%= debtor.totalProfitAccumulated %></td>
+                <td><%= debtor.manager %></td>
+                <td><%= debtor.managerAssistant %></td>
+                <td><%= debtor.branchManager %></td>
+                <td><a href="/manage?id=<%= debtor._id %>">จัดการ</a></td>
+                <td><a href="/contract?id=<%= debtor._id %>">สัญญา</a></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
