@@ -1,3 +1,76 @@
+//ดึงข้อมูลจากดาต้าเบส
+document.addEventListener("DOMContentLoaded", function() {
+    fetchDataAndPopulateTable();
+});
+
+function fetchDataAndPopulateTable() {
+    fetch('/api/debtor-data')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('debtor-table-body');
+            tableBody.innerHTML = ''; // Clear any existing rows
+
+            // Reverse the data array
+            data.reverse().forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data.length - index}</td> <!-- Reverse the index -->
+                    <td>${row.date}</td>
+                    <td>${row.id_card_number}</td>
+                    <td>${row.fname}</td>
+                    <td>${row.lname}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td> 
+                    <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
+                    <button onclick="redirectToDelete('${row._id}')">ลบ</button>
+                    </td>
+                    <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> <!-- Button to contract page -->
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            calculateTotalIDCard();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+
+// ไปหน้าสัญญา
+function redirectToContract(id) {
+    fetch(`/api/debtor-data/${id}`) // เรียก API ด้วย id
+        .then(response => response.json())
+        .then(data => {
+            const { id_card_number, fname, lname } = data; // ดึงข้อมูล id_card_number, fname, และ lname จากข้อมูลที่ได้
+            window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}`; // ส่งข้อมูลไปยังหน้า "สัญญา.html" ใน URL
+        })
+        .catch(error => console.error('Error fetching user data:', error));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //ค้นหาเลขบัตรประชาชน13หลัก
 function searchTable() {
@@ -209,37 +282,30 @@ function calculateTotalRefundAmount() {
 
 
 
-
 //คำนวณลูกหนี้ในระบบทั้งหมด
-document.addEventListener("DOMContentLoaded", function() {
-    // Call calculateTotalIDCard() when the HTML document is loaded
-    calculateTotalIDCard();
-});
-
 function calculateTotalIDCard() {
-    var table = document.querySelector("table");
-    var tr = table.getElementsByTagName("tr");
-    var totalIDCard = [];
+            var table = document.querySelector("table");
+            var tr = table.getElementsByTagName("tr");
+            var totalid_card = [];
 
-    // Start from i = 1 to skip the table header row
-    for (var i = 1; i < tr.length; i++) {
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            // Get the ID card number from the cell at index 1 (starting from 0)
-            var idCard = tr[i].cells[2].innerText.trim();
-            if (idCard !== "") {
-                totalIDCard.push(idCard);
+            // Start from i = 1 to skip the table header row
+            for (var i = 1; i < tr.length; i++) {
+                if (tr[i].getElementsByTagName("td").length > 0) {
+                    // Get the ID card number from the cell at index 2 (starting from 0)
+                    var id_card = tr[i].cells[2].innerText.trim();
+                    if (id_card !== "") {
+                        totalid_card.push(id_card);
+                    }
+                }
             }
+
+            // Count unique ID card numbers
+            var uniqueIDCardCount = new Set(totalid_card).size;
+
+            // Display the result in the element with id "totalid_card"
+            var resultContainer = document.getElementById("totalid_card");
+            resultContainer.textContent = "ลูกหนี้ในระบบทั้งหมด: " + uniqueIDCardCount + " คน";
         }
-    }
-
-    // Count unique ID card numbers
-    var uniqueIDCardCount = new Set(totalIDCard).size;
-
-    // Display the result in the element with id "totalIDCard"
-    var resultContainer = document.getElementById("totalIDCard");
-    resultContainer.textContent = "ลูกหนี้ในระบบทั้งหมด: " + uniqueIDCardCount +' คน';
-}
-
 
 
 
@@ -535,21 +601,6 @@ cells.forEach(function(cell) {
 
 
 
-//เรียงลำดับ
-// เลือกตาราง
-var table = document.getElementById('your_table_id');
-
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวแรก (header)
-var rows = table.querySelectorAll("tr:not(:first-child)");
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-rows.forEach(function(row, index) {
-    // ใส่ข้อมูลลำดับในเซลล์ 0 ของแถว
-    row.cells[0].innerText = rows.length - index; // เรียงจากมากไปน้อย
-});
-
-
-
 
 
 
@@ -627,29 +678,4 @@ function deleteRow(row) {
 
 
 
-
-
-//สร้างปุ่มสัญญา
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวแรก (header)
-var rows = document.querySelectorAll("#your_table_id tr:not(:first-child)");
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-rows.forEach(function(row) {
-    // สร้าง <td> สำหรับปุ่มสัญญา
-    var contractCell = document.createElement("td");
-
-    // สร้างปุ่มสัญญา
-    var contractButton = document.createElement("button");
-    contractButton.textContent = "สัญญา";
-    contractButton.onclick = function() {
-        // เปลี่ยน URL ตามที่ต้องการให้ปุ่มสัญญานำไปยัง
-        window.location.href = "สัญญา.html";
-    };
-
-    // เพิ่มปุ่มสัญญาลงใน <td> เดียวกัน
-    contractCell.appendChild(contractButton);
-
-    // เพิ่ม <td> ที่มีปุ่มสัญญาลงในแถว
-    row.appendChild(contractCell);
-});
 

@@ -144,20 +144,30 @@ input[type=text] {
 
 
 <div class="container">
-  <form action="/Adddebtorinformation/submit" method="post" onsubmit="return validateForm(event);">
+  <form action="/Adddebtorinformation/submit" method="post" onsubmit="return validateForm(event);" enctype="multipart/form-data">
     
     <label for="date">วันที่บันทึก (ปี-เดือน-วัน):</label>
     <input type="date" id="date" name="date" placeholder="YYYY-MM-DD">
     <br><br>
 
-    <label for="id_card">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card" name="id_card" placeholder="กรอกเลขบัตรประชาชน" required>
+    <label for="id_card_number">เลขบัตรประชาชน:</label>
+    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+    
     
     <label for="fname">ชื่อจริง:</label>
     <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
 
     <label for="lname">นามสกุล:</label>
     <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+
+    <label for="occupation">อาชีพ:</label>
+    <input type="text" id="occupation" name="occupation" placeholder="กรอกอาชีพ" required>
+
+    <label for="monthly_income_amount">เงินเดือน (เงินที่ได้ทุกเดือน, เงินจากผู้ปกครอง, เงินทำงาน):</label>
+    <input type="text" id="monthly_income_amount" name="monthly_income" placeholder="กรอกจำนวนเงินเดือน" required>
+
+    <label for="seizable_assets_description">ทรัพย์สินที่สามารถยึดได้ (ทรัพย์ที่เป็นชื่อตัวเอง อธิบายให้ละเอียด):</label>
+    <input type="text" id="seizable_assets_description" name="seizable_assets" placeholder="กรอกทรัพย์สินที่สามารถยึดได้">
 
     <label for="ig">ไอจี:</label>
     <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี">
@@ -171,34 +181,36 @@ input[type=text] {
     <label for="phone">เบอร์โทรศัพท์:</label>
     <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
 
-    <label for="occupation">อาชีพ:</label>
-    <input type="text" id="occupation" name="occupation" placeholder="กรอกอาชีพ" required>
-
-    <label for="monthly_income">เงินเดือน (เงินที่ได้ทุกเดือน, เงินจากผู้ปกครอง, เงินทำงาน):</label>
-    <input type="text" id="monthly_income" name="monthly_income" placeholder="กรอกจำนวนเงินเดือน" required>
-
-    <label for="seizable_assets">ทรัพย์สินที่สามารถยึดได้ (ทรัพย์ที่เป็นชื่อตัวเอง อธิบายให้ละเอียด):</label>
-    <input type="text" id="seizable_assets" name="seizable_assets" placeholder="กรอกทรัพย์สินที่สามารถยึดได้">
-
     <label for="province">จังหวัด (ที่กำลังอาศัยอยู่):</label>
     <input type="text" id="province" name="province" placeholder="กรอกจังหวัด" required>
 
-    <label for="current_address">ที่อยู่ (ที่กำลังพักอาศัยอยู่) อำเภอ, ตำบล, หมู่, บ้านเลขที่ หรือ ชื่อหอ, เลขห้อง:</label>
-    <input type="text" id="current_address" name="current_address" placeholder="กรอกที่อยู่ปัจจุบัน" required>
+    <label for="current_address_details">ที่อยู่ที่ปัจจุบัน (ที่กำลังพักอาศัยอยู่) อำเภอ, ตำบล, หมู่, บ้านเลขที่ หรือ ชื่อหอ, เลขห้อง:</label>
+    <input type="text" id="current_address_details" name="current_address" placeholder="กรอกที่อยู่ปัจจุบัน" required>
 
-    <label for="work_or_study_address">ที่อยู่ (ที่ทำงาน, ชื่อมหาลัย, ชื่อโรงเรียน) อธิบายให้สามารถไปหาได้:</label>
-    <input type="text" id="work_or_study_address" name="work_or_study_address" placeholder="กรอกที่อยู่ที่ทำงานหรือเรียน" required>
-    
+    <label for="work_or_study_address_details">ที่อยู่ที่ทำงาน (ที่ทำงาน, ชื่อมหาลัย, ชื่อโรงเรียน) อธิบายให้สามารถไปหาได้:</label>
+    <input type="text" id="work_or_study_address_details" name="work_or_study_address" placeholder="กรอกที่อยู่ที่ทำงานหรือโรงเรียน" required>
+
     <label for="grade">ชั้นปี (สำหรับคนที่กำลังศึกษา) ม.6, ปี1:</label>
     <input type="text" id="grade" name="grade" placeholder="กรอกชั้นปี" >
 
     <label for="course">หลักสูตร (สำหรับคนที่กำลังศึกษา) คณะ, สาขา, เลขห้อง:</label>
     <input type="text" id="course" name="course" placeholder="กรอกหลักสูตร" >
 
+    <label for="id_card_photo">รูปบัตรประชาชน:</label>
+    <input type="file" id="id_card_photo" name="id_card_photo" required>
+    
+    <label for="current_address_map">รูปแผนที่ที่อยู่ปัจจุบัน:</label>
+    <input type="file" id="current_address_map" name="current_address_map" required>
+    
+    <label for="work_address_map">รูปแผนที่ที่อยู่ที่ทำงาน:</label>
+    <input type="file" id="work_address_map" name="work_address_map">
 
     <span id="idCardError" style="color: red;"></span>
+    
     <input type="submit" value="บันทึกข้อมูล" class="button">
-  </form>
+</form>
+
+
  
 </div>
 

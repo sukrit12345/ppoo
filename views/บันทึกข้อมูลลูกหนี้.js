@@ -20,7 +20,7 @@ function setDate() {
 
 
 function validateForm(event) {
-    var input = document.getElementById('id_card');
+    var input = document.getElementById('id_card_number');
     var errorSpan = document.getElementById('idCardError');
     // ตรวจสอบว่าข้อมูลที่ป้อนเข้ามาเป็นตัวเลขและมีความยาว 13 หลัก
     var numericInput = /^[0-9]+$/;

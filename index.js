@@ -1,20 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const path = require('path'); // เรียกใช้โมดูล path
+const path = require('path');
 const app = express();
-const router = express.Router(); // ต้องเพิ่มเพื่อให้สามารถใช้ router ได้
 const multer = require('multer');
 const { DebtorInformation, LoanInformation } = require('./models'); // Assuming you saved the schema in 'models.js'
-
-
 
 // กำหนดการใช้งาน bodyParser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true })); // เพิ่ม middleware เพื่อให้ Express.js สามารถอ่านข้อมูลจาก form ได้
-// ตั้งค่าให้ Express ให้บริการไฟล์สแตติกจากโฟลเดอร์ 'views'
-app.use(express.static(path.join(__dirname, 'views')));   
+app.use(express.static(path.join(__dirname, 'views')));
 app.set('view engine', 'ejs'); // สำหรับใช้งาน EJS
 
 const storage = multer.diskStorage({
@@ -28,43 +24,60 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
-
 mongoose.connect('mongodb://localhost:27017/bank', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 
 
 
-
-router.get('/debtors', async (req, res) => {
+// API Endpoint เพื่อดึงข้อมูลจาก DebtorInformation
+app.get('/api/debtor-data', async (req, res) => {
     try {
-        const debtors = await DebtorInformation.find(); // Retrieve all debtors from MongoDB
-        res.render('debtors', { debtors: debtors }); // Render the debtors template and pass the debtors data to it
+        const data = await DebtorInformation.find();
+        res.json(data);
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ message: err.message });
     }
 });
 
-module.exports = router;
-
-
-
-
-
-// Route เพื่อดึงข้อมูลลูกหนี้จาก MongoDB และส่งไปยังหน้า HTML
-router.get('/debtors', async (req, res) => {
+// API Endpoint เพื่อดึงข้อมูลจาก Loaninformations
+app.get('/api/loan-data', async (req, res) => {
     try {
-        const debtors = await DebtorInformation.find();
-        res.render('debtors', { debtors: debtors });
+        const data = await LoanInformation.find();
+        res.json(data);
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ message: err.message });
     }
 });
 
-app.use('/', router); // เชื่อม Route กับ Express Application
+
+
+
+
+
+// API Endpoint เพื่อดึงข้อมูล loan พร้อม join กับ debtor
+app.get('/api/loan-user-data', async (req, res) => {
+    try {
+        const data = await DebtorInformation.aggregate([
+            {
+                $project: {
+                    _id: 1,
+                    id_card_number: 1,
+                    fname: 1,
+                    lname: 1,
+                    loans: 1
+                }
+            },
+            {
+                $unwind: "$loans" // แปลง array ของ loans ที่มีหลาย element ไปเป็น object
+            }
+        ]);
+
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 
 
@@ -72,7 +85,12 @@ app.use('/', router); // เชื่อม Route กับ Express Application
 
 
 
-//เปิดหน้าเริ่มต้น
+
+
+
+
+
+
 // เส้นทาง GET เพื่อส่งไฟล์ HTML
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'ข้อมูลลูกหนี้.html'));
@@ -80,14 +98,16 @@ app.get('/', (req, res) => {
 
 
 
-
-
-
-//บันทึกข้อมูลลูกหนี้
-app.post('/Adddebtorinformation/submit', async (req, res) => {
+// บันทึกข้อมูลลูกหนี้
+app.post('/Adddebtorinformation/submit', upload.fields([
+    { name: 'id_card_photo', maxCount: 1 },
+    { name: 'current_address_map', maxCount: 1 },
+    { name: 'work_address_map', maxCount: 1 }
+]), async (req, res) => {
     try {
-        const update = {
+        const debtorInf = {
             date: req.body.date,
+            id_card_number: req.body.id_card_number,
             fname: req.body.fname,
             lname: req.body.lname,
             ig: req.body.ig,
@@ -102,23 +122,38 @@ app.post('/Adddebtorinformation/submit', async (req, res) => {
             currentAddress: req.body.current_address,
             workOrStudyAddress: req.body.work_or_study_address,
             seizableAssets: req.body.seizable_assets,
-            storeAssets: req.body.store_assets
+            storeAssets: req.body.store_assets,
+            id_card_photo: req.files['id_card_photo'] ? req.files['id_card_photo'][0].path : '',
+            current_address_map: req.files['current_address_map'] ? req.files['current_address_map'][0].path : '',
+            work_address_map: req.files['work_address_map'] ? req.files['work_address_map'][0].path : ''
         };
+        
+        // ตรวจสอบว่ามีข้อมูลลูกหนี้ที่มี id_card_number ตรงกับที่ส่งมาหรือไม่
+        const existingDebtor = await DebtorInformation.findOne({ id_card_number: req.body.id_card_number });
 
-        // Update the debtor information if id_card exists, otherwise create a new entry
-        await DebtorInformation.findOneAndUpdate(
-            { id_card: req.body.id_card },  // Find document with this id_card
-            update,                         // Update the document with this data
-            { upsert: true, new: true }     // Create a new document if not found
-        );
+        // ถ้ามีข้อมูลลูกหนี้ที่มี id_card_number ตรงกับที่ส่งมา
+        if (existingDebtor) {
+            // อัปเดตข้อมูลลูกหนี้
+            await DebtorInformation.findOneAndUpdate(
+                { id_card_number: req.body.id_card_number },
+                debtorInf,
+                { new: true }
+            );
+        } else {
+            // สร้างข้อมูลลูกหนี้ใหม่
+            await new DebtorInformation(debtorInf).save();
+        }
 
-        await debtorInfo.save();// หลังจากบันทึกข้อมูลเสร็จสามารถเรียกหน้าดูข้อมูลลูกหนี้ทั้งหมดได้ทันที
         res.redirect('/ข้อมูลลูกหนี้.html');
     } catch (err) {
-        res.status(500).send(err);
-        res.redirect('/บันทึกข้อมูลลูกหนี้.html');
+        console.error(err);
+        res.status(500).redirect('/บันทึกข้อมูลลูกหนี้.html');
     }
 });
+
+
+
+
 
 
 
@@ -132,6 +167,7 @@ app.post('/AddLoanInformation/submit', upload.fields([
     { name: 'refund_receipt_photo', maxCount: 1 }
 ]), async (req, res) => {
     try {
+        // สร้างข้อมูล LoanInformation ใหม่
         const loanInfo = new LoanInformation({
             loanDate: req.body.loanDate,
             loanPeriod: req.body.loanPeriod,
@@ -141,35 +177,30 @@ app.post('/AddLoanInformation/submit', upload.fields([
             totalInterest: req.body.totalInterest,
             totalRefund: req.body.totalRefund,
             storeAssets: req.body.store_assets,
-            icloudAssets: req.body.icloud_assets, // เพิ่มฟิลด์นี้
+            icloudAssets: req.body.icloud_assets,
             assetReceiptPhoto: req.files['asset_receipt_photo'] ? req.files['asset_receipt_photo'][0].path : '',
             icloudAssetPhoto: req.files['icloud_asset_photo'] ? req.files['icloud_asset_photo'][0].path : '',
             refundReceiptPhoto: req.files['refund_receipt_photo'] ? req.files['refund_receipt_photo'][0].path : ''
         });
 
-        await loanInfo.save();
+        // บันทึกข้อมูล LoanInformation
+        const savedLoan = await loanInfo.save();
+
+        // เพิ่ม Loan ID ใน DebtorInformation
+        await DebtorInformation.updateOne(
+            { _id: req.body.user_id }, // หาผู้ใช้งานที่ต้องการอัปเดต
+            { $push: { loans: savedLoan._id } } // เพิ่ม Loan ID ในฟิลด์ loans
+        );
+
         res.redirect('/สัญญา.html');
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send(err.message);
+        res.redirect('/บันทึกสัญญา.html');
     }
 });
 
 
 
-
-
-
-// เส้นทางเพื่อดึงข้อมูลลูกหนี้
-app.get('/debtors', async (req, res) => {
-    try {
-        const debtors = await DebtorInformation.find();
-        res.render('debtors', { debtors: debtors });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 
 

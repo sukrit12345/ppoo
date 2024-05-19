@@ -1,3 +1,129 @@
+document.addEventListener("DOMContentLoaded", function() {
+    // ดึงข้อมูลจาก URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+
+    // แสดงข้อมูลในหน้าเว็บ
+    document.getElementById('id-card-number').textContent = idCardNumber;
+    document.getElementById('first-name').textContent = firstName;
+    document.getElementById('last-name').textContent = lastName;
+    // อื่น ๆ ของข้อมูลสัญญา
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    fetchDataAndPopulateTable();
+});
+
+function fetchDataAndPopulateTable() {
+    fetch('/api/loan-data')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('a').getElementsByTagName('tbody')[0];
+            
+            // Reverse the data array
+            data.reverse().forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${row.loanDate}</td>
+                    <td>${row.loanPeriod}</td>
+                    <td>${row.returnDate}</td>
+                    <td>${row.principal}</td> 
+                    <td>${row.interestRate}</td>
+                    <td>${row.totalInterest}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td> 
+                    <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
+                    <button onclick="redirectToDelete('${row._id}')">ลบ</button>
+                    </td>
+                    <td><button onclick="redirectToSeizeAssets('${row._id}')">ยึดทรัพย์</button></td>
+                    <td><button onclick="redirectToReturnMoney('${row._id}')">คืนเงิน</button></td>
+                
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            calculateTotalIDCard();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+
+//ไปหน้าคืนเงิน
+function redirectToReturnMoney(id) {
+    window.location.href = `คืนเงิน.html?id=${id}`;
+}
+
+
+
+//ไปหน้ายึดทรัพย์
+function redirectToSeizeAssets(id) {
+    window.location.href = `คลังทรัพย์สิน.html?id=${id}`;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //เปลี่ยนสีสถานะ
 // ดึงตาราง HTML โดยใช้ ID
@@ -46,143 +172,6 @@ cells.forEach(function(cell) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//คำนวณสถานะ อยู่ในสัญญา เลยสัญญา 
-//คำนวณวันใกล้สัญญา เลยสัญญา
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวแรก (header)
-var rows = document.querySelectorAll("#a tr:not(:first-child)");
-
-// วันปัจจุบัน
-var today = new Date();
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-rows.forEach(function(row) {
-    // ดึงค่าจาก cell ตามลำดับ
-    var returnDate = new Date(row.cells[4].innerText.trim()); // วันที่คืน
-    
-    // คำนวณจำนวนวันที่เหลือจนถึงวันที่คืน
-    var daysUntilReturn = Math.max(0, Math.ceil((returnDate - today) / (1000 * 60 * 60 * 24)))-1;
-
-
-    // คำนวณจำนวนวันที่เกินกำหนดของการคืน
-    var daysOverdue = Math.max(0, Math.ceil((today - returnDate) / (1000 * 60 * 60 * 24)))-1;
-
-
-    // แสดงข้อมูลใน cell ที่ 10
-    if (daysUntilReturn <= 0) {
-       row.cells[10].innerText = "";
-    } else {
-       row.cells[10].innerText = "อีก " + daysUntilReturn + " วัน";
-    }
-
-
-    // แสดงข้อมูลใน cell ที่ 12
-    if (daysOverdue > 0) {
-       row.cells[12].innerText = "เลย " + daysOverdue + " วัน";
-    } else {
-       row.cells[12].innerText = "";
-    }
-
-
-    // แสดงข้อมูลใน cell ที่ 11
-    if (returnDate > today) {
-        row.cells[11].innerText = "อยู่ในสัญญา";
-        row.cells[11].classList.add('w');
-    } else if (returnDate < today) {
-        row.cells[11].innerText = "เลยสัญญา";
-        row.cells[11].classList.add('l');
-    } else {
-       row.cells[11].innerText = ""; // ใส่สถานะเป็นค่าว่างหากไม่ตรงกับทั้งสองเงื่อนไขด้านบน
-    }
-    
-
-    // คำนวณแสดงสถานะครบสัญญา
-    if (returnDate.toDateString() === today.toDateString()) {
-      row.cells[11].innerText = "ครบสัญญา";
-      row.cells[11].classList.add('d');
-   }
-
-
-});
-
-
-
-
-
-
-
-// สร้างตัวแปรสำหรับเก็บตาราง
-var table = document.getElementById('a');
-
-// ข้อมูลที่ต้องการใส่ลงในเซลล์
-var cell0 = 1;
-var cell1 = 1;
-
-// เลือกแถวสุดท้ายในตาราง
-var lastRow = table.rows[table.rows.length - 1];
-
-// ตรวจสอบว่าเซลล์ที่ต้องการมีค่าว่างหรือไม่
-if (lastRow.cells[2].textContent !== "") {
-    // กำหนดค่าลงในเซลล์
-    lastRow.cells[0].textContent = cell0;
-    lastRow.cells[1].textContent = cell1;
-}
-
-// หาค่ารหัสที่มากที่สุดในคอลัมน์รหัสของแถว
-var maxRowCode = 0;
-var seenCodes = new Set();
-
-for (var i = 1; i < table.rows.length; i++) {
-    var currentRowCode = parseInt(table.rows[i].cells[0].innerText.trim());
-    
-    if (!isNaN(currentRowCode) && !seenCodes.has(currentRowCode)) {
-        seenCodes.add(currentRowCode);
-        if (currentRowCode > maxRowCode) {
-            maxRowCode = currentRowCode;
-        }
-    }
-}
-
-// สร้างรหัสและบิลตามสถานะ
-for (var i = table.rows.length - 1; i >= 1; i--) {
-    var status = table.rows[i].cells[11].innerText.trim();
-    if (status === "ชำระครบ" || status === "อยู่ในสัญญา" || status === "ครบชำระ" || status === "เลยสัญญา" || status === "เบล็คลิช" || status === "ยึดทรัพย์") {
-        // เพิ่มรหัสและบิลในแถวที่มีสถานะเป็นหนึ่งในสถานะที่กำหนด
-        if (table.rows[i].cells[2].innerText.trim() !== "") {
-            table.rows[i].cells[0].innerText = maxRowCode-1 + (table.rows.length - i);
-            table.rows[i].cells[1].innerText = 1;
-        }
-    } else if (status === "ต่อดอก") {
-        // เพิ่มรหัสและบิลในแถวที่มีสถานะเป็น "ต่อดอก"
-        if (table.rows[i].cells[2].innerText.trim() !== "") {
-            if (i + 1 < table.rows.length) {
-                if (table.rows[i + 1].cells[11].innerText.trim() === "ชำระครบ") {
-                    table.rows[i].cells[0].innerText = parseInt(table.rows[i + 1].cells[0].innerText.trim())+1;
-                    table.rows[i].cells[1].innerText = 1; // เซ็ตค่าใหม่ของบิลเป็น 1 เมื่อเงื่อนไขตรวจสอบว่า cell11 เป็น "ชำระครบ"
-                } else {
-                    table.rows[i].cells[0].innerText = parseInt(table.rows[i + 1].cells[0].innerText.trim());
-                    table.rows[i].cells[1].innerText = parseInt(table.rows[i + 1].cells[1].innerText.trim())+1;
-                }
-            } else {
-                table.rows[i].cells[0].innerText = 1; // ให้รหัสเป็น 1 เพราะไม่มีค่าใด ๆ ในแถวถัดไป
-                table.rows[i].cells[1].innerText = 1; // ให้บิลเป็น 1
-            }
-        }
-    }
-}
 
 
 

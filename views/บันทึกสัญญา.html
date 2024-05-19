@@ -145,6 +145,7 @@ input[type=text] {
 
 
 <div class="container">
+  
   <form action="/AddLoanInformation/submit" method="post" enctype="multipart/form-data">
     <label for="loanDate">วันที่กู้:</label>
     <input type="date" id="loanDate" name="loanDate" placeholder="เลือกวันที่กู้" required>
@@ -162,7 +163,7 @@ input[type=text] {
     <label for="principal">เงินต้น:</label>
     <input type="text" id="principal" name="principal" placeholder="กรอกจำนวนเงินต้น" required>
 
-    <label for="interestRate">ดอกเบี้ยต่อวัน(%):</label>
+    <label for="interestRate">อัตราดอกเบี้ยต่อวัน(%):</label>
     <input type="text" id="interestRate" name="interestRate" placeholder="กรอกอัตราดอกเบี้ยต่อวัน (%)" required>
   
     <label for="totalInterest">ดอกเบี้ยทั้งหมด(บาท):</label>
@@ -187,9 +188,9 @@ input[type=text] {
     <input type="file" id="refund_receipt_photo" name="refund_receipt_photo" required>
 
     <input type="submit" value="บันทึกสัญญา" class="button">
-</form>
-    
   </form>
+    
+
 </div>
 
 <script src="บันทึกสัญญา.js"></script>

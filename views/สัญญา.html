@@ -154,9 +154,10 @@ tr:nth-child(even) {
 
 
 
-<div style="text-align: center;">เลขบัตรประชาชน: 9876543210987</div>
-<div style="text-align: center;">ชื่อ: Jane</div>
-<div style="text-align: center;">นามสกุล: Smith</div>
+<div style="text-align: center;">เลขบัตรประชาชน:<span id="id-card-number"></span></div>
+<div style="text-align: center;">ชื่อ:<span id="first-name"></span></div>
+<div style="text-align: center;">นามสกุล:<span id="last-name"></span></div>
+
 <br>
 
 <div style="text-align: center;">ผู้จัดการ: John Smith</div>
@@ -191,97 +192,34 @@ tr:nth-child(even) {
 
 
 
-
 <table id="a">
-  <tr>
-    <th>รหัส</th>
-    <th>บิล</th>
-    <th>วันที่กู้</th>
-    <th>ระยะเวลากู้</th>
-    <th>วันที่คืน</th>
-    <th>เงินต้น</th>
-    <th>ดอกเบี้ย</th>
-    <th>ดอกปรับ</th>
-    <th>ดอกยกมา</th>
-    <th>รวมเงินที่ต้องคืน</th>
-    <th>ใกล้สัญญา</th>
-    <th>สถานะ</th>
-    <th>เลยสัญญา</th>
-    <th>จัดการ</th>
-    <th>ยึดทรัพย์</th>
-    <th>คืนเงิน</th>
-  </tr>
+    <thead>
+      <tr>
+        <th>รหัส</th>
+        <th>บิล</th>
+        <th>วันที่กู้</th>
+        <th>ระยะเวลากู้</th>
+        <th>วันที่คืน</th>
+        <th>เงินต้น</th>
+        <th>อัตราดอกเบี้ย</th>
+        <th>ดอกเบี้ย</th>
+        <th>ดอกปรับ</th>
+        <th>ดอกยกมา</th>
+        <th>รวมเงินที่ต้องคืน</th>
+        <th>ใกล้สัญญา</th>
+        <th>สถานะ</th>
+        <th>เลยสัญญา</th>
+        <th>จัดการ</th>
+        <th>ยึดทรัพย์</th>
+        <th>คืนเงิน</th>
+      </tr>
+   </thead>
 
 
-  <tr>
-    <td></td>
-    <td></td>
-    <td>2024-05-01</td>
-    <td>30</td>
-    <td>2024-05-1</td>
-    <td>1000</td>
-    <td>50</td>
-    <td>0</td>
-    <td>0</td>
-    <td>1050</td>
-    <td>5</td>
-    <td></td>
-    <td></td>
-  
-  </tr>
+   <tbody id='/api/loan-data'></tbody>
 
-  <tr>
-    <td></td>
-    <td></td>
-    <td>2024-05-01</td>
-    <td>30</td>
-    <td>2024-05-15</td>
-    <td>1000</td>
-    <td>50</td>
-    <td>0</td>
-    <td>0</td>
-    <td>1050</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    
-  </tr>
+  </table>
 
-  <tr>
-    <td></td>
-    <td></td>
-    <td>2024-05-01</td>
-    <td>30</td>
-    <td>2024-05-14</td>
-    <td>1000</td>
-    <td>50</td>
-    <td>0</td>
-    <td>0</td>
-    <td>1050</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    
-  </tr>
-
-
-  <tbody>
-    <% debtors.forEach(debtor => { %>
-        <tr>
-            <td><%= debtor.date %></td>
-            <td><%= debtor.id_card %></td>
-            <td><%= debtor.fname %></td>
-            <td><%= debtor.lname %></td>
-            <!-- เพิ่มฟิลด์ที่ต้องการแสดงในตารางต่อไปตามต้องการ -->
-        </tr>
-    <% }); %>
-  </tbody>
-
-
-
-
-
-</table>
 
 
 
