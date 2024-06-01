@@ -133,7 +133,7 @@ input[type=text] {
   <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -143,29 +143,47 @@ input[type=text] {
  </div> 
 
 <div class="container">
-  <form action="/submit_form" method="post">
+
+  <form action="/refunds/submit_form" method="post" enctype="multipart/form-data">
+    <label for="manager">ผู้จัดการ:</label>
+    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อผู้จัดการ" required>
+    
+    <label for="id_card_number">เลขบัตรประชาชน:</label>
+    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+
+    <label for="fname">ชื่อจริง:</label>
+    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+
+    <label for="lname">นามสกุล:</label>
+    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+
+    <label for="contract_number">หมายเลขสัญญา:</label>
+    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+
+    <label for="bill_number">หมายเลขบิล:</label>
+    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
 
     <label for="return_date_input">วันที่คืน:</label>
-    <input type="date" id="return_date_input" name="return_date" placeholder="เลือกวันที่คืน"required>
-    <br>
-    <br>
+    <input type="date" id="return_date_input" name="return_date" placeholder="เลือกวันที่คืน" required>
+    <br><br>
 
-    <label for="refund_principal_input">เงินต้นคืน:</label>
-    <input type="text" id="refund_principal_input" name="refund_principal" placeholder="กรอกจำนวนเงินต้นที่คืน"required>
+    <label for="refund_principalt">เงินต้นคืน:</label>
+    <input type="text" id="refund_principal" name="refund_principal" placeholder="กรอกจำนวนเงินต้นที่คืน" required>
 
     <label for="refund_interest_input">ดอกเบี้ยรวมคืน:</label>
-    <input type="text" id="refund_interest_input" name="refund_interest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมดที่คืน"required>
+    <input type="text" id="refund_interest" name="refund_interest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมดที่คืน" required>
+
+    <label for="debtAmount">ค่าทวงเงินคืน:</label>
+    <input type="text" id="debtAmount" name="debtAmount" placeholder="กรอกค่าทวงเงิน"required>
 
     <label for="total_refund_input">รวมเงินที่คืน:</label>
-    <input type="text" id="total_refund_input" name="total_refund" placeholder="กรอกจำนวนเงินทั้งหมดที่คืน"required>
+    <input type="text" id="total_refund_input" name="total_refund" placeholder="กรอกจำนวนเงินทั้งหมดที่คืน" required>
 
     <label for="refund_receipt_photo_input">รูปสลิปเงินคืน:</label>
-    <input type="file" id="refund_receipt_photo_input" name="refund_receipt_photo" required>
+    <input type="file" id="refund_receipt_photo_input" name="refund_receipt_photo">
     
     <input type="submit" value="บันทึกคืนเงิน" class="button">
-</form>
-
-</div>
+  </form>
 
 
 <script src="บันทึกคืนเงิน.js"></script>

@@ -1,3 +1,36 @@
+document.addEventListener("DOMContentLoaded", function() {
+    // เมื่อ DOM โหลดเสร็จสมบูรณ์
+    var urlParams = new URLSearchParams(window.location.search);
+
+    // ดึงค่าตามชื่อพารามิเตอร์ที่ต้องการ
+    var loanId = urlParams.get('loan_id');
+    var idCardNumber = urlParams.get('id_card_number');
+    var fname = urlParams.get('fname');
+    var lname = urlParams.get('lname');
+    var manager = urlParams.get('manager');
+    var contractNumber = urlParams.get('contract_number');
+    var billNumber = urlParams.get('bill_number');
+
+    // ตรวจสอบค่าที่ดึงได้
+    console.log("Loan ID:", loanId);
+    console.log("ID Card Number:", idCardNumber);
+    console.log("First Name:", fname);
+    console.log("Last Name:", lname);
+    console.log("Manager:", manager);
+    console.log("Contract Number:", contractNumber);
+    console.log("Bill Number:", billNumber);
+
+    // กำหนดค่าที่ดึงได้ในฟอร์ม
+    document.getElementById("id_card_number").value = idCardNumber;
+    document.getElementById("fname").value = fname;
+    document.getElementById("lname").value = lname;
+    document.getElementById("manager").value = manager;
+    document.getElementById("contract_number").value = contractNumber;
+    document.getElementById("bill_number").value = billNumber;
+});
+
+  
+  
   //เเสดงวันที่ปัจจุบันเเละวันที่ต้องคืน
   // เรียกฟังก์ชัน setReturnDateInput เมื่อหน้าเว็บโหลด
   window.onload = setReturnDateInput;
@@ -17,45 +50,29 @@
 
  //คำนวณรวมเงินที่คืน
  // เรียกฟังก์ชัน calculateTotalRefund เมื่อมีการเปลี่ยนแปลงในเงินต้นคืนหรือดอกเบี้ยคืน
- document.getElementById('refund_principal_input').addEventListener('input', calculateTotalRefund);
- document.getElementById('refund_interest_input').addEventListener('input', calculateTotalRefund);
+ document.getElementById('refund_principal').addEventListener('input', calculateTotalRefund);
+ document.getElementById('refund_interest').addEventListener('input', calculateTotalRefund);
+ document.getElementById('debtAmount').addEventListener('input', calculateTotalRefund);
 
- function calculateTotalRefund() {
-     var principal = parseFloat(document.getElementById('refund_principal_input').value);
-     var interest = parseFloat(document.getElementById('refund_interest_input').value);
+        function calculateTotalRefund() {
+            var principal = parseFloat(document.getElementById('refund_principal').value);
+            var interest = parseFloat(document.getElementById('refund_interest').value);
+            var debtAmount = parseFloat(document.getElementById('debtAmount').value);
 
-     // ตรวจสอบว่า principal และ interest เป็นตัวเลขที่ถูกต้อง
-     if (!isNaN(principal) && !isNaN(interest)) {
-         var totalRefund = principal + interest;
+            // ถ้า principal, interest หรือ debtAmount เป็น NaN หรือค่าลบ ให้ตั้งค่าเป็น 0
+            if (isNaN(principal) || principal < 0) {
+                principal = 0;
+            }
+            if (isNaN(interest) || interest < 0) {
+                interest = 0;
+            }
+            if (isNaN(debtAmount) || debtAmount < 0) {
+                debtAmount = 0;
+            }
 
-         // กำหนดค่าเงินคืนทั้งหมดให้กับ input element ของ "total_refund_input"
-         document.getElementById('total_refund_input').value = totalRefund;
-     }
- }  
+            var totalRefund = principal + interest + debtAmount;
 
+            // กำหนดค่าเงินคืนทั้งหมดให้กับ input element ของ "total_refund_input"
+            document.getElementById('total_refund_input').value = totalRefund.toFixed();
+        }
 
-
- //เเสดงข้อมูลบันทึกสำเร็จ
- document.addEventListener("DOMContentLoaded", function() {
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function(event) {
-      event.preventDefault(); // หยุดการส่งคำขอฟอร์ม
-  
-      // สร้าง Element HTML เพื่อแสดงข้อความ "บันทึกสำเร็จ" ในป๊อปอัพ
-      const popup = document.createElement("div");
-      popup.classList.add("popup"); // เพิ่มคลาส "popup" ที่กำหนดไว้ใน CSS
-      const successMessage = document.createElement("p");
-      successMessage.textContent = "บันทึกสำเร็จ";
-      successMessage.classList.add("popup-text"); // เพิ่มคลาส "popup-text" ที่กำหนดไว้ใน CSS
-      popup.appendChild(successMessage);
-      document.body.appendChild(popup);
-  
-      // รอ 3 วินาทีก่อนที่จะเปลี่ยนที่อยู่ URL
-      setTimeout(function() {
-        // เปลี่ยน URL ไปยังหน้าคลังทรัพย์.html หลังจากการแสดงป๊อปอัพ
-        window.location.href = "คืนเงิน.html";
-        // ลบป๊อปอัพออก
-        document.body.removeChild(popup);
-      }, 1200); // 3000 มิลลิวินาที (3 วินาที)
-    });
-  });

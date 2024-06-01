@@ -151,7 +151,7 @@ input[type=text] {
   <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -184,36 +184,6 @@ input[type=text] {
         <label for="manager_share_input">ส่วนแบ่งผู้จัดการ(บาท):</label>
         <input type="text" id="manager_share_input" name="manager_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของผู้จัดการ" required><br><br>
     
-        <label for="supervisor_name_input">ชื่อผู้จัดการดูแล:</label>
-        <input type="text" id="supervisor_name_input" name="supervisor_name" placeholder="กรอกชื่อผู้จัดการดูแล" required><br><br>
-    
-        <label for="bank_name_input_supervisor">ชื่อธนาคารผู้จัดการดูแล:</label>
-        <input type="text" id="bank_name_input_supervisor" name="bank_name_supervisor" placeholder="กรอกชื่อธนาคารผู้จัดการดูแล" required><br><br>
-    
-        <label for="account_number_input_supervisor">เลขบัญชีผู้จัดการดูแล:</label>
-        <input type="text" id="account_number_input_supervisor" name="account_number_supervisor" placeholder="กรอกเลขบัญชีผู้จัดการดูแล" required><br><br>
-    
-        <label for="supervisor_share_percentage_input">อัตราส่วนแบ่งผู้จัดการดูแล(%):</label>
-        <input type="text" id="supervisor_share_percentage_input" name="supervisor_share_percentage" placeholder="กรอกสัดส่วนการแบ่งกำไรของผู้จัดการดูแล" onchange="calculateShares()" required><br><br>
-    
-        <label for="supervisor_share_input">ส่วนแบ่งผู้จัดการดูแล(บาท):</label>
-        <input type="text" id="supervisor_share_input" name="supervisor_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของผู้จัดการดูแล" required><br><br>
-    
-        <label for="branch_head_name_input">ชื่อหัวหน้าสาขา:</label>
-        <input type="text" id="branch_head_name_input" name="branch_head_name" placeholder="กรอกชื่อหัวหน้าสาขา" required><br><br>
-    
-        <label for="bank_name_input_branch_head">ชื่อธนาคารหัวหน้าสาขา:</label>
-        <input type="text" id="bank_name_input_branch_head" name="bank_name_branch_head" placeholder="กรอกชื่อธนาคารหัวหน้าสาขา" required><br><br>
-    
-        <label for="account_number_input_branch_head">เลขบัญชีหัวหน้าสาขา:</label>
-        <input type="text" id="account_number_input_branch_head" name="account_number_branch_head" placeholder="กรอกเลขบัญชีหัวหน้าสาขา" required><br><br>
-    
-        <label for="branch_head_share_percentage_input">อัตราส่วนแบ่งหัวหน้าสาขา(%):</label>
-        <input type="text" id="branch_head_share_percentage_input" name="branch_head_share_percentage" placeholder="กรอกสัดส่วนการแบ่งกำไรของหัวหน้าสาขา" onchange="calculateShares()" required><br><br>
-    
-        <label for="branch_head_share_input">ส่วนแบ่งหัวหน้าสาขา(บาท):</label>
-        <input type="text" id="branch_head_share_input" name="branch_head_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของหัวหน้าสาขา" required><br><br>
-
         <label for="final_profit_input">เงินเเบ่งโฮส:</label>
         <input type="text" id="final_profit_input" name="final_profit" placeholder="กรอกจำนวนเงินส่วนเเบ่งโฮส" required>
     

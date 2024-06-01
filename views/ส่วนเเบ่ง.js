@@ -1,3 +1,131 @@
+//รับข้อมูล เลขบปชช ชื่อ นามสกุล
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // ดึงค่า id_card_number และแสดงใน HTML
+    const idCardNumber = urlParams.get('id_card_number');
+    document.getElementById('id-card-number').textContent = idCardNumber ? idCardNumber : "N/A";
+
+    // ดึงค่า fname และแสดงใน HTML
+    const firstName = urlParams.get('fname');
+    document.getElementById('first-name').textContent = firstName ? firstName : "N/A";
+
+    // ดึงค่า lname และแสดงใน HTML
+    const lastName = urlParams.get('lname');
+    document.getElementById('last-name').textContent = lastName ? lastName : "N/A";
+
+    // ดึงค่า manager และแสดงใน HTML
+    const manager = urlParams.get('manager');
+    document.getElementById('manager').textContent = manager ? manager : "N/A";
+});
+
+
+//ส่งเลขบปชช ชื่อ นามสกุลไปหน้าบันทึกสัญญา
+function redirectToContractPage() {
+    // ดึงค่า id_card_number, fname, และ lname จาก URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const fname = urlParams.get('fname');
+    const lname = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+
+    if (idCardNumber && fname && lname && manager ) {
+        // สร้าง URL ใหม่เพื่อไปยังหน้า "บันทึกสัญญา.html" โดยเพิ่มเฉพาะค่า id_card_number, fname, และ lname
+        const newURL = `/บันทึกสัญญา.html?id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}`;
+        // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+        window.location.href = newURL;
+    } else {
+        console.error('ส่งไม่สำเร็จ');
+    }
+}
+
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มสัญญา
+function redirectToContractPage2() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/สัญญา.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
+
+
+
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มคืนเงิน
+function redirectToContractPage3() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/คืนเงิน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
+
+
+
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มคืนเงิน
+function redirectToContractPage4() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/ส่วนเเบ่ง.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //สร้างปุ่มลบเเละเเก้ไข
 // เลือกแถวทั้งหมดในตารางยกเว้นแถวหัว

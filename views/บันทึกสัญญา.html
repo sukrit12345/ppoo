@@ -133,7 +133,7 @@ input[type=text] {
   <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -145,15 +145,36 @@ input[type=text] {
 
 
 <div class="container">
+
+
   
   <form action="/AddLoanInformation/submit" method="post" enctype="multipart/form-data">
+
+    <label for="manager">ผู้จัดการ:</label>
+    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อผู้จัดการ" required>
+    
+    <label for="id_card_number">เลขบัตรประชาชน:</label>
+    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+
+    <label for="fname">ชื่อจริง:</label>
+    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+
+    <label for="lname">นามสกุล:</label>
+    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+
+    <label for="contract_number">หมายเลขสัญญา:</label>
+    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+
+    <label for="bill_number">หมายเลขบิล:</label>
+    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
+  
     <label for="loanDate">วันที่กู้:</label>
     <input type="date" id="loanDate" name="loanDate" placeholder="เลือกวันที่กู้" required>
     <br>
     <br>
 
     <label for="loanPeriod">ระยะเวลากู้ (วัน):</label>
-    <input type="text" id="loanPeriod" name="loanPeriod" placeholder="กรอกจำนวนวันที่กู้" required>
+    <input type="number" id="loanPeriod" name="loanPeriod" placeholder="กรอกจำนวนวันที่กู้" required>
     
     <label for="returnDate">วันที่ต้องคืน:</label>
     <input type="date" id="returnDate" name="returnDate" placeholder="เลือกวันที่คืน" required>
@@ -161,16 +182,16 @@ input[type=text] {
     <br>
     
     <label for="principal">เงินต้น:</label>
-    <input type="text" id="principal" name="principal" placeholder="กรอกจำนวนเงินต้น" required>
+    <input type="number" id="principal" name="principal" placeholder="กรอกจำนวนเงินต้น" required>
 
     <label for="interestRate">อัตราดอกเบี้ยต่อวัน(%):</label>
-    <input type="text" id="interestRate" name="interestRate" placeholder="กรอกอัตราดอกเบี้ยต่อวัน (%)" required>
+    <input type="number" id="interestRate" name="interestRate" placeholder="กรอกอัตราดอกเบี้ยต่อวัน (%)" required>
   
     <label for="totalInterest">ดอกเบี้ยทั้งหมด(บาท):</label>
-    <input type="text" id="totalInterest" name="totalInterest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมด" required>
+    <input type="number" id="totalInterest" name="totalInterest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมด" required>
  
     <label for="totalRefund">รวมเงินที่ต้องคืน:</label>
-    <input type="text" id="totalRefund" name="totalRefund" placeholder="กรอกจำนวนเงินที่ต้องคืนทั้งหมด" required>
+    <input type="number" id="totalRefund" name="totalRefund" placeholder="กรอกจำนวนเงินที่ต้องคืนทั้งหมด" required>
 
     <label for="store_assets">ทรัพย์สินที่วางไว้ที่ร้าน (ทรัพย์ที่เป็นชื่อตัวเอง อธิบายให้ละเอียด):</label>
     <input type="text" id="store_assets" name="store_assets" placeholder="กรอกทรัพย์สินที่วางไว้ที่ร้าน">
@@ -179,21 +200,28 @@ input[type=text] {
     <input type="text" id="icloud_assets" name="icloud_assets" placeholder="กรอกทรัพย์สินที่ใส่ไอคราวร้าน">
 
     <label for="asset_receipt_photo">รูปทรัพย์สินที่วางไว้ที่ร้าน:</label>
-    <input type="file" id="asset_receipt_photo" name="asset_receipt_photo">
+    <input type="file" id="asset_receipt_photo" name="asset_receipt_photo" multiple>
 
     <label for="icloud_asset_photo">รูปที่ใส่ไอคราวร้าน (แคปหน้าตั้งค่า):</label>
     <input type="file" id="icloud_asset_photo" name="icloud_asset_photo">
 
     <label for="refund_receipt_photo">รูปสลิปเงินต้น:</label>
-    <input type="file" id="refund_receipt_photo" name="refund_receipt_photo" required>
+    <input type="file" id="refund_receipt_photo" name="refund_receipt_photo">
+
+    <label for="contract">ใบสัญญา:</label>
+    <input type="file" id="contract" name="contract">
+
 
     <input type="submit" value="บันทึกสัญญา" class="button">
+
   </form>
     
 
 </div>
 
+
 <script src="บันทึกสัญญา.js"></script>
+
 
 
 

@@ -291,9 +291,9 @@ tr:nth-child(even) {
   <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการเ.html">ผู้จัดการ</a>
+    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -314,20 +314,20 @@ tr:nth-child(even) {
 <div class="row">
     <div class="column">
         <div class="search-container">
+            <input type="text" id="newSearchInput3" placeholder="พิมพ์ชื่อจังหวัด">
+            <button type="button" onclick="customSearch3()">ค้นหาจังหวัด</button>
+        </div>
+    </div>
+    <div class="column">
+        <div class="search-container">
             <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อผู้จัดการ">
             <button type="button" onclick="customSearch1()">ค้นหาผู้จัดการ</button>
-        </div>        
+        </div>          
     </div>
     <div class="column">
         <div class="search-container">
-            <input type="text" id="newSearchInput2" placeholder="พิมพ์ชื่อหัวหน้าสาขา">
-            <button type="button" onclick="customSearch2()">ค้นหาหัวหน้าสาขา</button>
-        </div>        
-    </div>
-    <div class="column">
-        <div class="search-container">
-            <input type="text" id="newSearchInput3" placeholder="พิมพ์ชื่อผู้รับดูเเล">
-            <button type="button" onclick="customSearch3()">ค้นหาผู้จัดการดูเเล</button>
+            <input type="date" id="newSearchInput2" placeholder="พิมพ์วันที่ต้องคืน">
+            <button type="button" onclick="customSearch2()">ค้นหาวันที่ต้องคืน</button>
         </div>        
     </div>
 
@@ -400,6 +400,7 @@ tr:nth-child(even) {
         <th>เลขบัตรประชาชน</th>
         <th>ชื่อ</th>
         <th>นามสกุล</th>
+        <th>วันที่ต้องคืน</th>
         <th>เงินต้น</th>
         <th>ดอกเบี้ย</th>
         <th>เงินที่ต้องคืน</th>
@@ -407,9 +408,8 @@ tr:nth-child(even) {
         <th>เงินต้นสะสม</th>
         <th>ดอกเบี้ยสะสม</th>
         <th>กำไรสุทธิสะสม</th>
+        <th>จังหวัด</th>
         <th>ผู้จัดการ</th>
-        <th>ผู้จัดการดูแล</th>
-        <th>หัวหน้าสาขา</th>
         <th>จัดการ</th>
         <th>สัญญา</th>
     </tr>

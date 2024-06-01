@@ -1,1334 +1,381 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางลูกหนี้</title>
-
-<style>
-.navbar {
-        overflow: hidden;
-        background-color: #333;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        left: 0;
-        right: 0;
-    }
-
-.navbar a {
-        float: left;
-        display: block;
-        color: white;
-        text-align: center;
-        padding: 14px 20px;
-        text-decoration: none;
-    }
-.navbar a:hover {
-        background-color: #ddd;
-        color: black;
-    }
-.navbar a.active {
-        background-color: #555;
-        color: white;
-    }
-    
-
-body {
-        font-family: Arial, sans-serif;
-        background-color: #ffffff;
-        margin-top: 100px;
-    }
-
-.container {
-  width: 60%;
-  margin: auto;
-  margin-top: 50px;
-}
-
-table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: auto;
-        margin-top: 80px;
-    }
-
-th, td {
-        border: 1px solid #dddddd;
-        text-align: center;
-        padding: 8px;
-    }
-
-th {
-        background-color: #333;
-        color: white;
-    }
-
-tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }    
 
 
+//คำนวณหน้าคืนเงิน
+app.get('/api/calculate_interest_profit/:refund_id', async (req, res) => {
+    try {
+        const refundId = req.params.refund_id;
 
-.search-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+        // ค้นหาข้อมูล refund จาก ID ที่ให้มา
+        const refund = await Refund.findById(refundId);
 
-.search-container input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-}
-
-.search-container button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.search-container button:hover {
-  background-color: #45a049;
-}
-
-
-
-.search-container2 {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
-  margin-bottom: 20px;
-}
-
-.search-container2 input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-right: 5px; /* เพิ่มระยะห่างของ input กับปุ่มค้นหา */
-}
-
-.search-container2 button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.search-container2 button:hover {
-  background-color: #45a049;
-}
-
-.search-container2 select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-left: 5px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
-}
-
-
-.button-container {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.custom-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.custom-button:hover {
-    background-color: #45a049;
-}
-
-.button-link {
-    text-decoration: none;
-    color: white;
-}
-
-
-/* Common styles */
-.column {
-        float: left;
-        width: 33.33%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    /* Style for totalDebtorsInContract */
-    #totalDebtorsInContract {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalIDCard */
-    #totalIDCard {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsWithInterest */
-    #debtorsWithInterest {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsWithContracts */
-    #debtorsWithContracts {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-    #debtorsWhoExceededContracts {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for fullyPaidDebtors */
-    #fullyPaidDebtors {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsBlacklist */
-    #debtorsBlacklist {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalPrincipalAmount */
-    #totalPrincipalAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalInterestAmount */
-    #totalInterestAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalRefundAmount */
-    #totalRefundAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalPrincipal */
-    #totalPrincipal {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalShare */
-    #totalAccumulatedInterest {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalNetProfit */
-    #totalNetProfit {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Clear floats after the columns */
-    .row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-
-
-.s {
-   color: green;
-}
-
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204)
-}
-
-
-</style>
-</head>
-<body>
-  <div class="navbar">
-    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-    <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการเ.html">ผู้จัดการ</a>
-    <a href="กองทุน.html">กองทุน</a>
-    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-    <a href="ตั้งค่า.html">ตั้งค่า</a>
-</div>
-
-<h2 style="text-align:center;">ตารางลูกหนี้</h2>
-
-
-
-
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
-  <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
-</div>
-
-<script>
-    function searchTable() {
-      var input, filter, table, tr, td, i, j, txtValue;
-      input = document.getElementById("searchInput");
-      filter = input.value.trim(); // ตัดช่องว่างที่อาจเกิดขึ้นได้
-      
-      // ตรวจสอบว่าเลขบัตรประชาชนมีความยาว 13 หลักหรือไม่
-      if (filter.length !== 13 || isNaN(filter)) {
-        alert("โปรดป้อนเลขบัตรประชาชนที่ถูกต้อง (13 หลัก)");
-        return;
-      }
-    
-      // ค้นหาในทุกคอลัมน์
-      table = document.querySelector("table");
-      tr = table.getElementsByTagName("tr");
-    
-      for (i = 0; i < tr.length; i++) {
-        var found = false; // เพิ่มตัวแปรเพื่อตรวจสอบว่าพบข้อมูลหรือไม่
-    
-        for (j = 0; j < tr[i].cells.length; j++) {
-          td = tr[i].getElementsByTagName("td")[j];
-          if (td) {
-            txtValue = td.textContent || td.innerText;
-            // เปรียบเทียบข้อมูลในคอลัมน์กับค่าที่ค้นหา
-            if (txtValue.trim() === filter) {
-              found = true;
-              break;
-            }
-          }
+        if (!refund) {
+            return res.status(404).send('Refund not found');
         }
-    
-        if (found) {
-          tr[i].style.display = ""; // แสดงแถวที่พบข้อมูล
+
+        // ค้นหาข้อมูล loan ที่ตรงกับ id_card_number, contract_number, และ bill_number
+        const loan = await LoanInformation.findOne({
+            id_card_number: refund.id_card_number,
+            contract_number: refund.contract_number,
+            bill_number: refund.bill_number
+        });
+
+        if (!loan) {
+            return res.status(404).send('Loan not found');
+        }
+
+        // คำนวณข้อมูลเพิ่มเติมของสัญญา
+        const currentDate = new Date();
+        const calculatedLoanData = calculateLoanData(loan, currentDate);
+
+        // ดึงค่า totalInterest4 และ principal จากข้อมูลที่คำนวณ
+        const totalInterest4 = calculatedLoanData.totalInterest4;
+        const principal = loan.principal;
+
+        // คำนวณ totalInterest5 โดยลบค่า refund_interest ออกจาก totalInterest4
+        let totalInterest5 = totalInterest4 - refund.refund_interest;
+
+        // ตรวจสอบว่า totalInterest5 เป็นค่าลบหรือศูนย์
+        if (totalInterest5 <= 0) {
+         totalInterest5 = 0;
+        }
+
+        // ค้นหา loan ที่ตรงกับ id_card_number, contract_number และ bill_number = 1
+        const initialLoan = await LoanInformation.findOne({
+            id_card_number: refund.id_card_number,
+            contract_number: refund.contract_number,
+            bill_number: '1'
+        });
+
+        if (!initialLoan) {
+            return res.status(404).send('Initial Loan not found');
+        }
+
+        // ค้นหา refunds ทั้งหมดที่มี id_card_number และ contract_number ตรงกัน และ bill_number น้อยกว่าหรือเท่ากับ bill_number ปัจจุบัน
+        const allRefunds = await Refund.find({
+            id_card_number: refund.id_card_number,
+            contract_number: refund.contract_number,
+            bill_number: { $lte: refund.bill_number }
+        });
+
+        // รวบรวม total_refund ทั้งหมด
+        const totalRefundSum = allRefunds.reduce((sum, r) => sum + parseFloat(r.total_refund), 0);
+
+        // คำนวณ initial_profit โดยลบค่า principal ของ initialLoan ออกจาก totalRefundSum
+        const initial_profit = totalRefundSum - initialLoan.principal;
+
+        // ส่งข้อมูลที่คำนวณได้กลับเป็น JSON
+        res.json({
+            totalInterest5,
+            initial_profit
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+//บันทึกคืนเงินเเละสัญญา
+app.post('/refunds/submit_form', upload.fields([
+    { name: 'refund_receipt_photo', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const { id_card_number, contract_number, bill_number, manager, fname, lname, return_date, refund_principal, refund_interest, total_refund } = req.body;
+
+        // ค้นหาข้อมูล loan ที่ตรงกับ id_card_number, contract_number, และ bill_number
+        const loan = await LoanInformation.findOne({
+            id_card_number,
+            contract_number,
+            bill_number
+        });
+
+        // ถ้าไม่พบ loan ที่ตรงกัน ให้ส่ง error
+        if (!loan) {
+            return res.status(400).send('Loan not found');
+        }
+
+        const refundData = {
+            manager,
+            id_card_number,
+            fname,
+            lname,
+            contract_number,
+            bill_number,
+            principal: principal || '', // ตั้งค่าเป็นค่าว่างถ้า principal ไม่ได้ระบุ
+            totalInterest4: totalInterest4 || '', // ตั้งค่าเป็นค่าว่างถ้า totalInterest4 ไม่ได้ระบุ
+            totalReturned: totalReturned || '', // ตั้งค่าเป็นค่าว่างถ้า totalReturned ไม่ได้ระบุ
+            return_date,
+            refund_principal: refund_principal || 0, // ตั้งค่าเป็น 0 ถ้า refund_principal เป็นค่าว่าง
+            refund_interest: refund_interest || 0, // ตั้งค่าเป็น 0 ถ้า refund_interest เป็นค่าว่าง
+            debtAmount: debtAmount || 0, // ตั้งค่าเป็น 0 ถ้า debtAmount เป็นค่าว่าง
+            total_refund,
+            totalInterest5: totalInterest5 || '', // ตั้งค่าเป็นค่าว่างถ้า totalInterest5 ไม่ได้ระบุ
+            initial_profit: initial_profit || '', // ตั้งค่าเป็นค่าว่างถ้า initial_profit ไม่ได้ระบุ
+            refund_receipt_photo: req.files['refund_receipt_photo'] ? req.files['refund_receipt_photo'][0].path : '',
+            loan: loan._id // อ้างอิงถึงไอดีของ loan
+        };
+        
+        // บันทึกข้อมูลลงในฐานข้อมูล
+        const newRefund = new Refund(refundData);
+        await newRefund.save();
+
+        // คำนวณ totalInterest5 โดยลบค่า refund_interest ออกจาก totalInterest4
+        const calculatedLoanData = calculateLoanData(loan, new Date());
+        const totalInterest4 = calculatedLoanData.totalInterest4;
+        let totalInterest5 = totalInterest4 - refund_interest;
+        if (totalInterest5 < 0) {
+        totalInterest5 = 0;
+        }
+
+        // คำนวณ totalRefund เป็นผลรวมของ principal และ totalInterest4
+        const totalRefund = parseFloat(loan.principal - (refund_principal || 0)) + parseFloat(totalInterest4);
+
+
+
+        // ตรวจสอบว่าจำนวนเงินคืนตรงกับ totalRefund หรือไม่
+        if (parseFloat(total_refund) === loan.totalRefund) {
+            // ไม่ต้องสร้างสัญญาใหม่
+            res.redirect(`/คืนเงิน.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`);
         } else {
-          // ตรวจสอบว่าอิลิเมนต์ที่กำลังตรวจสอบเป็น <th> หรือไม่
-          if (tr[i].getElementsByTagName("th").length === 0) {
-            tr[i].style.display = "none"; // ซ่อนแถวที่ไม่พบข้อมูล
-          }
+            // สร้างข้อมูลสัญญาใหม่
+            const newBillNumber = (parseInt(loan.bill_number) + 1).toString();
+            const newLoanData = {
+                manager: loan.manager,
+                id_card_number: loan.id_card_number,
+                fname: loan.fname,
+                lname: loan.lname,
+                contract_number: loan.contract_number,
+                bill_number: newBillNumber,
+                loanDate: return_date, // ให้วันที่เริ่มสัญญาเท่ากับวันที่คืนเงิน
+                loanPeriod: loan.loanPeriod,
+                returnDate: new Date(new Date(return_date).getTime() + loan.loanPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                principal: loan.principal - (refund_principal || 0), // ลบจำนวนเงินที่คืนออกจากเงินหลัก ถ้า refund_principal เป็นค่าว่างให้เท่ากับ 0
+                interestRate: loan.interestRate,
+                totalInterest: (loan.principal - (refund_principal || 0)) * loan.interestRate * loan.loanPeriod / 100, // คำนวณ totalInterest ใหม่
+                totalInterest2: loan.totalInterest2,
+                totalInterest3: totalInterest5,
+                totalInterest4: totalInterest4,
+                totalRefund: totalRefund,
+                storeAssets: loan.storeAssets,
+                icloudAssets: loan.icloudAssets,
+                assetReceiptPhoto: loan.assetReceiptPhoto,
+                icloudAssetPhoto: loan.icloudAssetPhoto,
+                refundReceiptPhoto: loan.refundReceiptPhoto,
+                contract: loan.contract,
+                debtor: loan.debtor
+            };
+
+            // บันทึกข้อมูลสัญญาใหม่
+            const newLoan = new LoanInformation(newLoanData);
+            await newLoan.save();
+
+            await DebtorInformation.updateOne(
+                { _id: loan.debtor },
+                { $push: { loans: newLoan._id } }
+            );
+
+            res.redirect(`/คืนเงิน.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`);
         }
-      }
+    } catch (err) {
+        console.error(err);
+        res.status(500).redirect('/error.html'); // เปลี่ยนเส้นทางการ redirect ตามที่คุณต้องการ
     }
-    
-</script>
+});
 
 
+//คำนวณหน้าสัญญา
+function calculateLoanData(loan, currentDate) {
+    const returnDate = new Date(loan.returnDate);
 
-<div class="row">
-    <div class="column">
-        <div class="search-container">
-            <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อผู้จัดการ">
-            <button type="button" onclick="customSearch1()">ค้นหาผู้จัดการ</button>
-        </div>        
-    </div>
-    <div class="column">
-        <div class="search-container">
-            <input type="text" id="newSearchInput2" placeholder="พิมพ์ชื่อหัวหน้าสาขา">
-            <button type="button" onclick="customSearch2()">ค้นหาหัวหน้าสาขา</button>
-        </div>        
-    </div>
-    <div class="column">
-        <div class="search-container">
-            <input type="text" id="newSearchInput3" placeholder="พิมพ์ชื่อผู้รับดูเเล">
-            <button type="button" onclick="customSearch3()">ค้นหาผู้รับดูเเล</button>
-        </div>        
-    </div>
-
-</div>
-  
-
-<script>
-    function customSearch1() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("newSearchInput1"); // เปลี่ยน ID ใหม่ที่นี่
-        filter = input.value.toUpperCase();
-        table = document.getElementsByTagName("table")[0];
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[14]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
+    // คำนวณวันใกล้ถึงสัญญา
+    let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
+    if (totalRepayment <= 0) {
+        totalRepayment = '-';
     }
-</script>
 
-
-<script>
-function customSearch2() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput2"); // เปลี่ยน ID ใหม่ที่นี่
-    filter = input.value.toUpperCase();
-    table = document.getElementsByTagName("table")[0];
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[16]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
+    // คำนวณวันเลยสัญญา
+    let daysUntilReturn = Math.round((currentDate - returnDate) / (1000 * 60 * 60 * 24));
+    if (daysUntilReturn <= 0) {
+        daysUntilReturn = '-';
     }
-}
-</script>
 
+    // คำนวณดอกปรับ
+    let totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * loan.interestRate * loan.principal / 100) : 0;
 
-<script>
-    function customSearch3() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("newSearchInput3"); // เปลี่ยน ID ใหม่ที่นี่
-        filter = input.value.toUpperCase();
-        table = document.getElementsByTagName("table")[0];
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[15]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-    }
-</script>
+    // ถ้าค่า totalInterest2 หรือ totalInterest3 เป็น '-' หรือค่าว่างให้ตั้งค่าเป็น 0
+    totalInterest2 = totalInterest2 === '-' || totalInterest2 === '' || totalInterest2 === 'undefined' ? 0 : totalInterest2;
 
+    // คำนวณ Totalreturned โดยไม่รวมค่าที่เป็น '-'
+    let totalReturned = Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + (loan.totalInterest3 !== undefined && loan.totalInterest3 !== null ? Number(loan.totalInterest3) : 0);
 
+    // คำนวณ totalInterest4
+    let totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + (loan.totalInterest3 !== undefined && loan.totalInterest3 !== null ? Number(loan.totalInterest3) : 0);
 
-
-
-
-<div class="search-container2">
-  <select id="statusFilter">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
-    <option value="เลยกำหนดสัญญา">เลยกำหนดสัญญา</option>
-    <option value="ครบกำหนดชำระ">ครบกำหนดชำระ</option>
-    <option value="ชำระครบ">ชำระครบ</option>
-    <option value="เเบล็คลิช">เเบล็คลิช</option>
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
-</div>
-
-
-
-<script>
-    window.onload = function() {
-        searchIdCard2();
+    return {
+        ...loan._doc,
+        totalRepayment,
+        daysUntilReturn,
+        totalInterest2,
+        totalReturned,
+        totalInterest4
     };
-    function searchIdCard2() {
-        var statusFilter, table, tr, i, found;
-        statusFilter = document.getElementById("statusFilter").value;
+}
 
-        table = document.querySelector("table");
-        tr = table.getElementsByTagName("tr");
 
-        for (i = 0; i < tr.length; i++) {
-            found = false;
 
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                if (tr[i].cells[8].innerText.trim() === statusFilter || statusFilter === "") {
-                    found = true;
-                }
 
-                if (found) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-        
 
-        // Call calculateTotalPrincipalAmount() after filtering
-        calculateTotalPrincipalAmount();
-        calculateTotalInterestAmount();
-        calculateTotalRefundAmount();
-        
-    }
-</script>
 
 
 
-  
-  
 
 
 
-<div class="row">
-  <div class="column">
-    <div style="text-align: center;">ยอดเงินรวมที่กำลังใช้งาน</div>
-    <div id="totalPrincipalAmount" style="text-align: center;">เงินต้นทั้งหมด:</div>
-    <div id="totalInterestAmount" style="text-align: center;">ดอกเบี้ยทั้งหมด:</div>
-    <div id="totalRefundAmount" style="text-align: center;">เงินที่ต้องคืนทั้งหมด</div>
-  </div>
-  <div class="column">
-    <div id="totalIDCard" style="text-align: center;"></div>
-    <div id="totalDebtorsInContract" style="text-align: center;"></div>
-    <div id="debtorsWithContracts" style="text-align: center;"></div>
-    <div id="debtorsWhoExceededContracts" style="text-align: center;"></div>
-    <div id="fullyPaidDebtors" style="text-align: center;"></div>
-    <div id="debtorsBlacklist" style="text-align: center;"></div>
-  </div>
-  <div class="column">
-    <div style="text-align: center;">ยอดเงินรวมที่ใช้งานเเล้ว</div>
-    <div id="totalPrincipal" style="text-align: center;"></div>
-    <div id="totalAccumulatedInterest" style="text-align: center;"></div>
-    <div id="totalNetProfit" style="text-align: center;"></div>
-  </div>
-</div>
 
 
 
-<script>
-     function calculateTotalPrincipalAmount() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalPrincipalAmount = 0;
 
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-                var principalAmount = parseFloat(tr[i].cells[5].innerText.trim());
-                if (!isNaN(principalAmount)) {
-                    totalPrincipalAmount += principalAmount;
-                }
-            }
-        }
-
-        var resultContainer = document.getElementById("totalPrincipalAmount");
-        resultContainer.textContent = "เงินต้นทั้งหมด: " + totalPrincipalAmount.toLocaleString() + " บาท";
-    }
-</script>
-
-  
-  
-  
-  <script>
-    function calculateTotalInterestAmount() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalInterestAmount = 0;
-
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-                var interestAmount = parseFloat(tr[i].cells[6].innerText.trim());
-                if (!isNaN(interestAmount)) {
-                    totalInterestAmount += interestAmount;
-                }
-            }
-        }
-
-        var resultContainer = document.getElementById("totalInterestAmount");
-        resultContainer.textContent = "ดอกเบี้ยทั้งหมด: " + totalInterestAmount.toLocaleString() + " บาท";
-    }
-
-  </script>
-  
-  
-  
-  
-  <script>
-    function calculateTotalRefundAmount() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalRefundAmount = 0;
-
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-                var refundAmount = parseFloat(tr[i].cells[7].innerText.trim());
-                if (!isNaN(refundAmount)) {
-                    totalRefundAmount += refundAmount;
-                }
-            }
-        }
-
-        var resultContainer = document.getElementById("totalRefundAmount");
-        resultContainer.textContent = "เงินที่ต้องคืนทั้งหมด: " + totalRefundAmount.toLocaleString() + " บาท";
-    }
-  </script>
-  
-
-
-
-
-  <!-- Script to calculate total share -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateTotalIDCard() when the HTML document is loaded
-        calculateTotalIDCard();
-    });
-
-    function calculateTotalIDCard() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalIDCard = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the ID card number from the cell at index 1 (starting from 0)
-                var idCard = tr[i].cells[2].innerText.trim();
-                if (idCard !== "") {
-                    totalIDCard.push(idCard);
-                }
-            }
-        }
-
-        // Count unique ID card numbers
-        var uniqueIDCardCount = new Set(totalIDCard).size;
-
-        // Display the result in the element with id "totalIDCard"
-        var resultContainer = document.getElementById("totalIDCard");
-        resultContainer.textContent = "ลูกหนี้ในระบบทั้งหมด: " + uniqueIDCardCount +' คน';
-    }
-  </script>
-
-
-
-
-<!-- Script to calculate total debtors in contract -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateTotalDebtorsInContract() when the HTML document is loaded
-        calculateTotalDebtorsInContract();
-    });
-
-    function calculateTotalDebtorsInContract() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalDebtors = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the status from the cell at index 8 (starting from 0)
-                var status = tr[i].cells[8].innerText.trim(); // Changed from 8 to 7
-
-                // Check if the status contains the phrase "อยู่ในสัญญา"
-                if (status.includes("อยู่ในสัญญา")) {
-                    totalDebtors.push("dummy"); // Just push a dummy value to count the debtors
-                }
-            }
-        }
-
-        // Count total debtors in contract
-        var totalDebtorsCount = totalDebtors.length;
-
-        // Display the result in the element with id "totalDebtorsInContract"
-        var resultContainer = document.getElementById("totalDebtorsInContract");
-        resultContainer.textContent = "ลูกหนี้อยู่ในสัญญา: " + totalDebtorsCount + ' คน';
-    }
-</script>
-
-
-<!-- Script to calculate total debtors with contracts -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateTotalDebtorsWithContracts() when the HTML document is loaded
-        calculateTotalDebtorsWithContracts();
-    });
-
-    function calculateTotalDebtorsWithContracts() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalDebtors = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the status from the cell at index 8 (starting from 0)
-                var status = tr[i].cells[8].innerText.trim();
-
-                // Check if the status contains the phrase "ครบกำหนดชำระ"
-                if (status.includes("ครบกำหนดชำระ")) {
-                    totalDebtors.push("dummy"); // Just push a dummy value to count the debtors
-                }
-            }
-        }
-
-        // Count total debtors with contracts
-        var totalDebtorsCount = totalDebtors.length;
-
-        // Display the result in the element with id "debtorsWithContracts"
-        var resultContainer = document.getElementById("debtorsWithContracts");
-        resultContainer.textContent = "ลูกหนี้ครบกำหนดชำระ: " + totalDebtorsCount + ' คน';
-    }
-</script>
-
-
-<!-- Script to calculate total debtors who exceeded contracts -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateTotalDebtorsWhoExceededContracts() when the HTML document is loaded
-        calculateTotalDebtorsWhoExceededContracts();
-    });
-
-    function calculateTotalDebtorsWhoExceededContracts() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalDebtors = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the status from the cell at index 8 (starting from 0)
-                var status = tr[i].cells[8].innerText.trim();
-
-                // Check if the status contains the phrase "เลยกำหนดสัญญา"
-                if (status.includes("เลยกำหนดสัญญา")) {
-                    totalDebtors.push("dummy"); // Just push a dummy value to count the debtors
-                }
-            }
-        }
-
-        // Count total debtors who exceeded contracts
-        var totalDebtorsCount = totalDebtors.length;
-
-        // Display the result in the element with id "debtorsWhoExceededContracts"
-        var resultContainer = document.getElementById("debtorsWhoExceededContracts");
-        resultContainer.textContent = "ลูกหนี้เลยกำหนดสัญญา: " + totalDebtorsCount + ' คน';
-    }
-</script>
-
-
-
-
-<!-- Script to calculate total debtors who have fully paid -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateFullyPaidDebtors() when the HTML document is loaded
-        calculateFullyPaidDebtors();
-    });
-
-    function calculateFullyPaidDebtors() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var fullyPaidDebtors = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the status from the cell at index 8 (starting from 0)
-                var status = tr[i].cells[8].innerText.trim();
-
-                // Check if the status contains the phrase "ชำระครบ"
-                if (status.includes("ชำระครบ")) {
-                    fullyPaidDebtors.push("dummy"); // Just push a dummy value to count the fully paid debtors
-                }
-            }
-        }
-
-        // Count total fully paid debtors
-        var totalFullyPaidDebtorsCount = fullyPaidDebtors.length;
-
-        // Display the result in the element with id "fullyPaidDebtors"
-        var resultContainer = document.getElementById("fullyPaidDebtors");
-        resultContainer.textContent = "ลูกหนี้ชำระครบ: " + totalFullyPaidDebtorsCount + ' คน';
-    }
-</script>
-
-
-
-
-
-<!-- Script to calculate total debtors on blacklist -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateDebtorsBlacklist() when the HTML document is loaded
-        calculateDebtorsBlacklist();
-    });
-
-    function calculateDebtorsBlacklist() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var debtorsBlacklist = [];
-
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the status from the cell at index 8 (starting from 0)
-                var status = tr[i].cells[8].innerText.trim();
-
-                // Check if the status contains the phrase "อยู่ในสัญญา"
-                if (status.includes("เเบล็คลิช")) {
-                    debtorsBlacklist.push("dummy"); // Just push a dummy value to count the debtors
-                }
-            }
-        }
-
-        // Count total debtors on blacklist
-        var totalDebtorsBlacklistCount = debtorsBlacklist.length;
-
-        // Display the result in the element with id "debtorsBlacklist"
-        var resultContainer = document.getElementById("debtorsBlacklist");
-        resultContainer.textContent = "ลูกหนี้เเบล็คลิช: " + totalDebtorsBlacklistCount + ' คน';
-    }
-</script>
-
-
-
-
-
-
-<script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Call calculateTotalPrincipal() when the HTML document is loaded
-    calculateTotalPrincipal();
-});
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
 
-function calculateTotalPrincipal() {
-    var table = document.querySelector("table");
-    var tr = table.getElementsByTagName("tr");
-    var totalPrincipal = 0;
-
-    // Start from i = 1 to skip the table header row
-    for (var i = 1; i < tr.length; i++) {
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            // Get the principal amount from the cell at index 8 (starting from 0)
-            var principal = parseFloat(tr[i].cells[9].innerText.trim());
-            if (!isNaN(principal)) {
-                totalPrincipal += principal;
+    // Fetch API เพื่อดึงข้อมูล LoanInformation ตาม id_card_number
+    fetch(`/api/loan-data?id_card_number=${idCardNumber}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error fetching loan data');
             }
-        }
-    }
-
-    // Display the result in the element with id "totalPrincipal"
-    var resultContainer = document.getElementById("totalPrincipal");
-    resultContainer.textContent = "เงินต้นปล่อยสะสมทั้งหมด: " + totalPrincipal.toLocaleString() + " บาท";
-}
-</script>
-
-
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Call calculateTotalAccumulatedInterest() when the HTML document is loaded
-        calculateTotalAccumulatedInterest();
-    });
-    
-    function calculateTotalAccumulatedInterest() {
-        var table = document.querySelector("table");
-        var tr = table.getElementsByTagName("tr");
-        var totalShareAmount = 0; // เปลี่ยนชื่อตัวแปรเป็น totalShareAmount
-    
-        // Start from i = 1 to skip the table header row
-        for (var i = 1; i < tr.length; i++) {
-            if (tr[i].getElementsByTagName("td").length > 0) {
-                // Get the share amount from the cell at index 9 (starting from 0)
-                var share = parseFloat(tr[i].cells[10].innerText.trim()); // คำนวณค่าที่เซลล์ที่ 10
-                if (!isNaN(share)) {
-                    totalShareAmount += share; // เพิ่มค่าลงในตัวแปร totalShareAmount
+            return response.json();
+        })
+        .then(loans => {
+            // เมื่อได้ข้อมูล loans มาแล้ว จะทำการดึงข้อมูล refunds ต่อ
+            return fetch(`/api/refunds/${idCardNumber}`).then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching refund data');
                 }
-            }
-        }
-    
-        // Display the result in the element with id "totalAccumulatedInterest"
-        var resultContainer = document.getElementById("totalAccumulatedInterest");
-        resultContainer.textContent = "ดอกเบี้ยสะสมทั้งหมด: " + totalShareAmount.toLocaleString() + " บาท";
-    }
-    </script>
-    
+                return response.json();
+            }).then(refunds => {
+                const table = document.getElementById('b');
+                refunds.reverse().forEach(refund => {
+                    // สร้างแถวใหม่
+                    const tr = document.createElement('tr');
 
+                    // ตรวจสอบว่ามีข้อมูลใน LoanInformation ที่ตรงกับ refunds หรือไม่
+                    const matchedLoan = loans.find(loan => 
+                        loan.id_card_number === refund.id_card_number && 
+                        loan.contract_number === refund.contract_number && 
+                        loan.bill_number === refund.bill_number
+                    );
 
+                    // กำหนดค่าให้กับ totalReturned จาก LoanInformation หากพบข้อมูลที่ตรงกัน
+                    const totalReturned = matchedLoan ? matchedLoan.totalReturned : '-';
+                    const principal = matchedLoan ? matchedLoan.principal : '-';
+                    const totalInterest4 = matchedLoan ? matchedLoan.totalInterest4 : '-';
 
+                    // คำนวณ totalInterest5 และ initial_profit โดยดึงจาก API
+                    fetch(`/api/calculate_interest_profit/${refund._id}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error calculating interest and profit');
+                            }
+                            return response.json();
+                        })
+                        .then(calculatedValues => {
+                            const { totalInterest5, initial_profit } = calculatedValues;
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // เรียกใช้ calculateTotalNetProfit() เมื่อเอกสาร HTML โหลดเสร็จ
-    calculateTotalNetProfit();
+                            // เช็คเงื่อนไขว่า total_refund ไม่เท่ากับ totalReturned
+                            if (totalReturned !== '-' && refund.total_refund < totalReturned) {
+                                // บันทึกข้อมูลสัญญาใหม่อัตโนมัติ
+                                const newLoanData = {
+                                    manager: refund.manager,
+                                    id_card_number: refund.id_card_number,
+                                    fname: refund.fname,
+                                    lname: refund.lname,
+                                    contract_number: refund.contract_number,
+                                    bill_number: (parseInt(refund.bill_number) + 1).toString(),
+                                    loanDate: new Date().toISOString().split('T')[0], // วันที่ปัจจุบัน
+                                    loanPeriod: matchedLoan.loanPeriod,
+                                    returnDate: matchedLoan.returnDate,
+                                    principal: matchedLoan.principal,
+                                    interestRate: matchedLoan.interestRate,
+                                    totalInterest: matchedLoan.principal * matchedLoan.interestRate, // คำนวณ totalInterest ใหม่
+                                    totalInterest2: matchedLoan.totalInterest2 || 0,
+                                    totalInterest3: totalInterest5,
+                                    totalInterest4: matchedLoan.totalInterest4,
+                                    totalRefund: matchedLoan.totalRefund,
+                                    status: matchedLoan.status,
+                                    storeAssets: matchedLoan.storeAssets,
+                                    icloudAssets: matchedLoan.icloudAssets,
+                                    assetReceiptPhoto: matchedLoan.assetReceiptPhoto,
+                                    icloudAssetPhoto: matchedLoan.icloudAssetPhoto,
+                                    refundReceiptPhoto: matchedLoan.refundReceiptPhoto,
+                                    contract: matchedLoan.contract,
+                                    debtor: matchedLoan.debtor
+                                };
+
+                                // เรียก API เพื่อบันทึกข้อมูลสัญญาใหม่
+                                fetch('/api/add-loan', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(newLoanData)
+                                }).then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Error saving new loan information');
+                                    }
+                                    return response.json();
+                                }).then(data => {
+                                    console.log('New loan information saved:', data);
+                                }).catch(error => {
+                                    console.error('Error saving new loan information:', error);
+                                });
+                            }
+
+                            tr.innerHTML = `
+                                <td>${refund.contract_number}</td>
+                                <td>${refund.bill_number}</td>
+                                <td>${principal}</td>
+                                <td>${totalInterest4}</td>
+                                <td>${totalReturned}</td>
+                                <td>${refund.return_date}</td>
+                                <td>${refund.refund_principal}</td>
+                                <td>${refund.refund_interest}</td>
+                                <td>-</td>
+                                <td>${refund.total_refund}</td>
+                                <td>${totalInterest5}</td>
+                                <td>${initial_profit}</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>${refund.status}</td>
+                                <td>${refund.manager}</td>
+                                <td>
+                                    <button onclick="redirectToEdit('${refund._id}')">แก้ไข</button>
+                                    <button onclick="redirectToDelete('${refund._id}')">ลบ</button>
+                                </td>
+                                <td><button onclick="handleShare('${refund._id}', '${refund.id_card_number}', '${refund.fname}', '${refund.lname}', '${refund.manager}', '${refund.contract_number}', '${refund.bill_number}')">ส่วนแบ่ง</button></td>
+                            `;
+
+                            // เพิ่มแถวใหม่ลงในตาราง
+                            table.appendChild(tr);
+                        })
+                        .catch(error => {
+                            console.error('Error calculating interest and profit:', error);
+                        });
+                });
+            }).catch(error => {
+                console.error('Error fetching refunds:', error);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching loans:', error);
+        });
 });
-
-function calculateTotalNetProfit() {
-    var table = document.querySelector("table");
-    var tr = table.getElementsByTagName("tr");
-    var totalNetProfit = 0;
-
-    for (var i = 1; i < tr.length; i++) {
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            var profit = parseFloat(tr[i].cells[11].innerText.trim());
-            if (!isNaN(profit)) {
-                totalNetProfit += profit;
-            }
-        }
-    }
-
-    // แสดงผลลัพธ์ใน element ที่กำหนด เช่น div หรือ span
-    var resultContainer = document.getElementById("totalNetProfit");
-    resultContainer.textContent = "กำไรสุทธิสะสมทั้งหมด: " + totalNetProfit.toLocaleString() + " บาท";
-}
-</script>
-
-
-
-
-<div class="button-container">
-    <button class="custom-button">
-        <a href="/Adddebtorinformation" class="button-link">เพิ่มข้อมูลลูกหนี้</a>
-    </button>
-</div>
-
-
-
-
-<script>
-function confirmDelete() {
-    if (confirm("คุณต้องการทำรายการนี้ใช่หรือไม่?")) {
-        location.href = 'ข้อมูลลูกหนี้.html';
-    } else {
-        // ไม่ต้องทำอะไร
-    }
-}
-</script>
-
-
-
-
-<table id= your_table_id >
-  <tr>
-    <th>ลำดับ</th>
-    <th>วันที่บันทึก</th>
-    <th>เลขบัตรประชาชน</th>
-    <th>ชื่อ</th>
-    <th>นามสกุล</th>
-    <th>เงินต้น</th>
-    <th>ดอกเบี้ย</th>
-    <th>เงินที่ต้องคืน</th>
-    <th>สถานะ</th>
-    <th>เงินต้นสะสม</th>
-    <th>ดอกเบี้ยสะสม</th>
-    <th>กำไรสุทธิสะสม</th>
-    <th>จัดการข้อมูล</th>
-    <th>สัญญา</th>
-    <th>ผู้จัดการ</th>
-    <th>ผู้จัดการดูเเล</th>
-    <th>หัวหน้าสาขา</th>
-  </tr>
-  <tr>
-    <td>06</td>
-    <td>2024-04-13</td>
-    <td>9876553210987</td>
-    <td>Jane</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>เเบล็คลิช</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td></td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-  <tr>
-    <td>05</td>
-    <td>2024-04-13</td>
-    <td>9076543210987</td>
-    <td>rtt</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>ชำระครบ</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td></td>
-    <td></td>
-    <td>key</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-  <tr>
-    <td>04</td>
-    <td>2024-04-13</td>
-    <td>9876543200987</td>
-    <td>mfvmf</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>เลยกำหนดสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>-</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-  <tr>
-    <td>03</td>
-    <td>2024-04-13</td>
-    <td>9876543210888</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>ครบกำหนดชำระ</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-  
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-
-
-  <tr>
-    <td>02</td>
-    <td>2024-04-13</td>
-    <td>9876543210987</td>
-    <td>www</td>
-    <td >Smith</td>
-    <td>1000</td>
-    <td>100</td>
-    <td>1100</td>
-    <td>อยู่ในสัญญา</td>
-    <td>3000</td>
-    <td>210</td>
-    <td>490</td>
-    <td> </td>
-    <td></td>
-    <td>John Smith</td>
-    <td>-</td>
-    <td>John Smith</td>
-  </tr>
-  <tbody>
-    <!-- ข้อมูลจะถูกเพิ่มที่นี่โดย JavaScript -->
-  </tbody>
-  
-
-</table>
-
-
-
-
-<script>
-    // เลือกตาราง
-    var table = document.querySelector('#your_table_id');
-    // เลือกแถวของตาราง
-    var rows = Array.from(table.querySelectorAll('tr'));
-
-    // วนลูปทุกแถวเพื่อกำหนดลำดับตัวเลขจากมากไปน้อย
-    rows.forEach(function(row, index) {
-        // ตรวจสอบว่าไม่ใช่แถวแรก
-        if (index > 0) {
-            // สร้างเซลล์แรกของแถว
-            var cell = row.cells[0]; // เซลล์แรกมี index เป็น 0
-            // กำหนดลำดับลงในเซลล์แรกของแถว โดยเรียงจากมากไปน้อย
-            cell.textContent = rows.length - index; 
-        }
-    });
-</script>
-
-
-
-<script>
-    // เลือกตาราง
-    var table = document.querySelector('#your_table_id');
-    // เลือกแถวของตาราง
-    var rows = table.querySelectorAll('tr');
-
-    // วนลูปทุกแถวเพื่อเพิ่มปุ่มในเซลล์ที่ 14, 15, และ 16 โดยไม่นับแถวแรก
-    for (var i = 1; i < rows.length; i++) {
-        var row = rows[i];
-        
-        // สร้างปุ่ม "ดู"
-        var viewCell = row.cells[12];
-        var viewButton = document.createElement('button');
-        viewButton.textContent = 'ดู';
-        viewButton.onclick = function() {
-            location.href = 'ดูสัญญาที่สร้าง.html';
-        };
-        viewCell.appendChild(viewButton);
-
-        // สร้างปุ่ม "แก้ไข"
-        var editCell = row.cells[12]; // แก้ไขตำแหน่งของเซลล์เป็น [13]
-        var editButton = document.createElement('button');
-        editButton.textContent = 'แก้ไข';
-        editButton.onclick = function() {
-            location.href = 'แก้ไข.html'; // แก้ไขการกำหนดลิงค์ไปยังหน้าแก้ไข
-        };
-        editCell.appendChild(editButton);
-
-        // สร้างปุ่ม "ลบ"
-        var deleteCell = row.cells[12]; // แก้ไขตำแหน่งของเซลล์เป็น [14]
-        var deleteButton = document.createElement('button');
-        deleteButton.textContent = 'ลบ';
-        deleteButton.onclick = function() {
-            confirmDelete();
-        };
-        deleteCell.appendChild(deleteButton);
-
-        // สร้างปุ่ม "สัญญา"
-        var contractCell = row.cells[13]; // เปลี่ยนตำแหน่งของเซลล์เป็น [15]
-        var contractButton = document.createElement('button');
-        contractButton.textContent = 'สัญญา';
-        contractButton.onclick = function() {
-            location.href = 'สัญญา.html';
-        };
-        contractCell.appendChild(contractButton);
-    }
-</script>
-
-
-
-
-<script>
-    // เลือกเซลล์ทั้งหมดที่อยู่ในคอลัมน์ที่ 12 และตรวจสอบว่ามีข้อความ "ชำระครบ" หรือไม่
-    var cells = document.querySelectorAll('#your_table_id td:nth-child(9)');
-  
-    cells.forEach(function(cell) {
-      var text = cell.innerText.trim();
-      if (text === "ชำระครบ") {
-        cell.classList.add('s');
-      }
-      if (text === "อยู่ในสัญญา") {
-        cell.classList.add('w');
-      } 
-      if (text === "เเบล็คลิช") {
-        cell.classList.add('b');
-      }
-      if (text === "เลยกำหนดสัญญา") {
-        cell.classList.add('l');
-      }
-      if (text === "ครบกำหนดชำระ") {
-        cell.classList.add('d');
-      } 
-
-    });
-</script>
-
-</body>
-</html>

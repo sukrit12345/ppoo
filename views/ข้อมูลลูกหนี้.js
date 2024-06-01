@@ -1,4 +1,4 @@
-//ดึงข้อมูลจากดาต้าเบส
+//เเสดงข้อมูลลงตารางลูกหนี้
 document.addEventListener("DOMContentLoaded", function() {
     fetchDataAndPopulateTable();
 });
@@ -13,6 +13,7 @@ function fetchDataAndPopulateTable() {
             // Reverse the data array
             data.reverse().forEach((row, index) => {
                 const tr = document.createElement('tr');
+                tr.id = `row-${row._id}`; // ตั้งค่า ID ให้กับแถว
                 tr.innerHTML = `
                     <td>${data.length - index}</td> <!-- Reverse the index -->
                     <td>${row.date}</td>
@@ -27,13 +28,13 @@ function fetchDataAndPopulateTable() {
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td>${row.province}</td>
+                    <td>${row.manager}</td>
                     <td> 
                     <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
-                    <button onclick="redirectToDelete('${row._id}')">ลบ</button>
+                    <button onclick="redirectToDelete('${row._id}', '${row.id_card_number}')">ลบ</button>
                     </td>
-                    <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> <!-- Button to contract page -->
+                    <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> 
                 `;
                 tableBody.appendChild(tr);
             });
@@ -41,25 +42,69 @@ function fetchDataAndPopulateTable() {
             calculateTotalIDCard();
         })
         .catch(error => console.error('Error fetching data:', error));
+
+        
 }
 
 
-// ไปหน้าสัญญา
-function redirectToContract(id) {
-    fetch(`/api/debtor-data/${id}`) // เรียก API ด้วย id
-        .then(response => response.json())
-        .then(data => {
-            const { id_card_number, fname, lname } = data; // ดึงข้อมูล id_card_number, fname, และ lname จากข้อมูลที่ได้
-            window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}`; // ส่งข้อมูลไปยังหน้า "สัญญา.html" ใน URL
+
+//เเก้ไขข้อมูลลูกหนี้
+function redirectToEdit(debtorId) {
+    window.location.href = `บันทึกข้อมูลลูกหนี้.html?id=${debtorId}`;
+}
+
+
+
+
+//ลบข้อมูลลูกหนี้
+function redirectToDelete(objectId) {
+    // ข้อความยืนยัน
+    const confirmation = confirm(`คุณต้องการลบข้อมูลลูกหนี้นี้หรือไม่?`);
+
+    // ถ้าผู้ใช้ยืนยันการลบ
+    if (confirmation) {
+        // ส่งคำขอลบข้อมูลไปยัง API โดยใช้ fetch
+        fetch(`/api/delete-debtor/${objectId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
-        .catch(error => console.error('Error fetching user data:', error));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete debtor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data.message);
+            // ลบแถวที่มี ObjectId ออกจาก DOM
+            const rowElement = document.getElementById(`row-${objectId}`);
+            if (rowElement) {
+                rowElement.remove();
+            }
+        })
+        .catch(error => console.error('Error deleting debtor:', error));
+    }
 }
 
 
 
 
+//ไปหน้าสัญญา
+function redirectToContract(id) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        const id_card_number = row.cells[2].textContent;
+        const fname = row.cells[3].textContent;
+        const lname = row.cells[4].textContent;
+        const manager = row.cells[14].textContent;
 
-
+        window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
+    } else {
+        console.error('Row not found for ID:', id);
+    }
+}
 
 
 
@@ -116,15 +161,18 @@ function searchTable() {
 
 
   
-//ค้นหาชื่อผู้จัดการ
-function customSearch1() {
+
+
+
+//ค้นหาชื่อจังหวัด
+function customSearch3() {
     var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput1"); // เปลี่ยน ID ใหม่ที่นี่
+    input = document.getElementById("newSearchInput3"); // เปลี่ยน ID ใหม่ที่นี่
     filter = input.value.toUpperCase();
     table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
     for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[12]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
+        td = tr[i].getElementsByTagName("td")[13]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
         if (td) {
             txtValue = td.textContent || td.innerText;
             // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
@@ -135,13 +183,13 @@ function customSearch1() {
             }
         }
     }
-} 
+}
 
 
-//ค้นหาชื่อหัวหน้าสาขา
-function customSearch3() {
+//ค้นหาชื่อผู้จัดการ
+function customSearch1() {
     var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput3"); // เปลี่ยน ID ใหม่ที่นี่
+    input = document.getElementById("newSearchInput1"); // เปลี่ยน ID ใหม่ที่นี่
     filter = input.value.toUpperCase();
     table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
@@ -157,9 +205,9 @@ function customSearch3() {
             }
         }
     }
-}
+} 
 
-//ค้นหาชื่อผู้จัดการดูเเล
+//ค้นหาวันที่คืน
 function customSearch2() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById("newSearchInput2"); // เปลี่ยน ID ใหม่ที่นี่
@@ -167,7 +215,7 @@ function customSearch2() {
     table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
     for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[13]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
+        td = tr[i].getElementsByTagName("td")[5]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
         if (td) {
             txtValue = td.textContent || td.innerText;
             // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
@@ -605,74 +653,6 @@ cells.forEach(function(cell) {
 
 
 
-//สร้างปุ่มลบเเละเเก้ไข
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวหัว
-var tableRows = document.querySelectorAll("#your_table_id tr:not(:first-child)");
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-tableRows.forEach(function(row) {
-    // สร้าง <td> สำหรับปุ่มแก้ไขและลบ
-    var buttonCell = document.createElement("td");
-
-    // สร้างปุ่มแก้ไข
-    var editButton = document.createElement("button");
-    editButton.textContent = "แก้ไข";
-    editButton.onclick = function() {
-        // เรียกใช้ฟังก์ชันแก้ไขแถวและส่งข้อมูลแถวที่ต้องการแก้ไขไปยังหน้า "บันทึกข้อมูลลูกหนี้.html"
-        editRow(row);
-    };
-
-    // สร้างปุ่มลบ
-    var deleteButton = document.createElement("button");
-    deleteButton.textContent = "ลบ";
-    deleteButton.onclick = function() {
-        if (confirm("คุณต้องการลบข้อมูลในแถวนี้ใช่หรือไม่?")) {
-            // เรียกใช้ฟังก์ชันลบแถว
-            deleteRow(row);
-            // แสดงข้อความแจ้งเตือนเมื่อลบแถวสำเร็จ
-            alert("ข้อมูลถูกลบเรียบร้อยแล้ว");
-        } else {
-            // ไม่ต้องทำอะไร
-        }
-    };
-
-    // เพิ่มปุ่มแก้ไขและลบลงใน <td> เดียวกัน
-    buttonCell.appendChild(editButton);
-    buttonCell.appendChild(deleteButton);
-
-    // เพิ่ม <td> ที่มีปุ่มแก้ไขและลบลงในแถว
-    row.appendChild(buttonCell);
-});
-
-// ฟังก์ชันสำหรับการแก้ไขแถว
-function editRow(row) {
-    // ดึงข้อมูลจากแถว
-    var rowData = {
-        sequence: row.cells[0].textContent,
-        registrationDate: row.cells[1].textContent,
-        idCard: row.cells[2].textContent,
-        firstName: row.cells[3].textContent,
-        lastName: row.cells[4].textContent,
-        principal: row.cells[5].textContent,
-        interest: row.cells[6].textContent,
-        refundAmount: row.cells[7].textContent,
-        status: row.cells[8].textContent,
-        accumulatedPrincipal: row.cells[9].textContent,
-        accumulatedInterest: row.cells[10].textContent,
-        accumulatedProfit: row.cells[11].textContent,
-        manager: row.cells[12].textContent,
-        supervisor: row.cells[13].textContent,
-        branchHead: row.cells[14].textContent
-    };
-    alert("เริ่มแก้ไขแถวที่ " + row.cells[0].textContent);
-    // เปิดหน้า "บันทึกข้อมูลลูกหนี้.html" และส่งข้อมูลแถวที่ต้องการแก้ไขไปด้วย
-    window.location.href = "บันทึกข้อมูลลูกหนี้.html?data=" + JSON.stringify(rowData);
-}
-
-// ฟังก์ชันสำหรับลบแถว
-function deleteRow(row) {
-    row.remove();
-}
 
 
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางคลังทรัพย์สิน</title>
+<title>ตารางผู้จัดการ</title>
 
 <style>
 .navbar {
@@ -160,26 +160,111 @@ tr:nth-child(even) {
 }
 
 
-.button-container3 {
-display: flex;
-justify-content: center;
-margin-top: 10px;
-}    
-.column3 {
+/* Common styles */
+.column {
+        float: left;
+        width: 33.33%;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
 
-margin: 10px; /* Adjust the margin as needed */
-}
+    /* Style for totalDebtorsInContract */
+    #totalDebtorsInContract {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
 
-.custom-button3 {
-background-color: #333;
-color: white;
-padding: 10px 20px;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
-height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
-}
+    /* Style for totalIDCard */
+    #totalIDCard {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for debtorsWithInterest */
+    #debtorsWithInterest {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for debtorsWithContracts */
+    #debtorsWithContracts {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+    #debtorsWhoExceededContracts {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for fullyPaidDebtors */
+    #fullyPaidDebtors {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for debtorsBlacklist */
+    #debtorsBlacklist {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalPrincipalAmount */
+    #totalPrincipalAmount {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalInterestAmount */
+    #totalInterestAmount {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalRefundAmount */
+    #totalRefundAmount {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalPrincipal */
+    #totalPrincipal {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalShare */
+    #totalAccumulatedInterest {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Style for totalNetProfit */
+    #totalNetProfit {
+        font-size: 16px;
+        color: #000000;
+        margin-top: 5px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+
 
 .s {
    color: green;
@@ -207,8 +292,8 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
     <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a class="active"href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a class="active" href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -216,7 +301,7 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 </div>
 
 
-<h2 style="text-align:center;">ตารางคลังทรัพย์สิน</h2>
+<h2 style="text-align:center;">ตารางผู้จัดการ</h2>
 
 
 <div class="search-container">
@@ -225,54 +310,50 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 </div>
 
 
-
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="พิมพ์ผู้จัดการ">
+    <button type="button" onclick="searchTable()">ค้นหาผู้จัดการ</button>
+</div>
 
   
 
 <div class="search-container2">
   <select id="statusFilter">
     <option value="" selected>ทั้งหมด</option>
-    <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
-    <option value="เลยกำหนดสัญญา">เลยกำหนดสัญญา</option>
-    <option value="ครบกำหนดชำระ">ครบกำหนดชำระ</option>
-    <option value="ยึดเเล้ว">ยึดเเล้ว</option>
-    <option value="ขายเเล้ว">ขายเเล้ว</option>
-    <option value="ประมูลเเล้ว">ประมูลเเล้ว</option>
+    <option value="ดี">ดี</option>
+    <option value="ปานกลาง">ปานกลาง</option>
+    <option value="ปรับปรุง">ปรับปรุง</option>
   </select>
   <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
 </div>
 
 
-<div class="button-container3">
-    <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage2()">คลังทรัพย์</button>
-    </div>
-    <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage3()">ขายทรัพย์</button>
-    </div>
-    <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage3()">ประมูล</button>
-    </div>
+<div class="button-container">
+    <button class="custom-button" onclick="window.location.href='เพิ่มข้อมูลผู้จัดการ.html';">
+        <a href="เพิ่มข้อมูลผู้จัดการ.html" class="button-link">เพิ่มข้อมูลผู้จัดการ</a>
+    </button>
 </div>
 
   
   
 
 
-<table id="e">
+<table id="f">
     <tr>
       <th>ลำดับ</th>
-      <th>รหัส</th>
-      <th>บิล</th>
-      <th>เลขบัตรประชาชน</th>
-      <th>วันที่ยึด</th>
-      <th>ค่าใช้จ่ายยึด</th>
-      <th>รวมต้นทุนทรัพย์</th>
-      <th>ชื่อทรัพย์</th>
-      <th>รายละเอียดทรัพย์</th>
-      <th>ผู้จัดการ</th>
+      <th>วันที่เพิ่ม</th>
+      <th>เลขบขัตรประชาชน</th>
+      <th>ชื่อ</th>
+      <th>นามสกุล</th>
+      <th>เบอร์โทรศัพท์</th>
+      <th>จังหวัดดูเเล</th>
+      <th>บริเวณดูเเเล</th>
+      <th>นามปากกา</th>
+      <th>ลูกหนี้ทั้งหมด</th>
+      <th>ลูกหนี้อยู่ในสัญญา</th>
+      <th>ลูกหนี้เลยสัญญา</th>
+      <th>สถานะ</th>
       <th>จัดการ</th>
-      <th>ตลาด</th>
     </tr>
   
   

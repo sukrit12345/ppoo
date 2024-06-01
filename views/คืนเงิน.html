@@ -130,7 +130,7 @@ tr:nth-child(even) {
 <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -143,27 +143,26 @@ tr:nth-child(even) {
 
 
 
-<div style="text-align: center;">เลขบัตรประชาชน: 9876543210987</div>
-<div style="text-align: center;">ชื่อ: Jane</div>
-<div style="text-align: center;">นามสกุล: Smith</div>
+<div style="text-align: center;">เลขบัตรประชาชน:<span id="id-card-number"></span></div>
+<div style="text-align: center;">ชื่อ:<span id="first-name"></span></div>
+<div style="text-align: center;">นามสกุล:<span id="last-name"></span></div>
+
 <br>
 
-<div style="text-align: center;">ผู้จัดการ: John Smith</div>
-<div style="text-align: center;">ผู้จัดการดูเเล: -</div>
-<div style="text-align: center;">หัวหน้าสาขา: John Smith</div>
+<div style="text-align: center;">ผู้จัดการ:<span id="manager"></span></div>
 <br>
 <br>
 
 
 <div class="button-container">
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='สัญญา.html';">สัญญา</button>
+        <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='คืนเงิน.html';">คืนเงิน</button>
+        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='ส่วนเเบ่ง.html';">ส่วนเเบ่ง</button>
+        <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
     </div>
 </div>
 
@@ -177,59 +176,20 @@ tr:nth-child(even) {
   <tr>
     <th>รหัส</th>
     <th>บิล</th>
+    <th>เงินต้นที่ต้องคืน</th>
+    <th>ดอกเบี้ยที่ต้องคืน</th>
     <th>รวมเงินที่ต้องคืน</th>
     <th>วันที่คืน</th>
     <th>เงินต้นคืน</th>
-    <th>ดอกเบี้ยรวมคืน</th>
-    <th>รวมเงินที่คืน</th>
+    <th>ดอกเบี้ยคืน</th>
+    <th>ค่าทวงเงินคืน</th>
+    <th>รวมเงินคืน</th>
     <th>ดอกเบี้ยค้าง</th>
-    <th>กำไรสุทธิ</th>
+    <th>กำไรขั้นต้นสะสม</th>
+    <th>ส่วนเที่เเบ่งเเล้ว</th>
     <th>สถานะ</th>
     <th>จัดการ</th>
     <th>ส่วนเเบ่ง</th>
-  </tr>
-
-
-  <tr>
-    <td>3</td>
-    <td>1</td>
-    <td>10,500</td>
-    <td>2024-05-10</td>
-    <td>10,000</td>
-    <td>500</td>
-    <td>10,500</td>
-    <td>0</td>
-    <td>ยังเเบ่งไม่ได้</td>
-    <td>0</td>
-    
-    
-  </tr>
-  <tr>
-    <td>2</td>
-    <td>1</td>
-    <td>250</td>
-    <td>2024-05-12</td>
-    <td>15,000</td>
-    <td>750</td>
-    <td>15,750</td>
-    <td>250</td>
-    <td>เเบ่งได้</td>
-    <td>0</td>
-    
-    
-  </tr>
-  <tr>
-    <td>1</td>
-    <td>1</td>
-    <td>250</td>
-    <td>2024-05-14</td>
-    <td>20,000</td>
-    <td>1,000</td>
-    <td>21,000</td>
-    <td>0</td>
-    <td>ยังเเบ่งไม่ได้</td>
-    <td>0</td>
-
   </tr>
 
 

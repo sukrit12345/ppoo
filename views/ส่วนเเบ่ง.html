@@ -126,7 +126,7 @@ tr:nth-child(even) {
   <div class="navbar">
     <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คสถานะ.html">เช็คสถานะ</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ผู้จัดการ.html">ผู้จัดการ</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -139,29 +139,30 @@ tr:nth-child(even) {
 
 
 
-<div style="text-align: center;">เลขบัตรประชาชน: 9876543210987</div>
-<div style="text-align: center;">ชื่อ: Jane</div>
-<div style="text-align: center;">นามสกุล: Smith</div>
+
+<div style="text-align: center;">เลขบัตรประชาชน:<span id="id-card-number"></span></div>
+<div style="text-align: center;">ชื่อ:<span id="first-name"></span></div>
+<div style="text-align: center;">นามสกุล:<span id="last-name"></span></div>
+
 <br>
 
-<div style="text-align: center;">ผู้จัดการ: John Smith</div>
-<div style="text-align: center;">ผู้จัดการดูเเล: -</div>
-<div style="text-align: center;">หัวหน้าสาขา: John Smith</div>
+<div style="text-align: center;">ผู้จัดการ:<span id="manager"></span></div>
 <br>
 <br>
 
 
 <div class="button-container">
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='สัญญา.html';">สัญญา</button>
+        <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='คืนเงิน.html';">คืนเงิน</button>
+        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="window.location.href='ส่วนเเบ่ง.html';">ส่วนเเบ่ง</button>
+        <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
     </div>
 </div>
+
 
 
 
@@ -173,71 +174,17 @@ tr:nth-child(even) {
   <tr>
     <th>รหัส</th>
     <th>บิล</th>
-    <th>เงินที่ต้องเเบ่ง</th>
+    <th>ส่วนที่ต้องเเบ่ง</th>
     <th>วันที่เเบ่ง</th>
-    <th>เงินเเบ่งผู้จัดการ</th>
-    <th>เงินเเบ่งผู้จัดการดูเเล</th>
-    <th>เงินเเบ่งหัวหน้าสาขา</th>
-    <th>เงินเเบ่งโฮส</th>
+    <th>ส่วนเเบ่งค่าทวงเงิน</th>
+    <th>คนทวงเงิน</th>
+    <th>ส่วนเเบ่งผู้จัดการ</th>
+    <th>ผู้จัดการ</th>
+    <th>ส่วนเเบ่งทั้งหมด</th>
+    <th>กำไรสุทธิสะสม(รหัส)</th>
     <th>จัดการ</th>
   </tr>
 
-
-
-  <tr>
-    <td>1</td>
-    <td>1</td>
-    <td>1000</td>
-    <td>2024-05-14</td>
-    <td>300</td>
-    <td>200</td>
-    <td>100</td>
-    <td>400</td>
-
-</tr>
-<tr>
-    <td>2</td>
-    <td>102</td>
-    <td>1500</td>
-    <td>2024-05-15</td>
-    <td>450</td>
-    <td>300</td>
-    <td>150</td>
-    <td>600</td>
-    
-</tr>
-<tr>
-    <td>3</td>
-    <td>103</td>
-    <td>2000</td>
-    <td>2024-05-16</td>
-    <td>600</td>
-    <td>400</td>
-    <td>200</td>
-    <td>800</td>
-    
-<tr>
-    <td>4</td>
-    <td>104</td>
-    <td>2500</td>
-    <td>2024-05-17</td>
-    <td>750</td>
-    <td>500</td>
-    <td>250</td>
-    <td>1000</td>
-   
-</tr>
-<tr>
-    <td>5</td>
-    <td>105</td>
-    <td>3000</td>
-    <td>2024-05-18</td>
-    <td>900</td>
-    <td>600</td>
-    <td>300</td>
-    <td>1200</td>
-    
-</tr>
 
 </table>
 
