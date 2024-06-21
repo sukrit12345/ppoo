@@ -153,7 +153,8 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -161,34 +162,70 @@ input[type=text] {
  </div> 
 
 <div class="container">
-    <form action="submit" method="post">
 
-        <label for="return_date_input">วันที่แบ่งเงิน:</label>
-        <input type="date" id="return_date_input" name="return_date_input" placeholder="เลือกวันที่แบ่งเงิน" required><br><br>
+  <form action="/profit-sharing" method="post" enctype="multipart/form-data" oninput="calculateShares()">
+    <label for="manager">เเอดมิน:</label>
+    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required>
     
-        <label for="initial_profit_input">เงินที่ต้องแบ่ง:</label>
-        <input type="text" id="initial_profit_input" name="initial_profit" placeholder="กรอกจำนวนเงินที่ต้องเเบ่ง" onchange="calculateShares()" required><br><br>
-    
-        <label for="refund_interest_input_manager">ชื่อผู้จัดการ:</label>
-        <input type="text" id="refund_interest_input_manager" name="refund_interest_manager" placeholder="กรอกชื่อผู้จัดการ" required><br><br>
-    
-        <label for="bank_name_input_manager">ชื่อธนาคารผู้จัดการ:</label>
-        <input type="text" id="bank_name_input_manager" name="bank_name_manager" placeholder="กรอกชื่อธนาคารผู้จัดการ" required><br><br>
-    
-        <label for="account_number_input_manager">เลขบัญชีผู้จัดการ:</label>
-        <input type="text" id="account_number_input_manager" name="account_number_manager" placeholder="กรอกเลขบัญชีผู้จัดการ" required><br><br>
-    
-        <label for="manager_share_percentage_input">อัตราส่วนแบ่งผู้จัดการ(%):</label>
-        <input type="text" id="manager_share_percentage_input" name="manager_share_percentage" placeholder="กรอกสัดส่วนการแบ่งกำไรของผู้จัดการ" onchange="calculateShares()" required><br><br>
-    
-        <label for="manager_share_input">ส่วนแบ่งผู้จัดการ(บาท):</label>
-        <input type="text" id="manager_share_input" name="manager_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของผู้จัดการ" required><br><br>
-    
-        <label for="final_profit_input">เงินเเบ่งโฮส:</label>
-        <input type="text" id="final_profit_input" name="final_profit" placeholder="กรอกจำนวนเงินส่วนเเบ่งโฮส" required>
-    
-        <input type="submit" value="บันทึกส่วนเเบ่ง" class="button">
-    </form>
+    <label for="id_card_number">เลขบัตรประชาชน:</label>
+    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+
+    <label for="fname">ชื่อจริง:</label>
+    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+
+    <label for="lname">นามสกุล:</label>
+    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+
+    <label for="contract_number">หมายเลขสัญญา:</label>
+    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+
+    <label for="bill_number">หมายเลขบิล:</label>
+    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
+
+    <label for="return_date_input">วันที่แบ่งเงิน (เดือน-วัน-ปี):</label>
+    <input type="date" id="return_date_input" name="return_date_input" placeholder="เลือกวันที่แบ่งเงิน" required><br><br>
+
+    <label for="initial_profit">เงินที่ต้องแบ่งคนทวง:</label>
+    <input type="text" id="initial_profit" name="initial_profit" placeholder="กรอกจำนวนเงินที่ต้องเเบ่งคนทวง" required>
+
+    <label for="collector_name_input">ชื่อคนทวง:</label>
+    <input type="text" id="collector_name" name="collector_name" placeholder="กรอกชื่อคนทวง"required>
+
+    <label for="collector_share_input">ส่วนแบ่งคนทวง(บาท):</label>
+    <input type="text" id="collector_share" name="collector_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของคนทวง"required>
+    <br>
+    <br>
+
+    <label for="initial_profit2">เงินที่ต้องแบ่งเเอดมิน:</label>
+    <input type="text" id="initial_profit2" name="initial_profit2" placeholder="กรอกจำนวนเงินที่ต้องเเบ่งเเอดมิน" required>
+
+    <label for="manager_share2">ส่วนแบ่งเเอดมิน(%):</label>
+    <input type="text" id="manager_share2" name="manager_share2" placeholder="กรอกจำนวนเงินส่วนแบ่งของเเอดมินร"required>
+
+    <label for="manager_share_input">ส่วนแบ่งเเอดมิน(บาท):</label>
+    <input type="text" id="manager_share" name="manager_share" placeholder="กรอกจำนวนเงินส่วนแบ่งของเเอดมิน"required>
+
+    <label for="total_share_input">ส่วนเเบ่งทั้งหมด(บาท):</label>
+    <input type="text" id="total_share" name="total_share" placeholder="กรอกจำนวนเงินส่วนเเบ่งทั้งหมด" required readonly>
+    <br>
+    <br>
+
+    <label for="net_profit_input">กำไรสุทธิ(บาท):</label>
+    <input type="text" id="net_profit" name="net_profit" placeholder="กรอกจำนวนกำไรสุทธิ" required readonly>
+
+    <label for="collector_receipt_photo">รูปสลิปส่วนเเบ่งคนทวง:</label>
+    <input type="file" id="collector_receipt_photo" name="collector_receipt_photo">
+
+    <label for="manager_receipt_photo">รูปสลิปส่วนเเบ่งผู้จัดการ:</label>
+    <input type="file" id="manager_receipt_photo" name="manager_receipt_photo">
+
+    <input type="hidden" id="refundId" name="refundId"> 
+
+
+    <input type="submit" value="บันทึกส่วนเเบ่ง" class="button">
+</form>
+
+
     
 </div>
 

@@ -293,7 +293,8 @@ tr:nth-child(even) {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a class="active" href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a class="active" href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -301,7 +302,7 @@ tr:nth-child(even) {
 </div>
 
 
-<h2 style="text-align:center;">ตารางผู้จัดการ</h2>
+<h2 style="text-align:center;">ตารางเเอดมิน</h2>
 
 
 <div class="search-container">
@@ -311,8 +312,8 @@ tr:nth-child(even) {
 
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์ผู้จัดการ">
-    <button type="button" onclick="searchTable()">ค้นหาผู้จัดการ</button>
+    <input type="text" id="newSearchInput1" placeholder="พิมพ์เเอดมิน">
+    <button type="button" onclick="customSearch1()">ค้นหาเเอดมิน</button>
 </div>
 
   
@@ -329,8 +330,8 @@ tr:nth-child(even) {
 
 
 <div class="button-container">
-    <button class="custom-button" onclick="window.location.href='เพิ่มข้อมูลผู้จัดการ.html';">
-        <a href="เพิ่มข้อมูลผู้จัดการ.html" class="button-link">เพิ่มข้อมูลผู้จัดการ</a>
+    <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลเเอดมิน.html';">
+        <a href="บันทึกข้อมูลเเอดมิน.html" class="button-link">บันทึกข้อมูลเเอดมิน</a>
     </button>
 </div>
 
@@ -339,29 +340,27 @@ tr:nth-child(even) {
 
 
 <table id="f">
-    <tr>
-      <th>ลำดับ</th>
-      <th>วันที่เพิ่ม</th>
-      <th>เลขบขัตรประชาชน</th>
-      <th>ชื่อ</th>
-      <th>นามสกุล</th>
-      <th>เบอร์โทรศัพท์</th>
-      <th>จังหวัดดูเเล</th>
-      <th>บริเวณดูเเเล</th>
-      <th>นามปากกา</th>
-      <th>ลูกหนี้ทั้งหมด</th>
-      <th>ลูกหนี้อยู่ในสัญญา</th>
-      <th>ลูกหนี้เลยสัญญา</th>
-      <th>สถานะ</th>
-      <th>จัดการ</th>
-    </tr>
-  
-  
-  </table>
+    <thead>
+        <tr>
+            <th>ลำดับ</th>
+            <th>วันที่บันทึก</th>
+            <th>เลขบัตรประชาชน</th>
+            <th>ชื่อ</th>
+            <th>นามสกุล</th>
+            <th>เบอร์โทรศัพท์</th>
+            <th>ชื่อเล่น</th>
+            <th>ลูกหนี้ทั้งหมด</th>
+            <th>ลูกหนี้อยู่ในสัญญา</th>
+            <th>ลูกหนี้เลยสัญญา</th>
+            <th>สถานะ</th>
+            <th>จัดการ</th>
+        </tr>
+    </thead>
+    <tbody id="managerData"></tbody>
+</table>
 
 
-
-
+<script src="เเอดมิน.js"></script>  
 
 </body>
 </html>

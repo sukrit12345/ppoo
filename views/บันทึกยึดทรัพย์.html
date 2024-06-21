@@ -135,7 +135,8 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -144,18 +145,10 @@ input[type=text] {
 
 <div class="container">
 
- <form id="seizureForm" action="/api/seize-assets" method="POST" enctype="multipart/form-data">
-    <label for="manager">ผู้จัดการ:</label>
-    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อผู้จัดการ" required>
-    
+  <form id="seizureForm" action="/api/seize-assets" method="POST" enctype="multipart/form-data">
+
     <label for="id_card_number">เลขบัตรประชาชน:</label>
     <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
-
-    <label for="fname">ชื่อจริง:</label>
-    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
-
-    <label for="lname">นามสกุล:</label>
-    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
 
     <label for="contract_number">หมายเลขสัญญา:</label>
     <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
@@ -163,30 +156,32 @@ input[type=text] {
     <label for="bill_number">หมายเลขบิล:</label>
     <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
 
-    <label for="seizureDate">วันที่ยึดทรัพย์:</label>
+    <label for="seizureDate">วันที่ยึดทรัพย์ (เดือน-วัน-ปี):</label>
     <input type="date" id="seizureDate" name="seizureDate" required>
     <br><br>
 
-    <label for="seizureCost">ค่าใช้จ่ายในการยึดทรัพย์:</label>
-    <input type="text" id="seizureCost" name="seizureCost" placeholder="">
+    <label for="principal">เงินต้นที่ติด:</label>
+    <input type="text" id="principal" name="principal" placeholder="กรอกเงินต้นที่ติด" required>
 
-    <br><br>
+    <label for="seizureCost">ค่ายึดทรัพย์:</label>
+    <input type="text" id="seizureCost" name="seizureCost" placeholder="กรอกค่าตามทรัพย์" required>
+
+    <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
+    <input type="text" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required >
+
     <label for="assetName">ชื่อทรัพย์ที่ยึด:</label>
-    <input type="text" id="assetName" name="assetName" placeholder="" required>
+    <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์ที่ยึด" required>
 
-    <br><br>
     <label for="assetDetails">รายละเอียดทรัพย์:</label>
-    <input type="text" id="assetDetails" name="assetDetails" placeholder="" required>
+    <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required>
 
-    <br><br>
     <label for="assetPhoto">รูปทรัพย์ที่ยึด:</label>
-    <input type="file" id="assetPhoto" name="assetPhoto" required>
-    
+    <input type="file" id="assetPhoto" name="assetPhoto">
+
     <input type="submit" value="บันทึกยึดทรัพย์" class="button">
  </form>
 
-
-  <script src="บันทึกคืนเงิน.js"></script>
+  <script src="บันทึกยึดทรัพย์.js"></script>
 
 
 </div>

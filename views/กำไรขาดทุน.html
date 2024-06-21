@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>สรุปผล</title>
+<title>ตารางกำไรขาดทุน</title>
 
 <style>
 .navbar {
@@ -104,36 +104,24 @@ tr:nth-child(even) {
 }
 
 
-
 .button-link {
     text-decoration: none;
     color: white;
 }
 
-.custom-button2 {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
-    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
-    
-}
-
-
-
 
 .s {
    color: green;
 }
+
+
 .b {
     color: red;
 }
 .w {
     color: rgb(26, 133, 233);
 }
+
 .l {
     color: rgb(242, 160, 9);
 }
@@ -145,14 +133,14 @@ tr:nth-child(even) {
 
 </style>
 </head>
-
-
 <body>
 
 
+  
+
 <div class="navbar">
-    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-    <a class="active" href="รายงานผล.html">รายงานผล</a>
+    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
@@ -163,69 +151,69 @@ tr:nth-child(even) {
     <a href="ตั้งค่า.html">ตั้งค่า</a>
 </div> 
 
-<h2 style="text-align:center;">สรุปผล</h2>
+<h2 style="text-align:center;">ตารางกำไรขาดทุนรายบุคคล</h2>
 
 
 
+<div style="text-align: center;">เลขบัตรประชาชน:<span id="id-card-number"></span></div>
+<div style="text-align: center;">ชื่อ:<span id="first-name"></span></div>
+<div style="text-align: center;">นามสกุล:<span id="last-name"></span></div>
+
+<br>
+
+<div style="text-align: center;">เเอดมิน:<span id="manager"></span></div>
+<br>
+<br>
 
 
 <div class="button-container">
     <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage2()">เพิ่มรายได้</button>
+        <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage3()">เพิ่มค่าใช้จ่าย</button>
+        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
     </div>
     <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage4()">เพิ่มทุน</button>
+        <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
     </div>
     <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage5()">เพิ่มหนี้สิน</button>
+        <button class="custom-button1" onclick="redirectToContractPage5()">กำไร/ขาดทุน</button>
     </div>
-</div>
-
-<div class="column">
-    <div style="text-align: center;">สรุปผลตามช่วงเวลา</div>
-    <div id="" style="text-align: center;">รายได้:</div>
-    <div id="" style="text-align: center;">ค่าใช้จ่าย:</div>
-    <div id="" style="text-align: center;">กำไรสุทธิ:</div>
-    <div id="" style="text-align: center;">ทุน:</div>
-    <div id="" style="text-align: center;">หนี้สิน:</div>
-    <div id="" style="text-align: center;">สินทรัพย์:</div>
 </div>
 
 
 
 
-<table id="i">
-    <thead>
-        <tr>
-            <th>ลำดับ</th>
-            <th>วันที่</th>
-            <th>รายการ</th>
-            <th>รายละเอียด</th>
-            <th>รายได้</th>
-            <th>ค่าใช้จ่าย</th>
-            <th>ทุน</th>
-            <th>หนี้สิน</th>
-            <th>สินทรัพย์</th>
-        </tr>
-    </thead>
-    <tbody id="i"></tbody>
+
+
+
+<table id="q">
+  <tr>
+    <th>รหัส</th>
+    <th>รวมเงินคืน</th>
+    <th>เงินต้นที่ปล่อย</th>
+    <th>ค่าเเนะนำ</th>
+    <th>ส่วนเเบ่งคนทวงเงิน</th>
+    <th>ส่วนเเบ่งผู้จัดการ</th>
+    <th>สถานะ</th>
+    <th>กำไรสุทธิ</th>
+  </tr>
+
 </table>
 
 
 
 
+<script src="กำไรขาดทุน.js"></script>  
 
 
 
-<script src="รายงานผล.js"></script>
+
+
+
+
+
 
 
 </body>
 </html>
-
-
-
-

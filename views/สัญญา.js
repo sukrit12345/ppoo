@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // ดึงค่า manager และแสดงใน HTML
     const manager = urlParams.get('manager');
     document.getElementById('manager').textContent = manager ? manager : "N/A";
+
+    // ดึงค่า manager2 และแสดงใน HTML
+    const manager2 = urlParams.get('manager2');
+    document.getElementById('manager2').textContent = manager2 ? manager2 : "N/A";
 });
 
 
@@ -28,11 +32,12 @@ function redirectToContractPage() {
     const fname = urlParams.get('fname');
     const lname = urlParams.get('lname');
     const manager = urlParams.get('manager');
+    const manager2 = urlParams.get('manager2');
 
 
-    if (idCardNumber && fname && lname && manager ) {
+    if (idCardNumber && fname && lname && manager && manager2) {
         // สร้าง URL ใหม่เพื่อไปยังหน้า "บันทึกสัญญา.html" โดยเพิ่มเฉพาะค่า id_card_number, fname, และ lname
-        const newURL = `/บันทึกสัญญา.html?id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}`;
+        const newURL = `/บันทึกสัญญา.html?id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&manager2=${encodeURIComponent(manager2)}`;
         // นำ URL ใหม่ไปที่หน้าที่ต้องการ
         window.location.href = newURL;
     } else {
@@ -48,12 +53,14 @@ function redirectToContractPage2() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
+    const manager2 = urlParams.get('manager2');
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/สัญญา.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager);
+                   '&manager=' + encodeURIComponent(manager)+
+                   '&manager2=' + encodeURIComponent(manager2);
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -68,12 +75,14 @@ function redirectToContractPage3() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
+    const manager2 = urlParams.get('manager2');
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/คืนเงิน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager);
+                   '&manager=' + encodeURIComponent(manager)+
+                   '&manager2=' + encodeURIComponent(manager2);
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -88,19 +97,39 @@ function redirectToContractPage4() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
+    const manager2 = urlParams.get('manager2');
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/ส่วนเเบ่ง.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager);
+                   '&manager=' + encodeURIComponent(manager)+
+                   '&manager2=' + encodeURIComponent(manager2);
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
 }
 
 
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มกำไร/ขาดทุน
+function redirectToContractPage5() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+    const manager2 = urlParams.get('manager2');
 
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/กำไรขาดทุน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager)+
+                   '&manager2=' + encodeURIComponent(manager2);
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
 
 
 
@@ -121,14 +150,24 @@ async function displayLoanData() {
         const data = await response.json();
 
         const tableBody = document.getElementById("loanData");
-        tableBody.innerHTML = ''; // ล้างข้อมูลในตารางก่อนที่จะเพิ่มข้อมูลใหม่
+        tableBody.innerHTML = ''; // Clear table before adding new data
 
-        // เรียงข้อมูลตามวันที่บันทึก
-        data.sort((a, b) => new Date(a.loanDate) - new Date(b.loanDate));
+        // เรียงลำดับข้อมูล
+        data.sort((a, b) => {
+            const dateA = new Date(a.loanDate);
+            const dateB = new Date(b.loanDate);
+            if (dateB - dateA !== 0) {
+                return dateB - dateA; // เปรียบเทียบ return_date จากใหม่ไปเก่า
+            }
+            if (b.contract_number !== a.contract_number) {
+                return b.contract_number.localeCompare(a.contract_number); // เปรียบเทียบ contract_number จากมากไปน้อย
+            }
+            return b.bill_number.localeCompare(a.bill_number); // เปรียบเทียบ bill_number จากมากไปน้อย
+        });
 
         data.forEach(loan => {
-            const row = tableBody.insertRow(0); // เพิ่มแถวใหม่ในส่วนต้นของ tableBody
-            row.id = `row-${loan._id}`; // กำหนด id ให้กับแถว
+            const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody
+            row.id = `row-${loan._id}`; // Set id for the row
 
             row.innerHTML = `
                 <td>${loan.contract_number}</td>
@@ -151,8 +190,8 @@ async function displayLoanData() {
                     <button onclick="redirectToDelete('${loan._id}', '${loan.id_card_number}')">ลบ</button>
                     <button onclick="redirectToclose('${loan._id}', '${loan.id_card_number}')">ปิด</button>
                 </td>
-                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}')">ยึดทรัพย์</button></td>
-                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}')">คืนเงิน</button></td>
+                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}')">ยึดทรัพย์</button></td>
+                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}', '${loan.totalInterest4}', '${loan.totalRefund}')">คืนเงิน</button></td>
             `;
         });
     } catch (error) {
@@ -172,14 +211,14 @@ function redirectToEdit(loanId, idCardNumber, fname, lname, manager, contract_nu
 
 
 // ไปหน้าบันทึกยึดทรัพย์
-function seizeAssets(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number) {
-    window.location.href = `/บันทึกยึดทรัพย์.html?loan_id=${encodeURIComponent(loanId)}&id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&contract_number=${encodeURIComponent(contract_number)}&bill_number=${encodeURIComponent(bill_number)}`;
+function seizeAssets(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number,principal) {
+    window.location.href = `/บันทึกยึดทรัพย์.html?loan_id=${encodeURIComponent(loanId)}&id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&contract_number=${encodeURIComponent(contract_number)}&bill_number=${encodeURIComponent(bill_number)}&principal=${encodeURIComponent(principal)}`;
 }
 
 
 // ไปหน้าบันทึกคืนเงิน
-function refundMoney(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number) {
-    window.location.href = `/บันทึกคืนเงิน.html?loan_id=${encodeURIComponent(loanId)}&id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&contract_number=${encodeURIComponent(contract_number)}&bill_number=${encodeURIComponent(bill_number)}`;
+function refundMoney(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number, principal, totalInterest4, totalRefund ) {
+    window.location.href = `/บันทึกคืนเงิน.html?loan_id=${encodeURIComponent(loanId)}&id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&contract_number=${encodeURIComponent(contract_number)}&bill_number=${encodeURIComponent(bill_number)}&principal=${encodeURIComponent(principal)}&totalInterest4=${encodeURIComponent(totalInterest4)}&totalRefund=${encodeURIComponent(totalRefund)}`;
 }
 
 
@@ -212,7 +251,6 @@ function redirectToDelete(objectId, idCardNumber) {
 window.onload = function () {
     displayLoanData();
 };
-
 
 
 

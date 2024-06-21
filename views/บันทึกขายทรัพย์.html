@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>บันทึกคืนเงิน</title>
+<title>บันทึกขายทรัพย์สิน</title>
 
 <style>
 .navbar {
@@ -131,10 +131,10 @@ input[type=text] {
 </head>
 <body>
   <div class="navbar">
-    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a  href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a class="active" href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -145,59 +145,47 @@ input[type=text] {
 
 <div class="container">
 
-  <form action="/refunds/submit_form" method="post" enctype="multipart/form-data">
-    <label for="manager">เเอดมิน:</label>
-    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required>
+    <form action="/submit-sale" method="post" enctype="multipart/form-data">
+        <label for="id_card_number">เลขบัตรประชาชน:</label>
+        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+        
+        <label for="contract_number">หมายเลขสัญญา:</label>
+        <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+        
+        <label for="bill_number">หมายเลขบิล:</label>
+        <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
+        
+        <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
+        <input type="number" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required>
+        
+        <label for="sell_date">วันที่ขาย (เดือน-วัน-ปี):</label>
+        <input type="date" id="sell_date" name="sell_date" placeholder="กรอกวันที่ขาย" required><br><br>
+        
+        <label for="assetName">ชื่อทรัพย์:</label>
+        <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์" required>
+        
+        <label for="assetDetails">รายละเอียดทรัพย์:</label>
+        <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required>
+        
+        <label for="sellamount">เงินขายทรัพย์:</label>
+        <input type="number" id="sellamount" name="sellamount" placeholder="กรอกเงินขายทรัพย์" required>
     
-    <label for="id_card_number">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
-
-    <label for="fname">ชื่อจริง:</label>
-    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
-
-    <label for="lname">นามสกุล:</label>
-    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
-
-    <label for="contract_number">หมายเลขสัญญา:</label>
-    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
-
-    <label for="bill_number">หมายเลขบิล:</label>
-    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
-
-    <label for="principal">เงินต้นที่ต้องคืน:</label>
-    <input type="text" id="principal" name="principal" placeholder="กรอกเงินต้นที่ต้องคืน" required>
-
-    <label for="totalInterest4">ดอกเบี้ยที่ต้องคืน:</label>
-    <input type="text" id="totalInterest4" name="totalInterest4" placeholder="กรอกดอกเบี้ยที่ต้องคืน" required>
-
-    <label for="totalRefund">รวมเงินที่ต้องคืน:</label>
-    <input type="text" id="totalRefund" name="totalRefund" placeholder="กรอกรวมเงินที่ต้องคืน" required>
-
-    <label for="return_date_input">วันที่คืน (เดือน-วัน-ปี):</label>
-    <input type="date" id="return_date_input" name="return_date" placeholder="เลือกวันที่คืน" required><br><br>
-
-    <label for="refund_principal">เงินต้นคืน:</label>
-    <input type="number" id="refund_principal" name="refund_principal" placeholder="กรอกจำนวนเงินต้นที่คืน" required>
-
-    <label for="refund_interest">ดอกเบี้ยรวมคืน:</label>
-    <input type="number" id="refund_interest" name="refund_interest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมดที่คืน" required>
-
-    <label for="debtAmount">ค่าทวงเงินคืน:</label>
-    <input type="number" id="debtAmount" name="debtAmount" placeholder="กรอกค่าทวงเงิน" required>
-
-    <label for="total_refund2">รวมเงินที่คืน:</label>
-    <input type="number" id="total_refund2" name="total_refund2" placeholder="กรอกจำนวนเงินทั้งหมดที่คืน" required>
-
-    <label for="refund_receipt_photo">รูปสลิปเงินคืน:</label>
-    <input type="file" id="refund_receipt_photo" name="refund_receipt_photo">
-
-    <input type="hidden" id="loan" name="loan">
-
-    <input type="submit" value="บันทึกคืนเงิน" class="button">
-</form>
+        <label for="netprofit">กำไรสุทธิ:</label>
+        <input type="number" id="netprofit" name="netprofit" placeholder="กรอกกำไรสุทธิ" required readonly>
+        
+        <label for="sell_slip">รูปสลิปเงินขายทรัพย์:</label>
+        <input type="file" id="sell_slip" name="sell_slip">
+    
+        <!-- Input hidden สำหรับเก็บ ID ของการยึดทรัพย์ -->
+        <input type="hidden" id="seizure_id" name="seizure_id"> 
+        
+        <input type="submit" value="บันทึกขายทรัพย์สิน" class="button">
+    </form>
+    
+    
 
 
-<script src="บันทึกคืนเงิน.js"></script>
+<script src="บันทึกขายทรัพย์.js"></script>
 
 
 

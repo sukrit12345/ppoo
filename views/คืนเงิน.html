@@ -92,6 +92,17 @@ tr:nth-child(even) {
     width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
     height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
 }
+.custom-button1 {
+    background-color: #555;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
+    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
+}
+
 
 .button-link {
     text-decoration: none;
@@ -132,7 +143,8 @@ tr:nth-child(even) {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -149,7 +161,7 @@ tr:nth-child(even) {
 
 <br>
 
-<div style="text-align: center;">ผู้จัดการ:<span id="manager"></span></div>
+<div style="text-align: center;">เเอดมิน:<span id="manager"></span></div>
 <br>
 <br>
 
@@ -159,10 +171,13 @@ tr:nth-child(even) {
         <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
+        <button class="custom-button1" onclick="redirectToContractPage3()">คืนเงิน</button>
     </div>
     <div class="column">
         <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
+    </div>
+    <div class="column">
+        <button class="custom-button" onclick="redirectToContractPage5()">กำไร/ขาดทุน</button>
     </div>
 </div>
 
@@ -185,14 +200,13 @@ tr:nth-child(even) {
     <th>ค่าทวงเงินคืน</th>
     <th>รวมเงินคืน</th>
     <th>ดอกเบี้ยค้าง</th>
-    <th>กำไรขั้นต้นสะสม</th>
-    <th>ส่วนเที่เเบ่งเเล้ว</th>
+    <th>ส่วนเที่ต้องเเบ่ง</th>
     <th>สถานะ</th>
     <th>จัดการ</th>
     <th>ส่วนเเบ่ง</th>
   </tr>
 
-
+  <tbody id="refundData"></tbody>
 </table>
 
 

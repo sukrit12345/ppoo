@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางคลังทรัพย์สิน</title>
+<title>ตารางขายทรัพย์สิน</title>
 
 <style>
 .navbar {
@@ -228,7 +228,7 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 </div>
 
 
-<h2 style="text-align:center;">ตารางคลังทรัพย์สิน</h2>
+<h2 style="text-align:center;">ตารางขายทรัพย์สิน</h2>
 
 
 <div class="search-container">
@@ -239,53 +239,44 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 
 
 
-  
-
-<div class="search-container2">
-  <select id="statusFilter">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="ยังไม่ขาย">ยังไม่ขาย</option>
-    <option value="ขายเเล้ว">ขายเเล้ว</option>
-    
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
-</div>
 
 
 <div class="button-container3">
     <div class="column3">
-        <button class="custom-button1" onclick="redirectToContractPage2()">คลังทรัพย์</button>
+        <button class="custom-button3" onclick="redirectToContractPage2()">คลังทรัพย์</button>
     </div>
     <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage3()">ขายทรัพย์</button>
+        <button class="custom-button1" onclick="redirectToContractPage3()">ขายทรัพย์</button>
     </div>
 </div>
 
   
   
 
-<table id="seizureData">
+
+<table id="m">
   <thead>
       <tr>
           <th>ลำดับ</th>
           <th>เลขบัตรประชาชน</th>
           <th>รหัส</th>
           <th>บิล</th>
-          <th>วันที่ยึด</th>
-          <th>เงินต้นที่ติด</th>
-          <th>ค่ายึดทรัพย์</th>
+          <th>วันที่ขาย</th>
           <th>รวมต้นทุนทรัพย์</th>
-          <th>ชื่อทรัพย์</th> 
+          <th>ชื่อทรัพย์</th>
           <th>รายละเอียดทรัพย์</th>
-          <th>สถานะ</th>
+          <th>เงินขายทรัพย์</th>
+          <th>กำไรสุทธิ</th>
           <th>จัดการ</th>
-          <th>ขาย</th>
       </tr>
   </thead>
-  <tbody></tbody>
+  <tbody>
+     
+  </tbody>
 </table>
 
-<script src="คลังทรัพย์สิน.js"></script>
+<script src="ขายทรัพย์สิน.js"></script>  
+
 
 
 </body>

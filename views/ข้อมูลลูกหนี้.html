@@ -293,7 +293,8 @@ tr:nth-child(even) {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ผู้จัดการ.html">ผู้จัดการ</a>
+    <a href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
@@ -320,8 +321,8 @@ tr:nth-child(even) {
     </div>
     <div class="column">
         <div class="search-container">
-            <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อผู้จัดการ">
-            <button type="button" onclick="customSearch1()">ค้นหาผู้จัดการ</button>
+            <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อเเอดมิน">
+            <button type="button" onclick="customSearch1()">ค้นหาเเอดมิน</button>
         </div>          
     </div>
     <div class="column">
@@ -337,7 +338,7 @@ tr:nth-child(even) {
 
 
 <div class="search-container2">
-  <select id="statusFilter">
+  <select id="statusFilter" onchange="searchIdCard2()">
     <option value="" selected>ทั้งหมด</option>
     <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
     <option value="เลยกำหนดสัญญา">เลยกำหนดสัญญา</option>
@@ -407,9 +408,10 @@ tr:nth-child(even) {
         <th>สถานะ</th>
         <th>เงินต้นสะสม</th>
         <th>ดอกเบี้ยสะสม</th>
-        <th>กำไรสุทธิสะสม</th>
+        <th>กำไรขั้นต้นสะสม</th>
         <th>จังหวัด</th>
-        <th>ผู้จัดการ</th>
+        <th>เเอดมิน</th>
+        <th>คนเเนะนำ</th>
         <th>จัดการ</th>
         <th>สัญญา</th>
     </tr>
