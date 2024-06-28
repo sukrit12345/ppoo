@@ -1,4 +1,19 @@
 
+//เลือกชื่อเเอดมิน
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/managers')
+      .then(response => response.json())
+      .then(data => {
+        const managerSelect = document.getElementById('manager');
+        data.forEach(manager => {
+          const option = document.createElement('option');
+          option.value = manager.nickname;
+          option.textContent = manager.nickname;
+          managerSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+  });
 
 //สร้างวันที่ปัจจุบัน
 // เรียกฟังก์ชัน setDate เมื่อหน้าเว็บโหลด

@@ -2,8 +2,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
         const response = await fetch('/api/managers');
         const managers = await response.json();
+        
+        console.log('Managers Data:', managers); // ตรวจสอบข้อมูลที่ได้รับจาก API
 
-        // เรียงลำดับข้อมูล
         managers.sort((a, b) => {
             const dateA = new Date(a.record_date);
             const dateB = new Date(b.record_date);
@@ -17,12 +18,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${manager.record_date}</td>
-                <td>${manager.id_card_number}</td>
-                <td>${manager.fname}</td>
-                <td>${manager.lname}</td>
-                <td>${manager.phone}</td>
-                <td>${manager.nickname}</td>
+                <td>${manager.record_date || ''}</td>
+                <td>${manager.id_card_number || ''}</td>
+                <td>${manager.fname || ''}</td>
+                <td>${manager.lname || ''}</td>
+                <td>${manager.phone || ''}</td>
+                <td>${manager.nickname || ''}</td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -44,6 +45,8 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
     }
 });
+
+
 
 // ลบข้อมูลผู้จัดการ
 async function deleteManager(managerId) {

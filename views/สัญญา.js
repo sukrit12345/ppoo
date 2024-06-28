@@ -18,9 +18,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const manager = urlParams.get('manager');
     document.getElementById('manager').textContent = manager ? manager : "N/A";
 
-    // ดึงค่า manager2 และแสดงใน HTML
-    const manager2 = urlParams.get('manager2');
-    document.getElementById('manager2').textContent = manager2 ? manager2 : "N/A";
 });
 
 
@@ -32,12 +29,12 @@ function redirectToContractPage() {
     const fname = urlParams.get('fname');
     const lname = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+   
 
 
-    if (idCardNumber && fname && lname && manager && manager2) {
+    if (idCardNumber && fname && lname && manager ) {
         // สร้าง URL ใหม่เพื่อไปยังหน้า "บันทึกสัญญา.html" โดยเพิ่มเฉพาะค่า id_card_number, fname, และ lname
-        const newURL = `/บันทึกสัญญา.html?id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&manager2=${encodeURIComponent(manager2)}`;
+        const newURL = `/บันทึกสัญญา.html?id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}`;
         // นำ URL ใหม่ไปที่หน้าที่ต้องการ
         window.location.href = newURL;
     } else {
@@ -53,14 +50,14 @@ function redirectToContractPage2() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/สัญญา.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -75,14 +72,14 @@ function redirectToContractPage3() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/คืนเงิน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -90,21 +87,21 @@ function redirectToContractPage3() {
 
 
 
-//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มคืนเงิน
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มส่วนเเบ่ง
 function redirectToContractPage4() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCardNumber = urlParams.get('id_card_number');
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/ส่วนเเบ่ง.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -118,14 +115,14 @@ function redirectToContractPage5() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/กำไรขาดทุน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;

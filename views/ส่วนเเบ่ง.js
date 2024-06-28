@@ -18,11 +18,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const manager = urlParams.get('manager');
     document.getElementById('manager').textContent = manager ? manager : "N/A";
 
-    // ดึงค่า manager และแสดงใน HTML
-    const manager2 = urlParams.get('manager2');
-    document.getElementById('manager2').textContent = manager2 ? manager2 : "N/A";
-});
 
+});
 
 
 
@@ -33,14 +30,14 @@ function redirectToContractPage2() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/สัญญา.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -55,14 +52,14 @@ function redirectToContractPage3() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/คืนเงิน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
@@ -77,18 +74,19 @@ function redirectToContractPage4() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/ส่วนเเบ่ง.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
 }
+
 
 //เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มกำไร/ขาดทุน
 function redirectToContractPage5() {
@@ -97,19 +95,18 @@ function redirectToContractPage5() {
     const firstName = urlParams.get('fname');
     const lastName = urlParams.get('lname');
     const manager = urlParams.get('manager');
-    const manager2 = urlParams.get('manager2');
+
 
     // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
     const newURL = '/กำไรขาดทุน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
                    '&fname=' + encodeURIComponent(firstName) +
                    '&lname=' + encodeURIComponent(lastName)+
-                   '&manager=' + encodeURIComponent(manager)+
-                   '&manager2=' + encodeURIComponent(manager2);
+                   '&manager=' + encodeURIComponent(manager);
+
     
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
 }
-
 
 
 
@@ -157,7 +154,7 @@ async function displayProfitSharingData() {
                 <td>${profit.initialProfit2}</td>
                 <td>${profit.manager ? profit.manager : '-'}</td>
                 <td>${profit.managerShare ? profit.managerShare : 0}</td>
-                <td>${profit.totalShare}</td>
+                <td>${profit.totalShare ? profit.totalShare : 0}</td>
                 <td>${profit.netProfit}</td>
                 <td> 
                     <button onclick="redirectToEdit('${profit._id}', '${profit.id_card_number}', '${profit.fname}', '${profit.lname}', '${profit.manager}', '${profit.contract_number}', '${profit.bill_number}')">แก้ไข</button>

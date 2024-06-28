@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
 function fetchDataAndPopulateTable() {
     fetch('/api/debtor-data')
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
             const tableBody = document.getElementById('debtor-table-body');
             tableBody.innerHTML = ''; // Clear any existing rows
 
@@ -25,7 +25,7 @@ function fetchDataAndPopulateTable() {
                 tr.innerHTML = `
                     <td>${data.length - index}</td> <!-- Reverse the index -->
                     <td>${row.date}</td>
-                    <td>${row.id_card_number}</td>
+                    <td>${row.id_card_number}</td> <!-- Cell ที่ 2 -->
                     <td>${row.fname}</td>
                     <td>${row.lname}</td>
                     <td>-</td> <!-- Placeholder for loan.returnDate -->
@@ -33,12 +33,11 @@ function fetchDataAndPopulateTable() {
                     <td>-</td> <!-- Placeholder for loan.totalInterest4 -->
                     <td>-</td> <!-- Placeholder for loan.totalRefund -->
                     <td>-</td> <!-- Placeholder for loan.status -->
-                    <td>-</td> <!-- Placeholder for Actions -->
-                    <td>-</td> <!-- Placeholder for Contract -->
-                    <td>-</td>
+                    <td>-</td> <!-- Placeholder for Principal Sum -->
+                    <td>-</td> <!-- Placeholder for Refund Interest Sum -->
+                    <td>-</td> <!-- Placeholder for Principal Difference -->
                     <td>${row.province}</td>
                     <td>${row.manager}</td>
-                    <td>${row.manager2}</td>
                     <td> 
                         <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
                         <button onclick="redirectToDelete('${row._id}', '${row.id_card_number}')">ลบ</button>
@@ -61,8 +60,26 @@ function fetchDataAndPopulateTable() {
                     loanRow.cells[9].innerHTML = loanData.status;
                     loanRow.cells[9].style.color = loanData.status;
 
+                    // Fetch the principal sum for the debtor and update cell 10
+                    const principalResponse = await fetch(`/api/loan-principal-sum/${row.id_card_number}`);
+                    const principalData = await principalResponse.json();
+                    loanRow.cells[10].innerText = principalData.totalPrincipal;
+
+                    // Fetch the refund interest sum for the debtor and update cell 11
+                    const refundInterestResponse = await fetch(`/api/refund-interest-sum/${row.id_card_number}`);
+                    const refundInterestData = await refundInterestResponse.json();
+                    loanRow.cells[11].innerText = refundInterestData.totalRefundInterest;
+
+                    // Calculate and update cell 12 with principal difference
+                    const principalSum = parseFloat(principalData.totalPrincipal);
+                    const refundInterestSum = parseFloat(refundInterestData.totalRefundInterest);
+                    const principalDifference = refundInterestSum - principalSum ;
+
+                    // Display principal difference with negative sign if less than zero
+                    loanRow.cells[12].innerText = principalDifference < 0 ? `-${Math.abs(principalDifference)}` : principalDifference.toFixed(2);
+
                 } catch (error) {
-                    console.error('Error fetching loan information:', error);
+                    console.error('Error fetching data:', error);
                 }
             });
 
@@ -128,9 +145,8 @@ function redirectToContract(id) {
         const fname = row.cells[3].textContent;
         const lname = row.cells[4].textContent;
         const manager = row.cells[14].textContent;
-        const manager2 = row.cells[15].textContent;
 
-        window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}&manager2=${manager2}`;
+        window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
     } else {
         console.error('Row not found for ID:', id);
     }
@@ -402,7 +418,7 @@ function calculateTotalDebtorsInContract() {
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
             // Get the status from the cell at index 8 (starting from 0)
-            var status = tr[i].cells[8].innerText.trim(); // Changed from 8 to 7
+            var status = tr[i].cells[9].innerText.trim(); // Changed from 8 to 7
 
             // Check if the status contains the phrase "อยู่ในสัญญา"
             if (status.includes("อยู่ในสัญญา")) {
@@ -436,7 +452,7 @@ function calculateTotalDebtorsWithContracts() {
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
             // Get the status from the cell at index 8 (starting from 0)
-            var status = tr[i].cells[8].innerText.trim();
+            var status = tr[i].cells[9].innerText.trim();
 
             // Check if the status contains the phrase "ครบกำหนดชำระ"
             if (status.includes("ครบสัญญา")) {
@@ -646,36 +662,6 @@ function calculateTotalNetProfit() {
 
 
 
-
-
-//เปลี่ยนสีสถานะ
-// ดึงตาราง HTML โดยใช้ ID
-var table = document.getElementById("your_table_id");
-
-// เลือกเซลล์ทั้งหมดที่อยู่ในคอลัมน์ที่ 12 และตรวจสอบว่ามีข้อความ "ชำระครบ" หรือไม่
-var cells = document.querySelectorAll('#your_table_id td:nth-child(9)');
-  
-cells.forEach(function(cell) {
-  var text = cell.innerHTML.trim();
-  if (text === "อยู่ในสัญญา") {
-    cell.classList.add('w');
-  } 
-  if (text === "เลยสัญญา") {
-    cell.classList.add('l');
-  } 
-  if (text === "ครบสัญญา") {
-    cell.classList.add('d');
-  }
-  if (text === "ต่อดอก") {
-    cell.classList.add('s');
-  } 
-  if (text === "ชำระครบ") {
-    cell.classList.add('s');
-  } 
-  if (text === "เเบล็คลิช") {
-    cell.classList.add('b');
-  } 
-});
 
 
 

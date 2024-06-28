@@ -152,12 +152,12 @@ input[type=text] {
   <form id="debtorForm" action="/Adddebtorinformation/submit" method="post" onsubmit="return validateForm(event);" enctype="multipart/form-data">  
 
     <label for="manager">เเอดมิน:</label>
-    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required>
-
-    <label for="manager2">คนเเนะนำ:</label>
-    <input type="text" id="manager2" name="manager2" placeholder="กรอกชื่อคนเเนะนำ" required>
-
+    <select id="manager" name="manager" required>
+      <option value="">เลือกชื่อเเอดมิน</option>
+    </select>
+    <br><br>
     
+
     <label for="date">วันที่บันทึก (เดือน-วัน-ปี):</label>
     <input type="date" id="date" name="date" placeholder="YYYY-MM-DD">
     <br><br>

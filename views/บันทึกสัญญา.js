@@ -50,7 +50,6 @@ window.onload = function() {
     const fname = getUrlParameter('fname');
     const lname = getUrlParameter('lname');
     const manager = getUrlParameter('manager');
-    const manager2 = getUrlParameter('manager2');
     const billNumber = getUrlParameter('bill_number');
 
     if (idCardNumber) {
@@ -81,13 +80,6 @@ window.onload = function() {
     } else {
         console.log('ไม่พบพารามิเตอร์ URL manager');
     }
-    if (manager2) {
-        console.log('พารามิเตอร์ manager2 พบ:', manager2);
-        document.getElementById('manager2').value = manager2;
-    } else {
-        console.log('ไม่พบพารามิเตอร์ URL manager');
-    }
-
     if (billNumber) {
         console.log('พารามิเตอร์ bill_number พบ:', billNumber);
         document.getElementById('bill_number').value = billNumber;

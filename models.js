@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 //ข้อมูลลูกหนี้
 const debtorSchema = new mongoose.Schema({
     manager: String,
-    manager2: String,
     date: String,
     id_card_number: String,
     fname: String,
@@ -83,6 +82,7 @@ const refundSchema = new mongoose.Schema({
     total_refund2: { type: String, required: true },
     totalInterest5: { type: String, required: false },
     initial_profit: { type: String, required: false },
+    status: { type: String, required: false },
     refund_receipt_photo: { type: String, required: false },
     debtAmount: { type: String, required: false },
     loan: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation', required: true }, // อ้างอิงถึง loanSchema
@@ -126,7 +126,6 @@ const managerSchema = new mongoose.Schema({
     ig: { type: String, required: false },
     facebook: { type: String, required: false },
     line: { type: String, required: false }
-
 });
 
 //ยึดทรัพย์
@@ -136,11 +135,13 @@ const seizureSchema = new mongoose.Schema({
     bill_number: { type: String, required: false },
     seizureDate: { type: String, required: false },
     principal: { type: String, required: false },
+    collector_name: { type: String, required: false },
     seizureCost: { type: String, required: false },
     totalproperty: { type: String, required: false },
     assetName: { type: String, required: false },
     assetDetails: { type: String, required: false },
-    assetPhoto: { type: String, required: false }
+    assetPhoto: { type: String, required: false },
+    seizureCost2: { type: String, required: false }
 });
 
 //ขายทรัพย์

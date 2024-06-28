@@ -107,7 +107,8 @@ app.post('/Adddebtorinformation/submit', upload.fields([
 });
 
 
-//ดึงข้อมูลจาก DebtorInformation
+
+//ส่งข้อมูลไปตารางลูกหนี้
 app.get('/api/debtor-data', async (req, res) => {
     try {
         const data = await DebtorInformation.find();
@@ -116,6 +117,18 @@ app.get('/api/debtor-data', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+//ส่งค่าชื่อเเอดมิน
+app.get('/api/managers', async (req, res) => {
+    try {
+      const managers = await Manager.find({}, 'nickname'); // ดึงเฉพาะฟิลด์ nickname
+      res.json(managers);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+});
+
+
 
 //ดึงข้อมูลลูกหนี้ตามid
 app.get('/api/debtor/:id', async (req, res) => {
@@ -349,11 +362,11 @@ app.post('/AddLoanInformation/submit', upload.fields([
 
 
 
-
-// คำนวณหน้าสัญญา
+//คำนวณหน้าสัญญา
 async function calculateLoanData(loan, currentDate) {
     try {
         const returnDate = new Date(loan.returnDate);
+
         // คำนวณจำนวนวันถึงวันคืนเงิน (totalRepayment)
         let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
         if (totalRepayment <= 0) {
@@ -369,69 +382,54 @@ async function calculateLoanData(loan, currentDate) {
         // คำนวณดอกเบี้ยปรับปรุง (totalInterest2)
         let totalInterest2 = daysUntilReturn !== '-' ? daysUntilReturn * loan.principal * loan.interestRate / 100 : 0;
 
-        // ตรวจสอบว่ามีการกำหนดค่า totalInterest3 หรือไม่ ถ้าไม่มีกำหนดเป็น 0
-        let totalInterest3 = 0;
-
-        // กำหนดสถานะของสัญญา
-        let status;
-        if (currentDate > returnDate) {
-            status = "<span style='color: orange;'>เลยสัญญา</span>";
-        } else if (currentDate < returnDate) {
-            status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
-        } else {
-            status = "<span style='color: pink;'>ครบสัญญา</span>";
-        }
-
-        // ตรวจสอบแถวถัดไปที่มีรหัสเดียวกันและบิลน้อยกว่าแถวตัวเองอยู่ 1
-        const nextLoan = await LoanInformation.findOne({
-            id_card_number: loan.id_card_number,
-            contract_number: loan.contract_number,
-            bill_number: loan.bill_number + 1
-        });
-
-        // อัปเดตสถานะของแถวถัดไปที่มีรหัสเดียวกันและบิลน้อยกว่าแถวตัวเองอยู่ 1 เป็น "ต่อดอก"
-        if (nextLoan) {
-            await LoanInformation.updateOne(
-                { _id: nextLoan._id },
-                { $set: { status: "<span style='color: green;'>ต่อดอก</span>" } }
-            );
-        }
-
-
-        let principal = loan.principal;
-
         // คำนวณดอกเบี้ยรวม (totalInterest4)
-        let totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + Number(totalInterest3);
+        let totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
 
         // คำนวณเงินที่ต้องคืนทั้งหมด (totalRefund)
-        let totalRefund = Number(principal) + Number(totalInterest4);
+        let totalRefund = Number(loan.principal) + Number(totalInterest4);
+
+        // ตรวจสอบและอัปเดตสถานะการคืนเงิน
+        const refunds = await Refund.find({ contract_number: loan.contract_number, bill_number: loan.bill_number });
+
+        let status;
+
+        if (refunds.length > 0) {
+            const refund = refunds[0];
+            
+            console.log("Refund.total_refund2: ", refund.total_refund2); // ตรวจสอบค่าของ refund.total_refund2
+            console.log("Loan.totalRefund: ", totalRefund); // ตรวจสอบค่าของ totalRefund
+
+            if (refund.total_refund2 >= totalRefund) {
+                status = "<span style='color: green;'>ชำระครบ</span>";
+            } else {
+                status = "<span style='color: green;'>ต่อดอก</span>";
+            }
+        } else {
+            // กำหนดสถานะของสัญญาตามวัน
+            if (currentDate > returnDate) {
+                status = "<span style='color: orange;'>เลยสัญญา</span>";
+            } else if (currentDate < returnDate) {
+                status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
+            } else if (currentDate === returnDate) {
+                status = "<span style='color: pink;'>ครบสัญญา</span>";
+            }
+        }
 
         const updatedLoanData = {
             totalRepayment,
             daysUntilReturn,
             totalInterest2,
-            totalInterest3,
+            totalInterest3: loan.totalInterest3 || 0,
             status,
             totalRefund,
-            principal,
+            principal: loan.principal,
             totalInterest4
         };
 
         // อัปเดตข้อมูลในฐานข้อมูล
         await LoanInformation.updateOne(
             { _id: loan._id },
-            {
-                $set: {
-                    totalRepayment,
-                    daysUntilReturn,
-                    totalInterest2,
-                    totalInterest3,
-                    status,
-                    totalRefund,
-                    principal,
-                    totalInterest4
-                }
-            }
+            { $set: updatedLoanData }
         );
 
         return {
@@ -443,7 +441,6 @@ async function calculateLoanData(loan, currentDate) {
         throw error;
     }
 }
-
 
 
 
@@ -498,6 +495,27 @@ app.get('/api/loaninformations/:debtorId', async (req, res) => {
     } catch (error) {
         console.error('Error fetching loan information:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+//ส่งข้อมูลเงินต้นสะสมไปหน้าลูกหนี้
+app.get('/api/loan-principal-sum/:id_card_number', async (req, res) => {
+    try {
+        const idCardNumber = req.params.id_card_number;
+        console.log('idCardNumber:', idCardNumber);  // Debug id_card_number
+
+        const loans = await LoanInformation.aggregate([
+            { $match: { id_card_number: idCardNumber, bill_number: '1' } }, // กำหนดเงื่อนไข
+            { $group: { _id: null, totalPrincipal: { $sum: { $toDouble: "$principal" } } } }
+        ]);
+        console.log('Loans:', loans);  // Debug loans
+
+        const totalPrincipal = loans.length > 0 ? loans[0].totalPrincipal : 0;
+        res.json({ totalPrincipal });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).send(err);
     }
 });
 
@@ -635,19 +653,6 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             refund_interest: refundInterestRounded
         });
 
-        const refunds = await Refund.find({ contract_number });
-
-        if (!refunds) {
-            return res.status(404).send('ไม่พบข้อมูล Refund ที่เกี่ยวข้อง');
-        }
-
-        let initial_profit;
-        try {
-            initial_profit = calculateInitialProfit(refunds, parseInt(bill_number), totalRefund2Rounded);
-        } catch (error) {
-            return res.status(400).send(error.message);
-        }
-
         const refund = new Refund({
             manager,
             id_card_number,
@@ -663,7 +668,6 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             refund_principal: refundPrincipalRounded,
             refund_interest: refundInterestRounded,
             total_refund2: totalRefund2Rounded,
-            initial_profit: Math.round(initial_profit),
             debtAmount: debtAmountRounded,
             refund_receipt_photo: req.file ? req.file.path : '',
             loan
@@ -671,24 +675,28 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
 
         const savedRefund = await refund.save();
 
+        const initial_profit = await calculateInitialProfitAfterSaving(id_card_number, savedRefund);
+        savedRefund.initial_profit = initial_profit;
+        await savedRefund.save();
+
         if (totalRefund2Rounded < totalRefundRounded) {
             const loan = await LoanInformation.findOne({ id_card_number }).sort({ bill_number: -1 });
-        
+
             if (!loan) {
                 throw new Error('ไม่พบข้อมูลสัญญา');
             }
-        
+
             const newReturnDate = new Date(refund.return_date);
             newReturnDate.setDate(newReturnDate.getDate() + parseInt(loan.loanPeriod));
             const totalInterest5 = totalInterest4Rounded - refundInterestRounded;
-        
+
             const year = newReturnDate.getFullYear();
             const month = String(newReturnDate.getMonth() + 1).padStart(2, '0');
             const day = String(newReturnDate.getDate()).padStart(2, '0');
             const newReturnDateString = `${year}-${month}-${day}`;
-        
+
             const loanData = await calculateLoanData(loan, newReturnDate);
-        
+
             const newLoanData = {
                 manager: loan.manager,
                 id_card_number: loan.id_card_number,
@@ -705,28 +713,24 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
                 totalInterest2: Math.round(loanData.daysUntilReturn * (loan.principal - refundPrincipalRounded) * loan.interestRate / 100),
                 totalInterest3: Math.round(totalInterest5),
                 totalInterest4: Math.round(((loan.principal - refundPrincipalRounded) * loan.loanPeriod * loan.interestRate) / 100 +
-                               loanData.daysUntilReturn * (loan.principal - refundPrincipalRounded) * loan.interestRate / 100 +
-                               totalInterest5),
+                                loanData.daysUntilReturn * (loan.principal - refundPrincipalRounded) * loan.interestRate / 100 +
+                                totalInterest5),
                 totalRefund: Math.round((loan.principal - refundPrincipalRounded) +
-                             ((loan.principal - refundPrincipalRounded) * loan.loanPeriod * loan.interestRate) / 100 +
-                             loanData.daysUntilReturn * (loan.principal - refundPrincipalRounded) * loan.interestRate / 100 +
-                             totalInterest5),
+                                ((loan.principal - refundPrincipalRounded) * loan.loanPeriod * loan.interestRate) / 100 +
+                                loanData.daysUntilReturn * (loan.principal - refundPrincipalRounded) * loan.interestRate / 100 +
+                                totalInterest5),
                 totalRepayment: loanData.totalRepayment,
                 daysUntilReturn: loanData.daysUntilReturn,
                 status: loanData.status,
                 debtor: loan.debtor
             };
-        
-            console.log('New Loan Data:', newLoanData);
-        
+
             const newLoan = new LoanInformation(newLoanData);
             const savedNewLoan = await newLoan.save();
-        
+
             console.log('New Loan Data Saved:', savedNewLoan);
-        
-    
         }
-        
+
         const redirectURL = `/คืนเงิน.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
         res.status(302).redirect(redirectURL);
     } catch (error) {
@@ -737,30 +741,72 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
 
 
 
+
 // ดอกเบี้ยค้าง
 function calculateTotalInterest5({ totalInterest4, refund_interest }) {
     const totalInterest5 = Math.round(totalInterest4 - refund_interest);
     return totalInterest5 < 0 ? 0 : totalInterest5;
 }
 
+
+
+
 // ส่วนที่ต้องแบ่ง
-function calculateInitialProfit(refunds, current_bill_number, current_total_refund2, contract_number) {
-    // รวมค่า total_refund2 ของบิลที่น้อยกว่าหรือเท่ากับ current_bill_number
-    const total_refund2_sum = refunds
-        .filter(refund => refund.bill_number <= current_bill_number && refund.contract_number === contract_number)
-        .reduce((sum, refund) => sum + Math.round(parseFloat(refund.total_refund2)), 0);
+async function calculateInitialProfitAfterSaving(id_card_number, currentRefund) {
+    try {
+        // ดึงข้อมูล refunds ที่เพิ่งถูกบันทึกเสร็จแล้ว
+        const refunds = await Refund.find({ id_card_number });
 
-    // หา principal ของบิลที่เท่ากับ 1
-    const principal_bill_1_refund = refunds.find(refund => refund.bill_number === 1 && refund.contract_number === contract_number);
-    const principal_bill_1 = principal_bill_1_refund ? Math.round(parseFloat(principal_bill_1_refund.principal)) : 0;
+        if (!refunds || refunds.length === 0) {
+            console.log('No refunds found or refunds array is empty');
+            return 0; // หรือค่าเริ่มต้นตามที่คุณต้องการให้กลับมา
+        }
 
-    // คำนวณ initial profit
-    const initial_profit = Math.round(total_refund2_sum + Math.round(parseFloat(current_total_refund2)) - principal_bill_1);
+        // รวมค่า total_refund2 ของบิลที่มี id_card_number เหมือนกัน
+        const total_refund2_sum = refunds
+            .filter(refund => refund.id_card_number === id_card_number)
+            .reduce((sum, refund) => sum + Math.round(parseFloat(refund.total_refund2)), 0);
 
-    return initial_profit;
+        // หา principal ของบิลที่เท่ากับ 1 ที่มี id_card_number เหมือนกัน
+        const principal_bill_1_refund = refunds.find(refund => refund.bill_number === '1' && refund.id_card_number === id_card_number);
+        const principal_bill_1 = principal_bill_1_refund ? Math.round(parseFloat(principal_bill_1_refund.principal)) : 0;
+
+        // คำนวณ initial profit โดยใช้ total_refund2_sum หักด้วย principal ของบิลที่ 1
+        let initial_profit = Math.round(total_refund2_sum - principal_bill_1);
+
+        // ถ้า initial_profit เป็นบวก ให้ลบ initial_profit ที่มีค่าเป็นบวกของรายการที่มี contract_number เหมือนกันและ bill_number น้อยกว่า bill_number ของรายการปัจจุบัน
+        if (initial_profit > 0) {
+            const currentBillNumber = parseInt(principal_bill_1_refund.bill_number);
+            for (let refund of refunds) {
+                const refundBillNumber = parseInt(refund.bill_number);
+                if (refund.contract_number === principal_bill_1_refund.contract_number && refundBillNumber < currentBillNumber) {
+                    if (refund.initial_profit > 0) {
+                        refund.initial_profit -= initial_profit;
+                        await refund.save();
+                    }
+                }
+            }
+
+            // ตั้งค่า status เป็น "ยังไม่แบ่ง" สำหรับ currentRefund ที่มี initial_profit เป็นบวก
+            currentRefund.status = '<span style="color: orange;">ยังไม่แบ่ง</span>';
+        } else {
+            // ตรวจสอบและตั้งค่า status เป็น "ไม่ควรแบ่ง" สำหรับ currentRefund ที่มี initial_profit เป็นลบ
+            currentRefund.status = '<span style="color: red;">ไม่ควรเเบ่ง</span>';
+        }
+
+        await currentRefund.save();
+
+        // ใส่ console.log เพื่อตรวจสอบค่า
+        console.log('Total Refund2 Sum:', total_refund2_sum);
+        console.log('Principal Bill 1:', principal_bill_1);
+        console.log('Initial Profit:', initial_profit);
+
+        return initial_profit; // คืนค่าเป็นตัวเลขที่คำนวณได้
+    } catch (error) {
+        console.error('Error fetching refunds:', error.message);
+        return 0; // หรือค่าเริ่มต้นตามที่คุณต้องการให้กลับมา
+    }
 }
-
-
 
 
 
@@ -779,7 +825,7 @@ app.get('/new-contracts', async (req, res) => {
 });
 
 
-//ส่งข้อมูลไปหน้าคืนเงิน
+//ส่งข้อมูลคินเงินไปหน้าคืนเงิน
 app.get('/api/refunds/:id_card_number', async (req, res) => {
     try {
         const idCardNumber = req.params.id_card_number;
@@ -792,6 +838,22 @@ app.get('/api/refunds/:id_card_number', async (req, res) => {
 });
 
 
+//ส่งดอกเบี้ยสะสมไปหน้าลูกหนี้
+app.get('/api/refund-interest-sum/:id_card_number', async (req, res) => {
+    try {
+        const idCardNumber = req.params.id_card_number;
+        const refunds = await Refund.aggregate([
+            { $match: { id_card_number: idCardNumber } }, // กำหนดเงื่อนไข
+            { $group: { _id: null, totalRefundInterest: { $sum: { $toDouble: "$refund_interest" } } } }
+        ]);
+
+        const totalRefundInterest = refunds.length > 0 ? refunds[0].totalRefundInterest : 0;
+        res.json({ totalRefundInterest });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).send(err);
+    }
+});
 
 
 // ลบคืนเงิน
@@ -856,12 +918,10 @@ app.post('/profit-sharing', upload.fields([
             net_profit,
             refundId,
             managerId
-
         } = req.body;
 
         const collectorReceiptPhoto = req.files['collector_receipt_photo'] ? req.files['collector_receipt_photo'][0].path : null;
         const managerReceiptPhoto = req.files['manager_receipt_photo'] ? req.files['manager_receipt_photo'][0].path : null;
-        
 
         // แปลง refundId เป็น ObjectId
         const ObjectId = require('mongoose').Types.ObjectId;
@@ -881,7 +941,7 @@ app.post('/profit-sharing', upload.fields([
             lname: lname,
             contract_number: contract_number,
             bill_number: bill_number,
-            returnDate: (return_date_input),
+            returnDate: return_date_input,
             initialProfit: parseFloat(initial_profit),
             collectorName: collector_name,
             collectorShare: parseFloat(collector_share) || null,
@@ -899,6 +959,11 @@ app.post('/profit-sharing', upload.fields([
         });
 
         await profitSharing.save();
+
+        // เปลี่ยนสถานะของ Refund เป็น "เเบ่งเเล้ว"
+        refundDoc.status = '<span style="color: green;">เเบ่งเเล้ว</span>';
+        await refundDoc.save();
+
         res.redirect(`/ส่วนเเบ่ง.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`);
     } catch (error) {
         console.error(error);
@@ -983,24 +1048,14 @@ app.post('/submit', async (req, res) => {
 });
 
 
-// API สำหรับดึงข้อมูลผู้จัดการตาม nickname
-app.get('/api/managers/nickname/:nickname', async (req, res) => {
-    try {
-        const manager = await Manager.findOne({ nickname: req.params.nickname });
-        if (!manager) {
-            return res.status(404).send('ไม่พบผู้จัดการ');
-        }
-        res.json(manager);
-    } catch (err) {
-        res.status(500).send(`Error: ${err.message}`);
-    }
-});
+
 
 
 // ส่งข้อมูลเเอดมินไปยังหน้าเเอดมิน
 app.get('/api/managers', async (req, res) => {
     try {
         const managers = await Manager.find();
+        console.log('Managers:', managers); // ตรวจสอบข้อมูลที่ดึงมา
         res.json(managers);
     } catch (error) {
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลเเอดมิน' });
