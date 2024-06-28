@@ -145,22 +145,22 @@ async function displayLoanData() {
 
         const response = await fetch(`/api/loan-data?id_card_number=${idCardNumber}`);
         const data = await response.json();
-
+        console.log(data)
         const tableBody = document.getElementById("loanData");
         tableBody.innerHTML = ''; // Clear table before adding new data
 
         // เรียงลำดับข้อมูล
-        data.sort((a, b) => {
-            const dateA = new Date(a.loanDate);
-            const dateB = new Date(b.loanDate);
-            if (dateB - dateA !== 0) {
-                return dateB - dateA; // เปรียบเทียบ return_date จากใหม่ไปเก่า
-            }
-            if (b.contract_number !== a.contract_number) {
-                return b.contract_number.localeCompare(a.contract_number); // เปรียบเทียบ contract_number จากมากไปน้อย
-            }
-            return b.bill_number.localeCompare(a.bill_number); // เปรียบเทียบ bill_number จากมากไปน้อย
-        });
+        // data.sort((a, b) => {
+        //     const dateA = new Date(a.loanDate);
+        //     const dateB = new Date(b.loanDate);
+        //     if (dateB - dateA !== 0) {
+        //         return dateB - dateA; // เปรียบเทียบ return_date จากใหม่ไปเก่า
+        //     }
+        //     if (b.contract_number !== a.contract_number) {
+        //         return b.contract_number.localeCompare(a.contract_number); // เปรียบเทียบ contract_number จากมากไปน้อย
+        //     }
+        //     return b.bill_number.localeCompare(a.bill_number); // เปรียบเทียบ bill_number จากมากไปน้อย
+        // });
 
         data.forEach(loan => {
             const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody

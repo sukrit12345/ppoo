@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const response = await fetch('/api/managers');
+        const response = await fetch('/api/managersList');
         const managers = await response.json();
         
         console.log('Managers Data:', managers); // ตรวจสอบข้อมูลที่ได้รับจาก API

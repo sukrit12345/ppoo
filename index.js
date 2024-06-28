@@ -471,7 +471,7 @@ app.post('/api/calculate-and-save', async (req, res) => {
 app.get('/api/loan-data', async (req, res) => {
     try {
         const idCardNumber = req.query.id_card_number;
-        const loans = await LoanInformation.find({ id_card_number: idCardNumber });
+        const loans = await LoanInformation.find({ id_card_number: idCardNumber}).sort({contract_number:-1, bill_number:-1});
         const currentDate = new Date();
 
         // คำนวณข้อมูลเพิ่มเติมก่อนส่งไปยังไคลเอนต์
@@ -652,7 +652,7 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             totalInterest4: totalInterest4Rounded,
             refund_interest: refundInterestRounded
         });
-
+        console.log(contract_number,bill_number)
         const refund = new Refund({
             manager,
             id_card_number,
@@ -672,6 +672,7 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             refund_receipt_photo: req.file ? req.file.path : '',
             loan
         });
+        // console.log(refund)
 
         const savedRefund = await refund.save();
 
@@ -680,7 +681,8 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
         await savedRefund.save();
 
         if (totalRefund2Rounded < totalRefundRounded) {
-            const loan = await LoanInformation.findOne({ id_card_number }).sort({ bill_number: -1 });
+            const loan = await LoanInformation.findOne({ id_card_number,contract_number }).sort({contract_number:-1, bill_number: -1 });
+            // console.log("🚀 ~ app.post ~ loan:", loan)
 
             if (!loan) {
                 throw new Error('ไม่พบข้อมูลสัญญา');
@@ -775,21 +777,24 @@ async function calculateInitialProfitAfterSaving(id_card_number, currentRefund) 
         let initial_profit = Math.round(total_refund2_sum - principal_bill_1);
 
         // ถ้า initial_profit เป็นบวก ให้ลบ initial_profit ที่มีค่าเป็นบวกของรายการที่มี contract_number เหมือนกันและ bill_number น้อยกว่า bill_number ของรายการปัจจุบัน
+        console.log("🚀 ~ calculateInitialProfitAfterSaving ~ initial_profit:", initial_profit)
         if (initial_profit > 0) {
             const currentBillNumber = parseInt(principal_bill_1_refund.bill_number);
-            for (let refund of refunds) {
-                const refundBillNumber = parseInt(refund.bill_number);
-                if (refund.contract_number === principal_bill_1_refund.contract_number && refundBillNumber < currentBillNumber) {
-                    if (refund.initial_profit > 0) {
-                        refund.initial_profit -= initial_profit;
-                        await refund.save();
-                    }
+            let total_initial_profit_befor = 0
+            for (let i=0;i < (refunds.length-1);i++) {
+                let refund = refunds[i]
+                if (refund.initial_profit && parseInt(refund.initial_profit)>0){
+                    total_initial_profit_befor += parseInt(refund.initial_profit)
                 }
             }
-
+            // let refund = refunds[refunds.length-1]
+            // console.log((initial_profit - total_initial_profit_befor))
+            initial_profit = (initial_profit - total_initial_profit_befor)
+            // await refund.save()
+                
             // ตั้งค่า status เป็น "ยังไม่แบ่ง" สำหรับ currentRefund ที่มี initial_profit เป็นบวก
             currentRefund.status = '<span style="color: orange;">ยังไม่แบ่ง</span>';
-        } else {
+                } else {
             // ตรวจสอบและตั้งค่า status เป็น "ไม่ควรแบ่ง" สำหรับ currentRefund ที่มี initial_profit เป็นลบ
             currentRefund.status = '<span style="color: red;">ไม่ควรเเบ่ง</span>';
         }
@@ -1052,9 +1057,10 @@ app.post('/submit', async (req, res) => {
 
 
 // ส่งข้อมูลเเอดมินไปยังหน้าเเอดมิน
-app.get('/api/managers', async (req, res) => {
+app.get('/api/managersList', async (req, res) => {
     try {
         const managers = await Manager.find();
+        console.log("🚀 ~ app.get ~ managers:", managers)
         console.log('Managers:', managers); // ตรวจสอบข้อมูลที่ดึงมา
         res.json(managers);
     } catch (error) {
