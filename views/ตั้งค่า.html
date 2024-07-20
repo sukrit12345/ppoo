@@ -3,12 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<title>สรุปผล</title>
+<title>ตารางสัญญารายบุคคล</title>
 
 <style>
 .navbar {
@@ -127,31 +123,7 @@ tr:nth-child(even) {
 }
 
 
-.search-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
 
-.search-container input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-}
-
-.search-container button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.search-container button:hover {
-  background-color: #45a049;
-}
 
 .s {
    color: green;
@@ -170,40 +142,6 @@ tr:nth-child(even) {
 }
 
 
-.daterangepicker {
-            transform: translateX(-30%);
-            font-size: 18px;
-        }
-        .daterangepicker .calendar-table {
-            font-size: 18px;
-        }
-        .daterangepicker .ranges li {
-            font-size: 18px;
-        }
-        .daterangepicker .drp-calendar {
-            width: 350px;
-        }
-        .daterangepicker .drp-calendar.left,
-        .daterangepicker .drp-calendar.right {
-            width: 350px;
-        }
-        .daterangepicker .drp-calendar .calendar-table table {
-            width: 100%;
-        }
-        .daterangepicker .drp-calendar .calendar-table table tbody tr td,
-        .daterangepicker .drp-calendar .calendar-table table thead tr th {
-            width: 14.28%;
-        }
-        .daterangepicker .drp-calendar.single .drp-calendar-table,
-        .daterangepicker .drp-calendar .drp-calendar-table,
-        .daterangepicker .drp-calendar {
-            max-width: 600px;
-        }
-        .chart-container {
-            max-width: 220px;
-            margin: 0 auto;
-        }
-
 
 </style>
 </head>
@@ -214,7 +152,7 @@ tr:nth-child(even) {
 
     <div class="navbar">
         <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-        <a class="active" href="รายงานผล.html">รายงานผล</a>
+        <a href="รายงานผล.html">รายงานผล</a>
         <a href="เช็คเครดิต.html">เช็คเครดิต</a>
         <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
         <a href="ไอคราว.html">ไอคราว</a>
@@ -223,36 +161,38 @@ tr:nth-child(even) {
         <a href="กองทุน.html">กองทุน</a>
         <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
         <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-        <a href="ตั้งค่า.html">ตั้งค่า</a>
+        <a class="active" href="ตั้งค่า.html">ตั้งค่า</a>
     </div>
-
-<h2 style="text-align:center;">สรุปผล</h2>
-
-
 
 
 
 <div class="button-container">
     <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มรายได้.html';">เพิ่มรายได้</button>
-    </div>
-    <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มค่าใช้จ่าย.html';">เพิ่มค่าใช้จ่าย</button>
-    </div>
-    <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มเงินทุน.html';">เพิ่มเงินทุน</button>
+        <button class="custom-button2" onclick="redirectToContractPage()">บัญชี</button>
     </div>
 </div>
-<br>
 
 
-<div class="search-container">
-    <input type="text" id="dateRange" placeholder="เลือกช่วงเวลาที่ต้องคืน">
-    <button onclick="customSearch2()">ค้นหาวันที่ต้องคืน</button>
+<div class="button-container">
+    <div class="column">
+        <button class="custom-button2" onclick="redirectToContractPage()">ค่าเช่า</button>
+    </div>
 </div>
 
 
-<canvas id="summaryChart" width="500" height="50"></canvas>
+<div class="button-container">
+    <div class="column">
+        <button class="custom-button2" onclick="redirectToContractPage()">ติดต่อเจ้าหน้าที่</button>
+    </div>
+</div>
+
+
+
+<div class="button-container">
+    <div class="column">
+        <button class="custom-button2" onclick="redirectToContractPage()">ออกจากระบบ</button>
+    </div>
+</div>
 
 
 
@@ -262,27 +202,9 @@ tr:nth-child(even) {
 
 
 
-<table id="accountingTable">
-    <thead>
-        <tr>
-            <th>ลำดับ</th>
-            <th>วันที่</th>
-            <th>รายละเอียด</th>
-            <th>รายได้</th>
-            <th>ค่าใช้จ่าย</th>
-            <th>เงินที่ลูกหนี้</th>
-            <th>เงินสด</th>
-        </tr>
-    </thead>
-    <tbody id="accountingTableBody">
-        <!-- ข้อมูลจะถูกแทรกที่นี่ผ่าน JavaScript -->
-    </tbody>
-</table>
 
 
 
-
-<script src="รายงานผล.js"></script>
 
 
 </body>

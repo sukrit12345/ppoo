@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางคืนเงินรายบุคคล</title>
+<title>ตารางกำไรขาดทุน</title>
 
 <style>
 .navbar {
@@ -152,7 +152,7 @@ tr:nth-child(even) {
     <a href="ตั้งค่า.html">ตั้งค่า</a>
 </div> 
 
-<h2 style="text-align:center;">ตารางคืนเงินรายบุคคล</h2>
+<h2 style="text-align:center;">ตารางกำไรขาดทุนรายบุคคล</h2>
 
 
 
@@ -172,13 +172,13 @@ tr:nth-child(even) {
         <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button1" onclick="redirectToContractPage3()">คืนเงิน</button>
+        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
     </div>
     <div class="column">
         <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="redirectToContractPage5()">กำไร/ขาดทุน</button>
+        <button class="custom-button1" onclick="redirectToContractPage5()">กำไร/ขาดทุน</button>
     </div>
 </div>
 
@@ -187,33 +187,27 @@ tr:nth-child(even) {
 
 
 
+<table id="loanTable">
+    <thead>
+        <tr>
+            <th>รหัส</th>
+            <th>รวมเงินคืน</th>
+            <th>เงินต้นปล่อย</th>
+            <th>ค่าเเนะนำ</th>
+            <th>ค่าเเบ่งทั้งหมด</th>
+            <th>สถานะ</th>
+            <th>กำไรสุทธิ</th>
+        </tr>
+    </thead>
+    <tbody id="loanTableBody">
 
-<table id="b">
-  <tr>
-    <th>รหัส</th>
-    <th>บิล</th>
-    <th>เงินต้นที่ต้องคืน</th>
-    <th>ดอกเบี้ยที่ต้องคืน</th>
-    <th>รวมเงินที่ต้องคืน</th>
-    <th>วันที่คืน</th>
-    <th>เงินต้นคืน</th>
-    <th>ดอกเบี้ยคืน</th>
-    <th>ค่าทวงเงินคืน</th>
-    <th>รวมเงินคืน</th>
-    <th>ดอกเบี้ยค้าง</th>
-    <th>ส่วนเที่ต้องเเบ่ง</th>
-    <th>สถานะ</th>
-    <th>จัดการ</th>
-    <th>ส่วนเเบ่ง</th>
-  </tr>
-
-  <tbody id="refundData"></tbody>
+    </tbody>
 </table>
 
 
 
 
-<script src="คืนเงิน.js"></script>  
+<script src="กำไรขาดทุน.js"></script>  
 
 
 

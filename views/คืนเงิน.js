@@ -1,125 +1,205 @@
-//เปลี่ยนสีสถานะ
-// ดึงตาราง HTML โดยใช้ ID
-var table = document.getElementById("b");
+//รับข้อมูล เลขบปชช ชื่อ นามสกุล
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
 
-// เลือกเซลล์ทั้งหมดที่อยู่ในคอลัมน์ที่ 12 และตรวจสอบว่ามีข้อความ "ชำระครบ" หรือไม่
-var cells = document.querySelectorAll('#b td:nth-child(9)');
-  
-cells.forEach(function(cell) {
-  var text = cell.innerText.trim();
-  if (text === "เเบ่งได้") {
-    cell.classList.add('s');
-  } 
-  if (text === "ยังเเบ่งไม่ได้") {
-    cell.classList.add('b');
-  } 
+    // ดึงค่า id_card_number และแสดงใน HTML
+    const idCardNumber = urlParams.get('id_card_number');
+    document.getElementById('id-card-number').textContent = idCardNumber ? idCardNumber : "N/A";
+
+    // ดึงค่า fname และแสดงใน HTML
+    const firstName = urlParams.get('fname');
+    document.getElementById('first-name').textContent = firstName ? firstName : "N/A";
+
+    // ดึงค่า lname และแสดงใน HTML
+    const lastName = urlParams.get('lname');
+    document.getElementById('last-name').textContent = lastName ? lastName : "N/A";
+
+    // ดึงค่า manager และแสดงใน HTML
+    const manager = urlParams.get('manager');
+    document.getElementById('manager').textContent = manager ? manager : "N/A";
+
+
 });
 
 
 
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มสัญญา
+function redirectToContractPage2() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
 
 
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/สัญญา.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
 
-
-
-//สร้างปุ่มลบเเละเเก้ไข
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวหัว
-var tableRows = document.querySelectorAll("#b tr:not(:first-child)");
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-tableRows.forEach(function(row) {
-    // สร้าง <td> สำหรับปุ่มแก้ไขและลบ
-    var buttonCell = document.createElement("td");
-
-    // สร้างปุ่มแก้ไข
-    var editButton = document.createElement("button");
-    editButton.textContent = "แก้ไข";
-    editButton.onclick = function() {
-        // เรียกใช้ฟังก์ชันแก้ไขแถวและส่งข้อมูลแถวที่ต้องการแก้ไขไปยังหน้า "บันทึกข้อมูลลูกหนี้.html"
-        editRow(row);
-    };
-
-    // สร้างปุ่มลบ
-    var deleteButton = document.createElement("button");
-    deleteButton.textContent = "ลบ";
-    deleteButton.onclick = function() {
-        if (confirm("คุณต้องการลบข้อมูลในแถวนี้ใช่หรือไม่?")) {
-            // เรียกใช้ฟังก์ชันลบแถว
-            deleteRow(row);
-            // แสดงข้อความแจ้งเตือนเมื่อลบแถวสำเร็จ
-            alert("ข้อมูลถูกลบเรียบร้อยแล้ว");
-        } else {
-            // ไม่ต้องทำอะไร
-        }
-    };
-
-    // เพิ่มปุ่มแก้ไขและลบลงใน <td> เดียวกัน
-    buttonCell.appendChild(editButton);
-    buttonCell.appendChild(deleteButton);
-
-    // เพิ่ม <td> ที่มีปุ่มแก้ไขและลบลงในแถว
-    row.appendChild(buttonCell);
-});
-
-// ฟังก์ชันสำหรับการแก้ไขแถว
-function editRow(row) {
-    // ดึงข้อมูลจากแถว
-    var rowData = {
-        sequence: row.cells[0].textContent,
-        registrationDate: row.cells[1].textContent,
-        idCard: row.cells[2].textContent,
-        firstName: row.cells[3].textContent,
-        lastName: row.cells[4].textContent,
-        principal: row.cells[5].textContent,
-        interest: row.cells[6].textContent,
-        refundAmount: row.cells[7].textContent,
-        status: row.cells[8].textContent,
-        accumulatedPrincipal: row.cells[9].textContent,
-        accumulatedInterest: row.cells[10].textContent,
-        accumulatedProfit: row.cells[11].textContent,
-        manager: row.cells[12].textContent,
-        supervisor: row.cells[13].textContent,
-        branchHead: row.cells[14].textContent
-    };
-    alert("เริ่มแก้ไขแถวที่ " + row.cells[0].textContent);
-    // เปิดหน้า "บันทึกข้อมูลลูกหนี้.html" และส่งข้อมูลแถวที่ต้องการแก้ไขไปด้วย
-    window.location.href = "บันทึกสัญญา.html?data=" + JSON.stringify(rowData);
-}
-
-// ฟังก์ชันสำหรับลบแถว
-function deleteRow(row) {
-    row.remove();
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
 }
 
 
 
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มคืนเงิน
+function redirectToContractPage3() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/คืนเงิน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
+
+
+
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มส่วนเเบ่ง
+function redirectToContractPage4() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/ส่วนเเบ่ง.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
+
+
+//เเสดงข้อมูลเลขบปชช ชื่อ นามสกุล เมื่อกดปุ่มกำไร/ขาดทุน
+function redirectToContractPage5() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCardNumber = urlParams.get('id_card_number');
+    const firstName = urlParams.get('fname');
+    const lastName = urlParams.get('lname');
+    const manager = urlParams.get('manager');
+
+
+    // สร้าง URL ใหม่เพื่อไปยังหน้า "สัญญา.html" พร้อมกับส่งค่า id_card_number, fname, และ lname ไปด้วย
+    const newURL = '/กำไรขาดทุน.html?id_card_number=' + encodeURIComponent(idCardNumber) +
+                   '&fname=' + encodeURIComponent(firstName) +
+                   '&lname=' + encodeURIComponent(lastName)+
+                   '&manager=' + encodeURIComponent(manager);
+
+    
+    // นำ URL ใหม่ไปที่หน้าที่ต้องการ
+    window.location.href = newURL;
+}
 
 
 
 
 
-//สร้างปุ่มส่วนเเบ่ง
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวแรก (header)
-var rows = document.querySelectorAll("#b tr:not(:first-child)");
+document.addEventListener("DOMContentLoaded", async function() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const idCardNumber = urlParams.get('id_card_number');
+        const response = await fetch(`/api/refunds/${idCardNumber}`);
+        const refunds = await response.json();
 
-// วนลูปผ่านแถวทั้งหมดในตาราง
-rows.forEach(function(row) {
-    // สร้าง <td> สำหรับปุ่มสัญญา
-    var contractCell = document.createElement("td");
 
-    // สร้างปุ่มสัญญา
-    var contractButton = document.createElement("button");
-    contractButton.textContent = "ส่วนเเบ่ง";
-    contractButton.onclick = function() {
-        // เปลี่ยน URL ตามที่ต้องการให้ปุ่มสัญญานำไปยัง
-        window.location.href = "บันทึกส่วนเเบ่ง.html";
-    };
+        const refundData = document.getElementById('refundData');
 
-    // เพิ่มปุ่มสัญญาลงใน <td> เดียวกัน
-    contractCell.appendChild(contractButton);
+        refunds.forEach(refund => {
+            const row = document.createElement('tr');
 
-    // เพิ่ม <td> ที่มีปุ่มสัญญาลงในแถว
-    row.appendChild(contractCell);
+            row.innerHTML = `
+                <td>${refund.contract_number}</td>
+                <td>${refund.bill_number}</td> 
+                <td>${refund.principal}</td> 
+                <td>${refund.totalInterest4}</td>
+                <td>${refund.totalRefund}</td>
+                <td>${refund.return_date}</td>
+                <td>${refund.refund_principal}</td>
+                <td>${refund.refund_interest}</td>
+                <td>${refund.debtAmount}</td>
+                <td>${refund.total_refund2}</td>
+                <td>${refund.totalInterest5}</td>
+                <td>${refund.initial_profit}</td>
+                <td>${refund.status}</td> 
+                <td>
+                    <button onclick="editRefund('${refund._id}')">แก้ไข</button>
+                    <button onclick="deleteRefund('${refund._id}')">ลบ</button>
+                </td>
+                <td>
+                   <button onclick="divided(
+                     '${refund._id}',
+                     '${refund.id_card_number}',
+                     '${refund.lname}',
+                     '${refund.fname}',
+                     '${refund.manager}',
+                     '${refund.contract_number}',
+                     '${refund.bill_number}',
+                     '${refund.initial_profit}'
+                   )">ส่วนแบ่ง</button>
+                </td>
+            `;
+
+            refundData.appendChild(row);
+        });
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+    }
 });
+
+
+
+
+
+// ลบข้อมูลคืนเงิน
+function deleteRefund(refundId) {
+    const confirmation = confirm(`คุณต้องการลบการคืนเงินนี้หรือไม่?`);
+    if (confirmation) {
+        // ส่งคำขอ DELETE ไปยังเซิร์ฟเวอร์
+        fetch(`/api/refunds/${refundId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('เกิดข้อผิดพลาดในการลบข้อมูล');
+                }
+                // รีโหลดหน้าหลังจากลบสำเร็จ
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('เกิดข้อผิดพลาดในการลบข้อมูล:', error.message);
+                // แสดงข้อความแจ้งเตือนถ้ามีข้อผิดพลาด
+                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+            });
+    }
+}
+
+
+
+
+
+function divided(refundId, idCardNumber, firstName, lastName, manager, contractNumber, billNumber, initial_profit) {
+    // ทำการ redirect ไปยังหน้าบันทึกส่วนแบ่ง พร้อมส่งค่าผ่าน URL query string
+    const queryString = `?refundId=${refundId}&id_card_number=${idCardNumber}&fname=${firstName}&lname=${lastName}&manager=${manager}&contract_number=${contractNumber}&bill_number=${billNumber}&initial_profit=${initial_profit}`;
+    window.location.href = `/บันทึกส่วนเเบ่ง.html${queryString}`;
+}
+
 
 

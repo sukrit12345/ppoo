@@ -1,65 +1,169 @@
-//ดึงข้อมูลจากดาต้าเบส
+
+
+//เเสดงข้อมูลลงตารางลูกหนี้
 document.addEventListener("DOMContentLoaded", function() {
     fetchDataAndPopulateTable();
 });
 
-function fetchDataAndPopulateTable() {
-    fetch('/api/debtor-data')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById('debtor-table-body');
-            tableBody.innerHTML = ''; // Clear any existing rows
 
-            // Reverse the data array
-            data.reverse().forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${data.length - index}</td> <!-- Reverse the index -->
-                    <td>${row.date}</td>
-                    <td>${row.id_card_number}</td>
-                    <td>${row.fname}</td>
-                    <td>${row.lname}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td> 
+
+
+
+
+
+
+// ฟังก์ชัน fetchDataAndPopulateTable สำหรับดึงข้อมูลและเติมค่าลงในตาราง
+async function fetchDataAndPopulateTable() {
+    try {
+        const response = await fetch('/api/debtor-data');
+        const data = await response.json();
+        
+        const tableBody = document.getElementById('debtor-table-body');
+        tableBody.innerHTML = ''; // Clear any existing rows
+
+        // Reverse the data array
+        data.reverse();
+
+        for (const [index, row] of data.entries()) {
+            const tr = document.createElement('tr');
+            tr.id = `row-${row._id}`; // Set ID for the row
+            tr.innerHTML = `
+                <td>${data.length - index}</td> <!-- Reverse the index -->
+                <td>${row.date}</td>
+                <td>${row.id_card_number}</td> <!-- Cell ที่ 2 -->
+                <td>${row.fname}</td>
+                <td>${row.lname}</td>
+                <td>-</td> <!-- Placeholder for loan.returnDate -->
+                <td>-</td> <!-- Placeholder for loan.principal -->
+                <td>-</td> <!-- Placeholder for loan.totalInterest4 -->
+                <td>-</td> <!-- Placeholder for loan.totalRefund -->
+                <td>-</td> <!-- Placeholder for loan.status -->
+                <td>-</td> <!-- Placeholder for Principal Sum -->
+                <td>-</td> <!-- Placeholder for Refund Interest Sum -->
+                <td>-</td> <!-- Placeholder for Principal Difference -->
+                <td>${row.province}</td>
+                <td>${row.manager}</td>
+                <td> 
                     <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
-                    <button onclick="redirectToDelete('${row._id}')">ลบ</button>
-                    </td>
-                    <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> <!-- Button to contract page -->
-                `;
-                tableBody.appendChild(tr);
-            });
+                    <button onclick="redirectToDelete('${row._id}', '${row.id_card_number}')">ลบ</button>
+                </td>
+                <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> 
+            `;
+            tableBody.appendChild(tr);
 
-            calculateTotalIDCard();
-        })
-        .catch(error => console.error('Error fetching data:', error));
+            try {
+                // Fetch the latest loan information for the debtor
+                const loanResponse = await fetch(`/api/loaninformations/${row._id}`);
+                const loanData = await loanResponse.json();
+
+                console.log('Loan data:', loanData); // Debug loan data
+
+                // Update the row with loan information
+                const loanRow = document.getElementById(`row-${row._id}`);
+                loanRow.cells[5].innerText = loanData.returnDate || '-';
+                loanRow.cells[6].innerText = loanData.principal || '-';
+                loanRow.cells[7].innerText = loanData.totalInterest4 || '-';
+                loanRow.cells[8].innerText = loanData.totalRefund || '-';
+                loanRow.cells[9].innerHTML = loanData.status || '-';
+                loanRow.cells[9].style.color = loanData.status || 'black';
+
+                // Fetch the principal sum for the debtor and update cell 10
+                const principalResponse = await fetch(`/api/loan-principal-sum/${row.id_card_number}`);
+                const principalData = await principalResponse.json();
+                console.log('Principal data:', principalData); // Debug principal data
+
+                loanRow.cells[10].innerText = principalData.totalPrincipal || '-';
+
+                // Fetch the refund interest sum for the debtor and update cell 11
+                const refundInterestResponse = await fetch(`/api/refund-interest-sum/${row.id_card_number}`);
+                const refundInterestData = await refundInterestResponse.json();
+                console.log('Refund interest data:', refundInterestData); // Debug refund interest data
+
+                loanRow.cells[11].innerText = refundInterestData.totalRefundInterest || '-';
+
+                // Calculate and update cell 12 with principal difference
+                const principalSum = parseFloat(principalData.totalPrincipal) || 0;
+                const refundInterestSum = parseFloat(refundInterestData.totalRefundInterest) || 0;
+                const principalDifference = refundInterestSum - principalSum ;
+
+                // Display principal difference with negative sign if less than zero
+                loanRow.cells[12].innerText = principalDifference < 0 ? `-${Math.abs(principalDifference).toFixed(0)}` : principalDifference.toFixed(0);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        calculateTotalIDCard();
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 }
 
 
-// ไปหน้าสัญญา
-function redirectToContract(id) {
-    fetch(`/api/debtor-data/${id}`) // เรียก API ด้วย id
-        .then(response => response.json())
+
+
+
+//เเก้ไขข้อมูลลูกหนี้
+function redirectToEdit(debtorId) {
+    window.location.href = `บันทึกข้อมูลลูกหนี้.html?id=${debtorId}`;
+}
+
+
+
+
+// ลบข้อมูลลูกหนี้พร้อมโหลดหน้าใหม่
+function redirectToDelete(objectId) {
+    // ข้อความยืนยัน
+    const confirmation = confirm(`คุณต้องการลบข้อมูลลูกหนี้นี้หรือไม่?`);
+
+    // ถ้าผู้ใช้ยืนยันการลบ
+    if (confirmation) {
+        // ส่งคำขอลบข้อมูลไปยัง API โดยใช้ fetch
+        fetch(`/api/delete-debtor/${objectId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete debtor');
+            }
+            return response.json();
+        })
         .then(data => {
-            const { id_card_number, fname, lname } = data; // ดึงข้อมูล id_card_number, fname, และ lname จากข้อมูลที่ได้
-            window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}`; // ส่งข้อมูลไปยังหน้า "สัญญา.html" ใน URL
+            console.log(data.message);
+            // ลบแถวที่มี ObjectId ออกจาก DOM
+            const rowElement = document.getElementById(`row-${objectId}`);
+            if (rowElement) {
+                rowElement.remove();
+            }
+            // โหลดหน้าใหม่
+            location.reload();
         })
-        .catch(error => console.error('Error fetching user data:', error));
+        .catch(error => console.error('Error deleting debtor:', error));
+    }
 }
 
 
 
 
+//ไปหน้าสัญญา
+function redirectToContract(id) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        const id_card_number = row.cells[2].textContent;
+        const fname = row.cells[3].textContent;
+        const lname = row.cells[4].textContent;
+        const manager = row.cells[14].textContent;
 
-
+        window.location.href = `สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
+    } else {
+        console.error('Row not found for ID:', id);
+    }
+}
 
 
 
@@ -116,53 +220,13 @@ function searchTable() {
 
 
   
-//ค้นหาชื่อผู้จัดการ
-function customSearch1() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput1"); // เปลี่ยน ID ใหม่ที่นี่
-    filter = input.value.toUpperCase();
-    table = document.getElementsByTagName("table")[0];
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[12]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
-} 
 
 
-//ค้นหาชื่อหัวหน้าสาขา
+
+//ค้นหาชื่อจังหวัด
 function customSearch3() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById("newSearchInput3"); // เปลี่ยน ID ใหม่ที่นี่
-    filter = input.value.toUpperCase();
-    table = document.getElementsByTagName("table")[0];
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[14]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
-}
-
-//ค้นหาชื่อผู้จัดการดูเเล
-function customSearch2() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput2"); // เปลี่ยน ID ใหม่ที่นี่
     filter = input.value.toUpperCase();
     table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
@@ -181,46 +245,111 @@ function customSearch2() {
 }
 
 
-
-//คำนวณค้นหาสถานะ
-window.onload = function() {
-    searchIdCard2();
-};
-function searchIdCard2() {
-    var statusFilter, table, tr, i, found;
-    statusFilter = document.getElementById("statusFilter").value;
-
-    table = document.querySelector("table");
+//ค้นหาชื่อเเอดมิน
+function customSearch1() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("newSearchInput1"); // เปลี่ยน ID ใหม่ที่นี่
+    filter = input.value.toUpperCase();
+    table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
-
     for (i = 0; i < tr.length; i++) {
-        found = false;
-
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            if (tr[i].cells[8].innerText.trim() === statusFilter || statusFilter === "") {
-                found = true;
-            }
-
-            if (found) {
+        td = tr[i].getElementsByTagName("td")[14]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";
             }
         }
     }
-    
+} 
 
-    // Call calculateTotalPrincipalAmount() after filtering
-    calculateTotalPrincipalAmount();
-    calculateTotalInterestAmount();
-    calculateTotalRefundAmount();
-    
+
+
+//ค้นหาวันที่
+$(function() {
+    $('#dateRange').daterangepicker({
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        autoUpdateInput: false, // Don't auto-update the input field
+        startDate: moment().startOf('month'),
+        endDate: moment().endOf('month')
+    });
+
+    // Update input field manually when dates are chosen
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+    });
+
+    // Clear input field when cancel is clicked
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+});
+
+function customSearch2() {
+    var dateRange = $('#dateRange').val();
+    if (dateRange === '') {
+        alert("เลือกช่วงเวลาที่ต้องคืน");
+        return;
+    }
+    var dates = dateRange.split(" - ");
+    var startDate = moment(dates[0], 'YYYY-MM-DD');
+    var endDate = moment(dates[1], 'YYYY-MM-DD');
+    var table = document.getElementById("your_table_id");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) { // เริ่มต้นที่ 1 เพื่อข้ามแถวหัวตาราง
+        var td = tr[i].getElementsByTagName("td")[5]; // คอลัมน์ที่ต้องการค้นหา (index 1)
+        if (td) {
+            var txtValue = td.textContent || td.innerText;
+            var cellDate = moment(txtValue, 'YYYY-MM-DD');
+            if (cellDate.isBetween(startDate, endDate, undefined, '[]')) { // รวมทั้ง startDate และ endDate
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
 }
 
 
 
 
-//คำนวณเงินต้นทั้งหมดตามสถานะ
+
+
+window.onload = function() {
+    searchIdCard2(); // Call the search function on page load
+};
+
+function searchIdCard2() {
+    var statusFilter = document.getElementById("statusFilter").value;
+    var table = document.querySelector("table");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 0; i < tr.length; i++) {
+        var found = false;
+
+        if (tr[i].getElementsByTagName("td").length > 0) {
+            if (tr[i].cells[9].innerText.trim() === statusFilter || statusFilter === "") {
+                found = true;
+            }
+
+            tr[i].style.display = found ? "" : "none";
+        }
+    }
+
+    // Call calculate functions after filtering
+    calculateTotalPrincipalAmount();
+    calculateTotalInterestAmount();
+    calculateTotalRefundAmount();
+    updatePieChart();
+}
+
+// คำนวณเงินต้นทั้งหมดตามสถานะ
 function calculateTotalPrincipalAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -228,19 +357,17 @@ function calculateTotalPrincipalAmount() {
 
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-            var principalAmount = parseFloat(tr[i].cells[5].innerText.trim());
+            var principalAmount = parseFloat(tr[i].cells[6].innerText.trim());
             if (!isNaN(principalAmount)) {
                 totalPrincipalAmount += principalAmount;
             }
         }
     }
 
-    var resultContainer = document.getElementById("totalPrincipalAmount");
-    resultContainer.textContent = "เงินต้นทั้งหมด: " + totalPrincipalAmount.toLocaleString() + " บาท";
+    return totalPrincipalAmount;
 }
 
-
-//คำนวณดอกเบี้ยทั้งหมดตามสถานะ
+// คำนวณดอกเบี้ยทั้งหมดตามสถานะ
 function calculateTotalInterestAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -248,19 +375,17 @@ function calculateTotalInterestAmount() {
 
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-            var interestAmount = parseFloat(tr[i].cells[6].innerText.trim());
+            var interestAmount = parseFloat(tr[i].cells[7].innerText.trim());
             if (!isNaN(interestAmount)) {
                 totalInterestAmount += interestAmount;
             }
         }
     }
 
-    var resultContainer = document.getElementById("totalInterestAmount");
-    resultContainer.textContent = "ดอกเบี้ยทั้งหมด: " + totalInterestAmount.toLocaleString() + " บาท";
+    return totalInterestAmount;
 }
 
-
-//คำนวณเงินที่ต้องคืนทั้งหมดตามสถานะ
+// คำนวณเงินที่ต้องคืนทั้งหมดตามสถานะ
 function calculateTotalRefundAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -268,16 +393,81 @@ function calculateTotalRefundAmount() {
 
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0 && tr[i].style.display !== "none") {
-            var refundAmount = parseFloat(tr[i].cells[7].innerText.trim());
+            var refundAmount = parseFloat(tr[i].cells[8].innerText.trim());
             if (!isNaN(refundAmount)) {
                 totalRefundAmount += refundAmount;
             }
         }
     }
 
-    var resultContainer = document.getElementById("totalRefundAmount");
-    resultContainer.textContent = "เงินที่ต้องคืนทั้งหมด: " + totalRefundAmount.toLocaleString() + " บาท";
+    return totalRefundAmount;
 }
+
+// ฟังก์ชันในการสร้างและอัพเดทกราฟวงกลม
+var myPieChart;
+function updatePieChart() {
+    var totalPrincipalAmount = calculateTotalPrincipalAmount();
+    var totalInterestAmount = calculateTotalInterestAmount();
+    var totalRefundAmount = calculateTotalRefundAmount();
+
+    var ctx = document.getElementById('myPieChart').getContext('2d');
+    if (myPieChart) {
+        myPieChart.destroy();
+    }
+    myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['เงินต้นทั้งหมด', 'ดอกเบี้ยทั้งหมด', 'เงินที่ต้องคืนทั้งหมด'],
+            datasets: [{ data: [totalPrincipalAmount, totalInterestAmount, totalRefundAmount], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'] }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: '',
+                },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        if (value === 0) {
+                            return "";
+                        } else {
+                            let percentage = (value * 100 / sum).toFixed() + "%";
+                            return value.toLocaleString() + " บาท\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0" + percentage;
+                        }
+                    },
+                    color: 'black',
+                    font: {
+                        size: 12,
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -324,7 +514,7 @@ function calculateTotalDebtorsInContract() {
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
             // Get the status from the cell at index 8 (starting from 0)
-            var status = tr[i].cells[8].innerText.trim(); // Changed from 8 to 7
+            var status = tr[i].cells[9].innerText.trim(); // Changed from 8 to 7
 
             // Check if the status contains the phrase "อยู่ในสัญญา"
             if (status.includes("อยู่ในสัญญา")) {
@@ -358,7 +548,7 @@ function calculateTotalDebtorsWithContracts() {
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
             // Get the status from the cell at index 8 (starting from 0)
-            var status = tr[i].cells[8].innerText.trim();
+            var status = tr[i].cells[9].innerText.trim();
 
             // Check if the status contains the phrase "ครบกำหนดชำระ"
             if (status.includes("ครบสัญญา")) {
@@ -483,33 +673,41 @@ function calculateDebtorsBlacklist() {
 
 
 
+
+
+
+
+
+
 //คำนวณเงินต้นปล่อยสะสมทั้งหมด
-document.addEventListener("DOMContentLoaded", function() {
-    // Call calculateTotalPrincipal() when the HTML document is loaded
-    calculateTotalPrincipal();
-});
+window.onload = function() {
+    calculateTotalAccumulatedPrincipal();
+};
 
-function calculateTotalPrincipal() {
-    var table = document.querySelector("table");
-    var tr = table.getElementsByTagName("tr");
-    var totalPrincipal = 0;
+function calculateTotalAccumulatedPrincipal() {
+    var table = document.getElementById('your_table_id');
+    var totalAccumulatedPrincipal = 0;
 
-    // Start from i = 1 to skip the table header row
-    for (var i = 1; i < tr.length; i++) {
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            // Get the principal amount from the cell at index 8 (starting from 0)
-            var principal = parseFloat(tr[i].cells[9].innerText.trim());
-            if (!isNaN(principal)) {
-                totalPrincipal += principal;
-            }
+    // Loop through each row in the table
+    for (var i = 1; i < table.rows.length; i++) { // Start from 1 to skip header row
+        var row = table.rows[i];
+        var accumulatedPrincipalCell = row.cells[10]; // Cell index 10 for accumulated principal
+
+        // Get the text content of the cell, remove commas, and convert to float
+        var cellText = accumulatedPrincipalCell.innerText.trim().replace(/,/g, '');
+        var accumulatedPrincipal = parseFloat(cellText);
+
+        console.log(`Row ${i}: ${cellText} -> ${accumulatedPrincipal}`); // Debug log
+
+        if (!isNaN(accumulatedPrincipal)) {
+            totalAccumulatedPrincipal += accumulatedPrincipal;
         }
     }
 
-    // Display the result in the element with id "totalPrincipal"
-    var resultContainer = document.getElementById("totalPrincipal");
-    resultContainer.textContent = "เงินต้นปล่อยสะสมทั้งหมด: " + totalPrincipal.toLocaleString() + " บาท";
+    // Update the total accumulated principal element
+    var totalAccumulatedPrincipalElement = document.getElementById('totalAccumulatedPrincipal');
+    totalAccumulatedPrincipalElement.textContent = 'เงินต้นสะสมทั้งหมด: ' + totalAccumulatedPrincipal.toLocaleString() + ' บาท';
 }
-
 
 
 //คำนวณดอกเบี้ยสะสมทั้งหมด
@@ -536,12 +734,12 @@ function calculateTotalAccumulatedInterest() {
 
     // Display the result in the element with id "totalAccumulatedInterest"
     var resultContainer = document.getElementById("totalAccumulatedInterest");
-    resultContainer.textContent = "ดอกเบี้ยสะสมทั้งหมด: " + totalShareAmount.toLocaleString() + " บาท";
+    resultContainer.textContent = "ดอกเบี้ยได้รับสะสมทั้งหมด: " + totalShareAmount.toLocaleString() + " บาท";
 }
 
 
 
-//คำนวณกำไรสุทธิสะสมทั้งหมด
+//คำนวณกำไรขั้นต้นสะสมทั้งหมด
 document.addEventListener("DOMContentLoaded", function() {
     // เรียกใช้ calculateTotalNetProfit() เมื่อเอกสาร HTML โหลดเสร็จ
     calculateTotalNetProfit();
@@ -554,7 +752,7 @@ function calculateTotalNetProfit() {
 
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
-            var profit = parseFloat(tr[i].cells[11].innerText.trim());
+            var profit = parseFloat(tr[i].cells[12].innerText.trim());
             if (!isNaN(profit)) {
                 totalNetProfit += profit;
             }
@@ -563,116 +761,13 @@ function calculateTotalNetProfit() {
 
     // แสดงผลลัพธ์ใน element ที่กำหนด เช่น div หรือ span
     var resultContainer = document.getElementById("totalNetProfit");
-    resultContainer.textContent = "กำไรสุทธิสะสมทั้งหมด: " + totalNetProfit.toLocaleString() + " บาท";
+    resultContainer.textContent = "กำไรขั้นต้นสะสมทั้งหมด: " + totalNetProfit.toLocaleString() + " บาท";
 }
 
 
 
 
 
-//เปลี่ยนสีสถานะ
-// ดึงตาราง HTML โดยใช้ ID
-var table = document.getElementById("your_table_id");
-
-// เลือกเซลล์ทั้งหมดที่อยู่ในคอลัมน์ที่ 12 และตรวจสอบว่ามีข้อความ "ชำระครบ" หรือไม่
-var cells = document.querySelectorAll('#your_table_id td:nth-child(9)');
-  
-cells.forEach(function(cell) {
-  var text = cell.innerHTML.trim();
-  if (text === "อยู่ในสัญญา") {
-    cell.classList.add('w');
-  } 
-  if (text === "เลยสัญญา") {
-    cell.classList.add('l');
-  } 
-  if (text === "ครบสัญญา") {
-    cell.classList.add('d');
-  }
-  if (text === "ต่อดอก") {
-    cell.classList.add('s');
-  } 
-  if (text === "ชำระครบ") {
-    cell.classList.add('s');
-  } 
-  if (text === "เเบล็คลิช") {
-    cell.classList.add('b');
-  } 
-});
-
-
-
-
-
-
-
-//สร้างปุ่มลบเเละเเก้ไข
-// เลือกแถวทั้งหมดในตารางยกเว้นแถวหัว
-var tableRows = document.querySelectorAll("#your_table_id tr:not(:first-child)");
-
-// วนลูปผ่านแถวทั้งหมดในตาราง
-tableRows.forEach(function(row) {
-    // สร้าง <td> สำหรับปุ่มแก้ไขและลบ
-    var buttonCell = document.createElement("td");
-
-    // สร้างปุ่มแก้ไข
-    var editButton = document.createElement("button");
-    editButton.textContent = "แก้ไข";
-    editButton.onclick = function() {
-        // เรียกใช้ฟังก์ชันแก้ไขแถวและส่งข้อมูลแถวที่ต้องการแก้ไขไปยังหน้า "บันทึกข้อมูลลูกหนี้.html"
-        editRow(row);
-    };
-
-    // สร้างปุ่มลบ
-    var deleteButton = document.createElement("button");
-    deleteButton.textContent = "ลบ";
-    deleteButton.onclick = function() {
-        if (confirm("คุณต้องการลบข้อมูลในแถวนี้ใช่หรือไม่?")) {
-            // เรียกใช้ฟังก์ชันลบแถว
-            deleteRow(row);
-            // แสดงข้อความแจ้งเตือนเมื่อลบแถวสำเร็จ
-            alert("ข้อมูลถูกลบเรียบร้อยแล้ว");
-        } else {
-            // ไม่ต้องทำอะไร
-        }
-    };
-
-    // เพิ่มปุ่มแก้ไขและลบลงใน <td> เดียวกัน
-    buttonCell.appendChild(editButton);
-    buttonCell.appendChild(deleteButton);
-
-    // เพิ่ม <td> ที่มีปุ่มแก้ไขและลบลงในแถว
-    row.appendChild(buttonCell);
-});
-
-// ฟังก์ชันสำหรับการแก้ไขแถว
-function editRow(row) {
-    // ดึงข้อมูลจากแถว
-    var rowData = {
-        sequence: row.cells[0].textContent,
-        registrationDate: row.cells[1].textContent,
-        idCard: row.cells[2].textContent,
-        firstName: row.cells[3].textContent,
-        lastName: row.cells[4].textContent,
-        principal: row.cells[5].textContent,
-        interest: row.cells[6].textContent,
-        refundAmount: row.cells[7].textContent,
-        status: row.cells[8].textContent,
-        accumulatedPrincipal: row.cells[9].textContent,
-        accumulatedInterest: row.cells[10].textContent,
-        accumulatedProfit: row.cells[11].textContent,
-        manager: row.cells[12].textContent,
-        supervisor: row.cells[13].textContent,
-        branchHead: row.cells[14].textContent
-    };
-    alert("เริ่มแก้ไขแถวที่ " + row.cells[0].textContent);
-    // เปิดหน้า "บันทึกข้อมูลลูกหนี้.html" และส่งข้อมูลแถวที่ต้องการแก้ไขไปด้วย
-    window.location.href = "บันทึกข้อมูลลูกหนี้.html?data=" + JSON.stringify(rowData);
-}
-
-// ฟังก์ชันสำหรับลบแถว
-function deleteRow(row) {
-    row.remove();
-}
 
 
 

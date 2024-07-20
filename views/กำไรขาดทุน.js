@@ -113,72 +113,66 @@ function redirectToContractPage5() {
 
 
 
-document.addEventListener("DOMContentLoaded", function () {
-    displayProfitSharingData(); // เรียกใช้งานฟังก์ชันเพื่อแสดงข้อมูลแบ่งกำไร
-});
-
-async function displayProfitSharingData() {
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const idCardNumber = urlParams.get('id_card_number');
-        const response = await fetch(`/get-profit-sharing-data/${idCardNumber}`); // เรียกข้อมูลจากเซิร์ฟเวอร์
-        const data = await response.json(); // แปลงข้อมูลที่ได้รับมาเป็น JSON
 
 
-        const tableBody = document.querySelector('#c tbody');
 
-        data.forEach(profit => {
-            const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody
-            row.id = `row-${profit._id}`; // Set id for the row
 
-            // เพิ่มข้อมูลลงในแถว
-            row.innerHTML = `
-                <td>${profit.contract_number}</td>
-                <td>${profit.bill_number}</td>
-                <td>${profit.returnDate}</td>
-                <td>${profit.initialProfit}</td>
-                <td>${profit.collectorName ? profit.collectorName : '-'}</td>
-                <td>${profit.collectorShare ? profit.collectorShare : 0}</td>
-                <td>${profit.managerName ? profit.managerName : '-'}</td>
-                <td>${profit.managerShare ? profit.managerShare : 0 }</td>
-                <td>${profit.receiverName ? profit.receiverName : '-'}</td>
-                <td>${profit.receiverShare ? profit.receiverShare : 0}</td>
-                <td>${profit.totalShare ? profit.totalShare : 0}</td>
-                <td>${profit.netProfit}</td>
-                <td> 
-                    <button onclick="redirectToEdit('${profit._id}', '${profit.id_card_number}', '${profit.fname}', '${profit.lname}', '${profit.manager}', '${profit.contract_number}', '${profit.bill_number}')">แก้ไข</button>
-                    <button onclick="redirectToDelete('${profit._id}', '${profit.id_card_number}')">ลบ</button>
-                </td>
-            `;
-        });
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
-    }
+
+
+async function fetchLoanInfo(id_card_number) {
+  try {
+      const response = await fetch(`/api/loaninfo/${id_card_number}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const loanData = await response.json();
+      const loanTableBody = document.getElementById('loanTableBody');
+      loanTableBody.innerHTML = '';
+
+      loanData.forEach(loan => {
+          // คำนวณผลรวมของ total_refund2 ทั้งหมดใน refundDocuments
+          const totalRefundSum = loan.refundDocuments.reduce((total, doc) => total + parseFloat(doc.total_refund2), 0);
+
+          // คำนวณ netProfit
+          // คำนวณ netProfit
+          const netProfit = totalRefundSum
+          - (loan.principal || 0)
+          - (loan.recommended || 0)
+          - (loan.totalShare || 0);
+
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${loan.contract_number}</td>
+              <td>${totalRefundSum}</td>
+              <td>${loan.principal}</td>
+              <td>${loan.recommended}</td>
+              <td>${loan.totalShare}</td>
+              <td>${loan.status}</td>
+              <td>${netProfit}</td>
+          `;
+          loanTableBody.appendChild(row);
+      });
+  } catch (error) {
+      console.error('Error fetching loan information:', error);
+  }
 }
 
+  // ฟังก์ชันสำหรับดึงพารามิเตอร์จาก URL
+  function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
+    const results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
 
-// ลบข้อมูลส่วนแบ่ง
-function redirectToDelete(objectId, id_card_number) {
-    const confirmation = confirm('คุณต้องการลบส่วนแบ่งนี้หรือไม่?');
+  // ดึงค่า id_card_number จาก URL
+  const idCardNumber = getParameterByName('id_card_number');
 
-    if (confirmation) {
-        fetch(`/api/delete-profit-sharing/${objectId}?id_card_number=${id_card_number}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to delete profit');
-            }
-            console.log('Profit deleted successfully');
-            // ลบแถวที่มี ObjectId ออกจาก DOM
-            const rowElement = document.getElementById(`row-${objectId}`);
-            if (rowElement) {
-                rowElement.remove();
-            }
-        })
-        .catch(error => console.error('Error deleting profit:', error));
-    }
-}
+  // เรียกใช้ฟังก์ชัน fetchLoanInfo ด้วยค่า id_card_number ที่ดึงมาได้
+  if (idCardNumber) {
+    fetchLoanInfo(idCardNumber);
+  } else {
+    console.error('ไม่พบพารามิเตอร์ id_card_number ใน URL');
+  }

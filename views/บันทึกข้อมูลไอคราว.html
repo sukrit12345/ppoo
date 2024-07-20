@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>บันทึกยึดทรัพย์</title>
+<title>บันทึกไอคราว</title>
 
 <style>
 .navbar {
@@ -125,6 +125,12 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+    }    
   
 
 </style>
@@ -146,77 +152,42 @@ input[type=text] {
 
 <div class="container">
 
-  <form id="seizureForm" action="/api/seize-assets" method="POST" enctype="multipart/form-data">
+    <form id="icloudForm" action="/save_record" method="post">
+        <fieldset>
+            <br>
+            <legend>ข้อมูลไอคราว</legend>
+            <label for="record_date">วันที่บันทึก:</label>
+            <input type="date" id="record_date" name="record_date"required ><br><br>
 
-    <fieldset>
-      <legend>ข้อมูลรหัสยึดทรัพย์</legend>
-      <br>
+            <label for="device_id">หมายเลขเครื่องโทรศัพท์:</label>
+            <input type="text" id="device_id" name="device_id" placeholder="กรอกหมายเลขเครื่องโทรศัพท์" required>
 
-    <label for="id_card_number">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required  readonly >
+            <label for="phone_number">เบอร์โทรศัพท์:<p id="error_message" class="error-message"></p></label>
+            <input type="number" id="phone_number" name="phone_number"  placeholder="กรอกเบอร์โทรศัพท์" required>
 
-    <label for="contract_number">หมายเลขสัญญา:</label>
-    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required  readonly>
+            <label for="user_email">ยูสอีเมล/ไอคราว:</label>
+            <input type="text" id="user_email" name="user_email"  placeholder="กรอกยูสอีเมล/ไอคราว" required>
 
-    <label for="bill_number">หมายเลขบิล:</label>
-    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required  readonly>
+            <label for="email_password">รหัสเมล:</label>
+            <input type="text" id="email_password" name="email_password"  placeholder="กรอกรหัสเมล" required>
 
-  </fieldset>
-  <br>
+            <label for="icloud_password">รหัสไอคราว:</label>
+            <input type="text" id="icloud_password" name="icloud_password"  placeholder="กรอกรหัสไอคราว" required>
 
-  <fieldset>
-    <legend>ข้อมูลสัญญา</legend>
-    <br>
+        </fieldset>
+        <br>
 
-    <label for="principal">เงินต้นที่ติด:</label>
-    <input type="text" id="principal" name="principal" placeholder="กรอกเงินต้นที่ติด" required readonly>
+        <input type="hidden" id="loan" name="loan">
 
-  </fieldset>
-  <br>
+        
 
+        <input type="submit" value="บันทึกไอคราว"> 
+    </form>
 
-  <fieldset>
-    <legend>ข้อมูลยึดทรัพย์</legend>
-    <br>
-
-
-    <label for="seizureDate">วันที่ยึดทรัพย์ (เดือน-วัน-ปี):</label>
-    <input type="date" id="seizureDate" name="seizureDate" required>
-    <br><br>
+<script src="บันทึกข้อมูลไอคราว.js"></script>
 
 
-    <label for="collector_name_input">ชื่อคนทวง:</label>
-    <input type="text" id="collector_name" name="collector_name" placeholder="กรอกชื่อคนทวง"required>
 
-    <label for="seizureCost">ค่ายึดทรัพย์:</label>
-    <input type="text" id="seizureCost" name="seizureCost" placeholder="กรอกค่าตามทรัพย์" required>
-
-    <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
-    <input type="text" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required >
-
-    <label for="assetName">ชื่อทรัพย์ที่ยึด:</label>
-    <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์ที่ยึด" required>
-
-    <label for="assetDetails">รายละเอียดทรัพย์:</label>
-    <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required>
-
-    <label for="assetPhoto">รูปทรัพย์ที่ยึด:</label>
-    <input type="file" id="assetPhoto" name="assetPhoto">
-
-    <label for="seizureCost2">รูปสลิปค่ายึดทรัพย์:</label>
-    <input type="file" id="seizureCost2" name="seizureCost2">
-    
-  </fieldset>
-  <br>
-  <input type="hidden" id="loan" name="loan">
-  
-    <input type="submit" value="บันทึกยึดทรัพย์" class="button">
- </form>
-
-  <script src="บันทึกยึดทรัพย์.js"></script>
-
-
-</div>
 
 </body>
 </html>

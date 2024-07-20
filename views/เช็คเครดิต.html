@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางคลังทรัพย์สิน</title>
+<title>ตารางเช็คเครดิต</title>
 
 <style>
 .navbar {
@@ -218,8 +218,8 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
     <div class="navbar">
         <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
         <a href="รายงานผล.html">รายงานผล</a>
-        <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-        <a class="active" href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+        <a class="active" href="เช็คเครดิต.html">เช็คเครดิต</a>
+        <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
         <a href="ไอคราว.html">ไอคราว</a>
         <a href="เเอดมิน.html">เเอดมิน</a>
         <a href="คนทวง.html">คนทวง</a>
@@ -230,7 +230,7 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
     </div>
 
 
-<h2 style="text-align:center;">ตารางคลังทรัพย์สิน</h2>
+<h2 style="text-align:center;">ตารางเช็คเครดิต</h2>
 
 
 <div class="search-container">
@@ -246,48 +246,40 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 <div class="search-container2">
   <select id="statusFilter">
     <option value="" selected>ทั้งหมด</option>
-    <option value="ยังไม่ขาย">ยังไม่ขาย</option>
-    <option value="ขายเเล้ว">ขายเเล้ว</option>
-    
+    <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
+    <option value="เลยกำหนดสัญญา">เลยกำหนดสัญญา</option>
+    <option value="ครบกำหนดชำระ">ครบกำหนดชำระ</option>
+    <option value="ชำระครบ">ชำระครบ</option>
+    <option value="เเบล็คลิช">เเบล็คลิช</option>
   </select>
   <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
 </div>
 
 
-<div class="button-container3">
-    <div class="column3">
-        <button class="custom-button1" onclick="redirectToContractPage2()">คลังทรัพย์</button>
-    </div>
-    <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage3()">ขายทรัพย์</button>
-    </div>
-</div>
+
 
   
   
 
-<table id="seizureData">
-  <thead>
-      <tr>
-          <th>ลำดับ</th>
-          <th>เลขบัตรประชาชน</th>
-          <th>รหัส</th>
-          <th>บิล</th>
-          <th>วันที่ยึด</th>
-          <th>เงินต้นที่ติด</th>
-          <th>ค่ายึดทรัพย์</th>
-          <th>รวมต้นทุนทรัพย์</th>
-          <th>ชื่อทรัพย์</th> 
-          <th>รายละเอียดทรัพย์</th>
-          <th>สถานะ</th>
-          <th>จัดการ</th>
-          <th>ขาย</th>
-      </tr>
-  </thead>
-  <tbody></tbody>
-</table>
 
-<script src="คลังทรัพย์สิน.js"></script>
+<table id="z">
+    <tr>
+      <th>ลำดับ</th>
+      <th>เลขบัตรประชาชน</th>
+      <th>ชื่อ</th>
+      <th>นามสกุล</th>
+      <th>เงินต้น</th>
+      <th>ดอกเบี้ย</th>
+      <th>เงินที่ต้องคืน</th>
+      <th>สถานะ</th>
+      <th>จังหวัด</th>
+    </tr>
+  
+  
+  </table>
+
+  <script src="เช็คเครดิต.js"></script>  
+
 
 
 </body>
