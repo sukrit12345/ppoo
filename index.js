@@ -384,85 +384,68 @@ async function calculateLoanData(loan, currentDate) {
     try {
         const returnDate = new Date(loan.returnDate);
 
-        // คำนวณจำนวนวันถึงวันคืนเงิน (totalRepayment)
         let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
-        if (totalRepayment <= 0) {
-            totalRepayment = '-';
-        }
+        if (totalRepayment <= 0) totalRepayment = '-';
 
-        // คำนวณจำนวนวันที่เลยวันคืนเงิน (daysUntilReturn)
         let daysUntilReturn = Math.round((currentDate - returnDate) / (1000 * 60 * 60 * 24));
-        if (daysUntilReturn <= 0) {
-            daysUntilReturn = '-';
-        }
+        if (daysUntilReturn <= 0) daysUntilReturn = '-';
 
-        // คำนวณดอกเบี้ยปรับปรุง (totalInterest2)
-        let totalInterest2 = daysUntilReturn !== '-' ? daysUntilReturn * loan.principal * loan.interestRate / 100 : 0;
+        let totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * loan.principal * loan.interestRate / 100) : 0;
+        let originalTotalInterest2 = totalInterest2;
 
-        // ตรวจสอบสถานะการคืนเงินก่อนการคำนวณ
         const refunds = await Refund.find({ id_card_number: loan.id_card_number, bill_number: loan.bill_number, contract_number: loan.contract_number });
+        let status = loan.status; // ใช้สถานะเดิมก่อนการคำนวณ
 
-        let status;
-        let totalRefund = 0; // กำหนดค่าเริ่มต้นของ totalRefund เป็น 0
-
-        // ตรวจสอบว่า loan มีการอ้างอิงใน seizures หรือไม่
         const seizure = await Seizure.findOne({ loan: loan._id });
 
         if (seizure) {
             status = "<span style='color: red;'>ยึดทรัพย์</span>";
             totalRepayment = '-';
             daysUntilReturn = '-';
-            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2);
+            totalInterest2 = originalTotalInterest2;
+            totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2));
         } else if (refunds.length > 0) {
             const refund = refunds[0];
-            
-            console.log("Refund.total_refund2: ", refund.total_refund2); // ตรวจสอบค่าของ refund.total_refund2
-            
-            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2);
+            totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2));
 
             if (refund.total_refund2 >= totalRefund) {
                 status = "<span style='color: green;'>ชำระครบ</span>";
                 totalRepayment = '-';
                 daysUntilReturn = '-';
+                totalInterest2 = originalTotalInterest2;
             } else {
                 status = "<span style='color: green;'>ต่อดอก</span>";
                 totalRepayment = '-';
                 daysUntilReturn = '-';
+                totalInterest2 = originalTotalInterest2;
             }
         } else {
-            // กำหนดสถานะของสัญญาตามวัน หยุดคำนวณเมื่อ status เป็น เบล็คลิช
             if (status !== "<span style='color: red;'>เเบล็คลิช</span>") {
                 if (currentDate > returnDate) {
                     status = "<span style='color: orange;'>เลยสัญญา</span>";
                 } else if (currentDate < returnDate) {
                     status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
                 } else if (currentDate === returnDate) {
-                    status = "<span style='color: pink;'>ครบสัญญา</span>";
+                    status = "<span style='color: #FF00FF;'>ครบสัญญา</span>";
                 }
             }
-
-            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+            totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0));
         }
 
-        const totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+        const totalInterest4 = Math.round(Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0));
 
         const updatedLoanData = {
             totalRepayment,
             daysUntilReturn,
             totalInterest2,
-            totalInterest3: loan.totalInterest3 || 0,
+            totalInterest3: loan.totalInterest3 ? Math.round(Number(loan.totalInterest3)) : 0,
             status,
             totalRefund,
-            principal: loan.principal,
+            principal: Math.round(loan.principal),
             totalInterest4
         };
-        console.log('Updated loan data:', updatedLoanData);
 
-        // อัปเดตข้อมูลในฐานข้อมูล
-        await LoanInformation.updateOne(
-            { _id: loan._id },
-            { $set: updatedLoanData }
-        );
+        await LoanInformation.updateOne({ _id: loan._id }, { $set: updatedLoanData });
 
         return {
             ...loan._doc,
@@ -481,47 +464,45 @@ async function calculateLoanData(loan, currentDate) {
 
 
 
+
+
+
 // ปิดสัญญาผ่าน API
-app.put('/api/close-loan/:loanId', [
-    // Validation เพิ่มเติมตามที่ต้องการ (ตัวอย่างเช่น body('idCardNumber').isString().trim().escape()),
-    async (req, res) => {
-        const loanId = req.params.loanId;
+app.put('/api/close-loan/:loanId', async (req, res) => {
+    const loanId = req.params.loanId;
 
-        try {
-            // อัปเดตสถานะในฐานข้อมูล
-            const updatedLoan = await LoanInformation.findByIdAndUpdate(
-                loanId,
-                { 
-                    status: "<span style='color: red;'>เบล็คลิช</span>", // อัปเดตสถานะเป็น เบล็คลิช โดยใช้ HTML tag
-                    totalRepayment: '-', // อัปเดต totalRepayment เป็น '-'
-                    daysUntilReturn: '-' // อัปเดต daysUntilReturn เป็น '-'
-                },
-                { new: true } // ให้คืนค่า document หลังจากการอัปเดต
-            );
+    try {
+        // อัปเดตสถานะของสัญญาเป็น 'เบล็คลิช'
+        await LoanInformation.findByIdAndUpdate(
+            loanId,
+            { status: "<span style='color: red;'>เเบล็คลิช</span>" }
+        );
 
-            if (!updatedLoan) {
-                return res.status(404).json({ error: 'ไม่พบข้อมูลสัญญาที่ต้องการปิด' });
-            }
+        // คำนวณและอัปเดตข้อมูลของสัญญา
+        const loan = await LoanInformation.findById(loanId);
+        const currentDate = new Date();
+        const calculatedLoanData = await calculateLoanData(loan, currentDate);
 
-            // อัปเดตข้อมูลในฐานข้อมูล
-            const updatedLoanData = {
-                totalRepayment: '-', // อัปเดต totalRepayment เป็น '-'
-                daysUntilReturn: '-', // อัปเดต daysUntilReturn เป็น '-'
-            };
+        // กำหนดค่า default สำหรับ totalRepayment, daysUntilReturn, และ totalInterest2
+        const updatedLoanData = {
+            ...calculatedLoanData,
+            totalRepayment: '-',
+            daysUntilReturn: '-',
+            totalInterest2: calculatedLoanData.totalInterest2 // ใช้ค่าเดิมที่คำนวณได้
+        };
 
-            await LoanInformation.updateOne(
-                { _id: loanId },
-                { $set: updatedLoanData }
-            );
+        // อัปเดตข้อมูลในฐานข้อมูล
+        await LoanInformation.updateOne(
+            { _id: loanId },
+            { $set: updatedLoanData }
+        );
 
-            res.json(updatedLoan); // ส่งข้อมูลสัญญาที่อัปเดตแล้วกลับไปยัง client
-        } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการปิดสัญญา:', error.message);
-            res.status(500).json({ error: 'เกิดข้อผิดพลาดในการปิดสัญญา' });
-        }
+        res.json(updatedLoanData); // ส่งข้อมูลที่อัปเดตแล้วกลับไปยัง client
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการปิดสัญญา:', error.message);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการปิดสัญญา' });
     }
-]);
-
+});
 
 
 
@@ -645,17 +626,23 @@ app.get('/api/loan/count', async (req, res) => {
 
 
 
-
-//ส่งข้อมูลลูกหนี้อยู่ในสัญญาไปหน้าเเอดมิน
 app.get('/api/loan/in-contract', async (req, res) => {
     const managerNickname = req.query.nickname;
     console.log('Manager Nickname (In Contract):', managerNickname);
 
     try {
+        // หา manager จาก nickname
+        const manager = await Manager.findOne({ nickname: managerNickname });
+        if (!manager) {
+            return res.status(404).json({ error: 'ไม่พบผู้จัดการที่มี nickname นี้' });
+        }
+
+        const managerId = manager._id; // ใช้ managerId ถ้าต้องการแสดง แต่ไม่ได้ใช้ในที่นี้
+
         const result = await LoanInformation.aggregate([
             { 
                 $match: { 
-                    manager: managerNickname,
+                    manager: managerNickname, // ใช้ managerNickname ตรงๆ
                     status: {
                         $in: [
                             "<span style='color: blue;'>อยู่ในสัญญา</span>",
@@ -692,6 +679,18 @@ app.get('/api/loan/in-contract', async (req, res) => {
 
 
 
+
+//ส่งข้อมูลสถานะครบสัญญาไปหน้าเเจ้งเตือน
+app.get('/api/loans/completed', async (req, res) => {
+    try {
+        const loans = await LoanInformation.find({ status: "<span style='color: #FF00FF;'>ครบสัญญา</span>" });
+        res.json(loans);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+  
+  
 
 
 // เเก้ไขสัญญา
@@ -1759,7 +1758,11 @@ app.get('/api/loaninfo/:id_card_number', async (req, res) => {
             console.log(`Refund documents for contract_number ${contract_number}:`, refundDocuments);
           
             const initialLoan = await LoanInformation.findOne({ id_card_number, contract_number, bill_number: 1 });
-            const recommended = initialLoan ? initialLoan.recommended : 0;
+            
+            // แปลงค่า Recommended ให้เป็นตัวเลข
+            const recommended = initialLoan && !isNaN(parseFloat(initialLoan.Recommended))
+                ? parseFloat(initialLoan.Recommended)
+                : 0;
             console.log(`Recommended for contract_number ${contract_number}:`, recommended);
         
             const profitSharings = await ProfitSharing.find({ id_card_number, contract_number });
@@ -1771,7 +1774,6 @@ app.get('/api/loaninfo/:id_card_number', async (req, res) => {
             const finalStatus = await LoanInformation.findOne({ id_card_number, contract_number }).sort({ bill_number: -1 }).exec();
             console.log(`Final status for contract_number ${contract_number}:`, finalStatus);
 
-            // เพิ่มเงื่อนไขสำหรับการแสดงข้อความตามสถานะ
             let statusMessage = '';
             if (finalStatus && finalStatus.status === "<span style='color: green;'>ชำระครบ</span>") {
                 statusMessage = "<span style='color: green;'>จ่ายครบแล้ว</span>";
@@ -1783,10 +1785,10 @@ app.get('/api/loaninfo/:id_card_number', async (req, res) => {
                 contract_number,
                 total_refund2: totalRefund.length > 0 ? totalRefund[0].total_refund2 : 0,
                 refundDocuments,
-                principal: initialLoan ? initialLoan.principal : 0,
-                recommended: initialLoan ? initialLoan.recommended : 0,
+                principal: initialLoan ? parseFloat(initialLoan.principal) : 0,
+                recommended,
                 totalShare,
-                status: statusMessage, // ใช้ข้อความสถานะที่กำหนด
+                status: statusMessage,
                 netProfit: 0
             });
         }
@@ -1798,6 +1800,8 @@ app.get('/api/loaninfo/:id_card_number', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
+
 
 
 
@@ -1885,10 +1889,11 @@ app.post('/save-capital', upload.single('capital_receipt'), async (req, res) => 
 
 
 
-//ปล่อยยอดเงินต้น
+//ปล่อยยอดเงินต้นหน้ารายงานผล
 app.get('/getLoanInformation1', async (req, res) => {
     try {
-        const loanData = await LoanInformation.find({ bill_number: 1 }, 'loanDate principal');
+        let loanData = await LoanInformation.find({ bill_number: 1 }, 'loanDate principal');
+        loanData = loanData.filter(loan => loan.principal !== 0);
         res.json(loanData);
     } catch (err) {
         console.error(err);
@@ -1896,10 +1901,11 @@ app.get('/getLoanInformation1', async (req, res) => {
     }
 });
 
-//ค่าเเนะนำ
+//ค่าเเนะนำหน้ารายงานผล
 app.get('/getLoanInformation2', async (req, res) => {
     try {
-        const loanData = await LoanInformation.find({ bill_number: 1 }, 'loanDate Recommended');
+        let loanData = await LoanInformation.find({ bill_number: 1 }, 'loanDate Recommended');
+        loanData = loanData.filter(loan => loan.Recommended !== 0);
         res.json(loanData);
     } catch (err) {
         console.error(err);
@@ -1907,23 +1913,23 @@ app.get('/getLoanInformation2', async (req, res) => {
     }
 });
 
-
-//คืนเงินต้น
+//คืนเงินต้นหน้ารายงานผล
 app.get('/getRefundInformation1', async (req, res) => {
     try {
-        // ดึงข้อมูล refund_principal และ return_date จาก refunds
-        const refundData = await Refund.find({}, 'refund_principal return_date');
-        res.json(refundData); // ส่งข้อมูลเป็น JSON กลับไปยังหน้าเว็บ
+        let refundData = await Refund.find({}, 'refund_principal return_date');
+        refundData = refundData.filter(refund => refund.refund_principal !== 0);
+        res.json(refundData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error fetching refund information' });
     }
 });
 
-//คืนดอกเบี้ย
+//คืนดอกเบี้ยหน้ารายงานผล
 app.get('/getRefundInformation2', async (req, res) => {
     try {
-        const refunds = await Refund.find({}, 'refund_interest return_date');
+        let refunds = await Refund.find({}, 'refund_interest return_date');
+        refunds = refunds.filter(refund => refund.refund_interest !== 0);
         res.json(refunds);
     } catch (err) {
         console.error(err);
@@ -1931,25 +1937,23 @@ app.get('/getRefundInformation2', async (req, res) => {
     }
 });
 
-
-//ค่าทวง
+//ค่าทวงหน้ารายงานผล
 app.get('/getRefunds', async (req, res) => {
     try {
-        // ดึงข้อมูล debtAmount และ return_date จากคอลเลกชัน refunds
-        const refundData = await Refund.find({}, 'debtAmount return_date');
-        res.json(refundData); // ส่งข้อมูลเป็น JSON กลับไปยังหน้าเว็บ
+        let refundData = await Refund.find({}, 'debtAmount return_date');
+        refundData = refundData.filter(refund => refund.debtAmount !== 0);
+        res.json(refundData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error fetching refund data' });
     }
 });
 
-//ส่วนเเบ่ง
+//ส่วนเเบ่งหน้ารายงานผล
 app.get('/getProfitSharings', async (req, res) => {
     try {
-        // Fetch profit sharings with totalShare and returnDate fields
-        const profitSharings = await ProfitSharing.find({}, 'totalShare returnDate');
-
+        let profitSharings = await ProfitSharing.find({}, 'totalShare returnDate');
+        profitSharings = profitSharings.filter(sharing => sharing.totalShare !== 0);
         res.json(profitSharings);
     } catch (err) {
         console.error('Error fetching profit sharings:', err);
@@ -1957,12 +1961,11 @@ app.get('/getProfitSharings', async (req, res) => {
     }
 });
 
-//ค่ายึดทรัพย์
+//ค่ายึดทรัพย์หน้ารายงานผล
 app.get('/getSeizures', async (req, res) => {
     try {
-        // Fetch seizures with seizureCost and seizureDate fields
-        const seizures = await Seizure.find({}, 'seizureCost seizureDate');
-
+        let seizures = await Seizure.find({}, 'seizureCost seizureDate');
+        seizures = seizures.filter(seizure => seizure.seizureCost !== 0);
         res.json(seizures);
     } catch (err) {
         console.error('Error fetching seizures:', err);
@@ -1970,12 +1973,11 @@ app.get('/getSeizures', async (req, res) => {
     }
 });
 
-//ขายทรัพย์
+//ขายทรัพย์หน้ารายงานผล
 app.get('/getSales', async (req, res) => {
     try {
-        // Fetch sales with sellAmount and sell_date fields
-        const sales = await Sale.find({}, 'sellamount sell_date');
-
+        let sales = await Sale.find({}, 'sellamount sell_date');
+        sales = sales.filter(sale => sale.sellamount !== 0);
         res.json(sales);
     } catch (err) {
         console.error('Error fetching sales:', err);
@@ -1983,13 +1985,11 @@ app.get('/getSales', async (req, res) => {
     }
 });
 
-
-//เพิ่มค่าใช้จ่าย
+//เพิ่มค่าใช้จ่ายหน้ารายงานผล
 app.get('/getExpenses', async (req, res) => {
     try {
-        // Fetch expenses with expense_date, expense_amount, and details fields
-        const expenses = await Expense.find({}, 'expense_date expense_amount details');
-
+        let expenses = await Expense.find({}, 'expense_date expense_amount details');
+        expenses = expenses.filter(expense => expense.expense_amount !== 0);
         res.json(expenses);
     } catch (err) {
         console.error('Error fetching expenses:', err);
@@ -1997,13 +1997,11 @@ app.get('/getExpenses', async (req, res) => {
     }
 });
 
-
-//เพิ่มรายได้
+//เพิ่มรายได้หน้ารายงานผล
 app.get('/getIncomes', async (req, res) => {
     try {
-        // Fetch incomes with record_date, income_amount, and details fields
-        const incomes = await Income.find({}, 'record_date income_amount details');
-
+        let incomes = await Income.find({}, 'record_date income_amount details');
+        incomes = incomes.filter(income => income.income_amount !== 0);
         res.json(incomes);
     } catch (err) {
         console.error('Error fetching incomes:', err);
@@ -2011,12 +2009,11 @@ app.get('/getIncomes', async (req, res) => {
     }
 });
 
-//เพิ่มเงินทุน
+//เพิ่มเงินทุนหน้ารายงานผล
 app.get('/getCapitals', async (req, res) => {
     try {
-        // Fetch capitals with capital_date, capital_amount, and details fields
-        const capitals = await Capital.find({}, 'capital_date capital_amount details');
-
+        let capitals = await Capital.find({}, 'capital_date capital_amount details');
+        capitals = capitals.filter(capital => capital.capital_amount !== 0);
         res.json(capitals);
     } catch (err) {
         console.error('Error fetching capitals:', err);
