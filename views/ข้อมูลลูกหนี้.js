@@ -773,4 +773,14 @@ function calculateTotalNetProfit() {
 
 
 
-
+//เเสดงจำนวนหน้าเเจ้งเตือน
+document.addEventListener('DOMContentLoaded', () => {
+    // ดึงค่าจำนวนแจ้งเตือนจาก localStorage
+    const notificationCount = localStorage.getItem('notificationCount');
+    if (notificationCount) {
+        const notificationLink = document.querySelector('a.active2');
+        if (notificationLink) {
+            notificationLink.setAttribute('data-count', notificationCount);
+        }
+    }
+});

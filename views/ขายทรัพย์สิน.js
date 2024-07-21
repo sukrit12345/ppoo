@@ -80,3 +80,44 @@ document.addEventListener("DOMContentLoaded", fetchSales);
 
 
 
+//ค้นหาเลขบัตรประชาชน13หลัก
+function searchTable() {
+    var input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.trim(); // ตัดช่องว่างที่อาจเกิดขึ้นได้
+    
+    // ตรวจสอบว่าเลขบัตรประชาชนมีความยาว 13 หลักหรือไม่
+    if (filter.length !== 13 || isNaN(filter)) {
+        alert("โปรดป้อนเลขบัตรประชาชนที่ถูกต้อง (13 หลัก)");
+        return;
+    }
+  
+    // ค้นหาในทุกคอลัมน์
+    table = document.querySelector("table");
+    tr = table.getElementsByTagName("tr");
+  
+    for (i = 0; i < tr.length; i++) {
+        var found = false; // เพิ่มตัวแปรเพื่อตรวจสอบว่าพบข้อมูลหรือไม่
+  
+        for (j = 0; j < tr[i].cells.length; j++) {
+            td = tr[i].getElementsByTagName("td")[j];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                // เปรียบเทียบข้อมูลในคอลัมน์กับค่าที่ค้นหา
+                if (txtValue.trim() === filter) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+  
+        if (found) {
+            tr[i].style.display = ""; // แสดงแถวที่พบข้อมูล
+        } else {
+            // ตรวจสอบว่าอิลิเมนต์ที่กำลังตรวจสอบเป็น <th> หรือไม่
+            if (tr[i].getElementsByTagName("th").length === 0) {
+                tr[i].style.display = "none"; // ซ่อนแถวที่ไม่พบข้อมูล
+            }
+        }
+    }
+}

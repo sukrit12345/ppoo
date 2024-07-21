@@ -10,35 +10,46 @@ $(document).ready(function() {
         let debtorMoney = 0;
         let cashMoney = 0;
 
+        // กรองข้อมูลที่ค่าทั้งหมดเป็น 0
+        let filteredData = data.filter(item => {
+            let a = parseFloat(item.a) || 0;
+            let b = parseFloat(item.b) || 0;
+            let c = parseFloat(item.c) || 0;
+            let c2 = parseFloat(item.c2) || 0;
+            let d = parseFloat(item.d) || 0;
+            let d2 = parseFloat(item.d2) || 0;
+
+            return a !== 0 || b !== 0 || c !== 0 || c2 !== 0 || d !== 0 || d2 !== 0;
+        });
+
         // เพิ่มข้อมูลลงในตาราง
-        data.forEach((item, index) => {
+        filteredData.forEach((item, index) => {
+            let a = parseFloat(item.a) || 0;
+            let b = parseFloat(item.b) || 0;
+            let c = parseFloat(item.c) || 0;
+            let c2 = parseFloat(item.c2) || 0;
+            let d = parseFloat(item.d) || 0;
+            let d2 = parseFloat(item.d2) || 0;
+
             // คำนวณผลรวมของแต่ละแถว
-            let total = 0;
-            total += item.a ? parseFloat(item.a) : 0;
-            total += item.b ? parseFloat(item.b) : 0;
-            total += item.c ? parseFloat(item.c) : 0;
-            total -= item.c2 ? parseFloat(item.c2) : 0;
-            total += item.d ? parseFloat(item.d) : 0;
-            total -= item.d2 ? parseFloat(item.d2) : 0;
+            let total = a + b + c - c2 + d - d2;
 
             // คำนวณผลรวมตามประเภท
-            if (item.a) totalIncome += parseFloat(item.a);
-            if (item.b) totalExpense += parseFloat(item.b);
-            if (item.c) debtorMoney += parseFloat(item.c);
-            if (item.d) cashMoney += parseFloat(item.d);
-            if (item.c2) debtorMoney -= parseFloat(item.c2);
-            if (item.d2) cashMoney -= parseFloat(item.d2);
+            totalIncome += a;
+            totalExpense += b;
+            debtorMoney += c - c2;
+            cashMoney += d - d2;
 
             // เพิ่มข้อมูลลงในตาราง
             $('#accountingTableBody').append(`
                 <tr>
-                    <td>${data.length - index}</td>
+                    <td>${filteredData.length - index}</td>
                     <td>${item.date}</td>
                     <td>${item.description}</td>
-                    <td>${item.a ? `<span style="color: green;">+${item.a}</span>` : ''}</td>
-                    <td>${item.b ? `<span style="color: green;">+${item.b}</span>` : ''}</td>
-                    <td>${item.c ? `<span style="color: green;">+${item.c}</span>` : ''}${item.c2 ? `<span style="color: red;">-${item.c2}</span>` : ''}</td>
-                    <td>${item.d ? `<span style="color: green;">+${item.d}</span>` : ''}${item.d2 ? `<span style="color: red;">-${item.d2}</span>` : ''}</td>
+                    <td>${a ? `<span style="color: green;">+${a}</span>` : ''}</td>
+                    <td>${b ? `<span style="color: red;">+${b}</span>` : ''}</td>
+                    <td>${c ? `<span style="color: green;">+${c}</span>` : ''}${c2 ? `<span style="color: red;">-${c2}</span>` : ''}</td>
+                    <td>${d ? `<span style="color: green;">+${d}</span>` : ''}${d2 ? `<span style="color: red;">-${d2}</span>` : ''}</td>
                 </tr>
             `);
         });
@@ -47,11 +58,11 @@ $(document).ready(function() {
         netProfit = totalIncome - totalExpense;
 
         // แสดงผลรวมใน div
-        $('#totalIncome').text(`รายได้: ${totalIncome.toFixed(2)}`);
-        $('#totalExpense').text(`ค่าใช้จ่าย: ${totalExpense.toFixed(2)}`);
-        $('#netProfit').text(`กำไรสุทธิ: ${netProfit.toFixed(2)}`);
-        $('#debtorMoney').text(`เงินที่ลูกหนี้: ${debtorMoney.toFixed(2)}`);
-        $('#cashMoney').text(`เงินสด: ${cashMoney.toFixed(2)}`);
+        $('#totalIncome').text(`รายได้: ${totalIncome.toFixed()}`);
+        $('#totalExpense').text(`ค่าใช้จ่าย: ${totalExpense.toFixed()}`);
+        $('#netProfit').text(`กำไรสุทธิ: ${netProfit.toFixed()}`);
+        $('#debtorMoney').text(`เงินที่ลูกหนี้: ${debtorMoney.toFixed()}`);
+        $('#cashMoney').text(`เงินสด: ${cashMoney.toFixed()}`);
 
         // สร้างแผนภูมิแท่ง
         const ctx = document.getElementById('summaryChart').getContext('2d');
@@ -110,107 +121,131 @@ $(document).ready(function() {
 
         // จัดการข้อมูลของแต่ละ API
         results[0][0].forEach(item => {
-            allData.push({
-                date: item.loanDate,
-                description: 'ปล่อยยอดเงินต้น',
-                c: item.principal,
-                d2: item.principal
-            });
+            if (item.principal) {
+                allData.push({
+                    date: item.loanDate,
+                    description: 'ปล่อยยอดเงินต้น',
+                    c: item.principal,
+                    d2: item.principal
+                });
+            }
         });
 
         results[1][0].forEach(item => {
-            allData.push({
-                date: item.loanDate,
-                description: 'ค่าเเนะนำ',
-                b: item.Recommended,
-                d2: item.Recommended
-            });
+            if (item.Recommended) {
+                allData.push({
+                    date: item.loanDate,
+                    description: 'ค่าเเนะนำ',
+                    b: item.Recommended,
+                    d2: item.Recommended
+                });
+            }
         });
 
         results[2][0].forEach(item => {
-            allData.push({
-                date: item.return_date,
-                description: 'คืนเงินต้น',
-                c2: item.refund_principal,
-                d: item.refund_principal
-            });
+            if (item.refund_principal) {
+                allData.push({
+                    date: item.return_date,
+                    description: 'คืนเงินต้น',
+                    c2: item.refund_principal,
+                    d: item.refund_principal
+                });
+            }
         });
 
         results[3][0].forEach(item => {
-            allData.push({
-                date: item.return_date,
-                description: 'คืนดอกเบี้ย',
-                a: item.refund_interest,
-                d: item.refund_interest
-            });
+            if (item.refund_interest) {
+                allData.push({
+                    date: item.return_date,
+                    description: 'คืนดอกเบี้ย',
+                    a: item.refund_interest,
+                    d: item.refund_interest
+                });
+            }
         });
 
         results[4][0].forEach(item => {
-            allData.push({
-                date: item.return_date,
-                description: 'ค่าทวงเก็บจากลูกหนี้',
-                a: item.debtAmount,
-                d: item.debtAmount
-            });
+            if (item.debtAmount) {
+                allData.push({
+                    date: item.return_date,
+                    description: 'ค่าทวงเก็บจากลูกหนี้',
+                    a: item.debtAmount,
+                    d: item.debtAmount
+                });
+            }
         });
 
         results[5][0].forEach(item => {
-            allData.push({
-                date: item.returnDate,
-                description: 'ส่วนเเบ่งทั้งหมด',
-                b: item.totalShare,
-                d2: item.totalShare
-            });
+            if (item.totalShare) {
+                allData.push({
+                    date: item.returnDate,
+                    description: 'ส่วนเเบ่งทั้งหมด',
+                    b: item.totalShare,
+                    d2: item.totalShare
+                });
+            }
         });
 
         results[6][0].forEach(item => {
-            allData.push({
-                date: item.seizureDate,
-                description: 'ค่ายึดทรัพย์',
-                b: item.seizureCost,
-                d2: item.seizureCost
-            });
+            if (item.seizureCost) {
+                allData.push({
+                    date: item.seizureDate,
+                    description: 'ค่ายึดทรัพย์',
+                    b: item.seizureCost,
+                    d2: item.seizureCost
+                });
+            }
         });
 
         results[7][0].forEach(item => {
-            allData.push({
-                date: item.sell_date,
-                description: 'ขายทรัพย์',
-                a: item.sellamount,
-                d: item.sellamount
-            });
+            if (item.sellamount) {
+                allData.push({
+                    date: item.sell_date,
+                    description: 'ขายทรัพย์',
+                    a: item.sellamount,
+                    d: item.sellamount
+                });
+            }
         });
 
         results[8][0].forEach(item => {
-            allData.push({
-                date: item.expense_date,
-                description: `เพิ่มค่าใช้จ่าย: ${item.details}`,
-                b: item.expense_amount,
-                d2: item.expense_amount
-            });
+            if (item.expense_amount) {
+                allData.push({
+                    date: item.expense_date,
+                    description: `เพิ่มค่าใช้จ่าย: ${item.details}`,
+                    b: item.expense_amount,
+                    d2: item.expense_amount
+                });
+            }
         });
 
         results[9][0].forEach(item => {
-            allData.push({
-                date: item.record_date,
-                description: `เพิ่มรายได้: ${item.details}`,
-                a: item.income_amount,
-                d: item.income_amount
-            });
+            if (item.income_amount) {
+                allData.push({
+                    date: item.record_date,
+                    description: `เพิ่มรายได้: ${item.details}`,
+                    a: item.income_amount,
+                    d: item.income_amount
+                });
+            }
         });
 
         results[10][0].forEach(item => {
-            allData.push({
-                date: item.capital_date,
-                description: `เพิ่มเงินทุน: ${item.details}`,
-                d: item.capital_amount
-            });
+            if (item.capital_amount) {
+                allData.push({
+                    date: item.record_date,
+                    description: `เพิ่มเงินทุน: ${item.details}`,
+                    a: item.capital_amount,
+                    d: item.capital_amount
+                });
+            }
         });
 
-        // เพิ่มข้อมูลลงในตารางและสร้างแผนภูมิ
+        // เพิ่มข้อมูลลงในตาราง
         addToTable(allData);
     });
 });
+
 
 
 

@@ -109,10 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
             refundPrincipalInput.value = '0';
             refundPrincipalInput.readOnly = true;
             errorMessage.textContent = ''; // เคลียร์ข้อความแจ้งเตือน
+            saveButton.disabled = false; // ปุ่มบันทึกสามารถใช้งานได้
         } else { // refundInterest === totalInterest4
             refundPrincipalInput.value = '';
             refundPrincipalInput.readOnly = false;
             errorMessage.textContent = ''; // เคลียร์ข้อความแจ้งเตือน
+            saveButton.disabled = false; // ปุ่มบันทึกสามารถใช้งานได้
         }
     });
 });

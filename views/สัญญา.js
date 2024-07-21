@@ -265,9 +265,13 @@ async function redirectToclose(loanId, idCardNumber) {
         if (response.ok) {
             // อัปเดตสถานะใน Frontend
             const row = document.getElementById(`row-${loanId}`);
-            const statusCell = row.querySelector('td:nth-child(14)');
-            statusCell.innerHTML = "<span style='color: red;'>เเบล็คลิช</span>";
-            console.log('ปิดสัญญาสำเร็จ');
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(14)');
+                if (statusCell) {
+                    statusCell.innerHTML = "<span style='color: red;'>เเบล็คลิช</span>";
+                    console.log('ปิดสัญญาสำเร็จ');
+                }
+            }
         } else {
             const errorData = await response.json();
             throw new Error(errorData.error || 'ไม่สามารถปิดสัญญาได้');
@@ -276,7 +280,6 @@ async function redirectToclose(loanId, idCardNumber) {
         console.error('เกิดข้อผิดพลาดในการปิดสัญญา:', error.message);
     }
 }
-
 
 
 
