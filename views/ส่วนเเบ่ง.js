@@ -124,18 +124,6 @@ async function displayProfitSharingData() {
         const response = await fetch(`/get-profit-sharing-data/${idCardNumber}`); // เรียกข้อมูลจากเซิร์ฟเวอร์
         const data = await response.json(); // แปลงข้อมูลที่ได้รับมาเป็น JSON
 
-        // เรียงลำดับข้อมูล
-        data.sort((a, b) => {
-            const dateA = new Date(a.returnDate); 
-            const dateB = new Date(b.returnDate);
-            if (dateB - dateA !== 0) {
-                return dateB - dateA; // เปรียบเทียบ returnDate จากใหม่ไปเก่า
-            }
-            if (b.contract_number !== a.contract_number) {
-                return b.contract_number.localeCompare(a.contract_number); // เปรียบเทียบ contract_number จากมากไปน้อย
-            }
-            return b.bill_number.localeCompare(a.bill_number); // เปรียบเทียบ billNumber จากมากไปน้อย
-        });
 
         const tableBody = document.querySelector('#c tbody');
 
@@ -151,9 +139,10 @@ async function displayProfitSharingData() {
                 <td>${profit.initialProfit}</td>
                 <td>${profit.collectorName ? profit.collectorName : '-'}</td>
                 <td>${profit.collectorShare ? profit.collectorShare : 0}</td>
-                <td>${profit.initialProfit2}</td>
-                <td>${profit.manager ? profit.manager : '-'}</td>
-                <td>${profit.managerShare ? profit.managerShare : 0}</td>
+                <td>${profit.managerName ? profit.managerName : '-'}</td>
+                <td>${profit.managerShare ? profit.managerShare : 0 }</td>
+                <td>${profit.receiverName ? profit.receiverName : '-'}</td>
+                <td>${profit.receiverShare ? profit.receiverShare : 0}</td>
                 <td>${profit.totalShare ? profit.totalShare : 0}</td>
                 <td>${profit.netProfit}</td>
                 <td> 

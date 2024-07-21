@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     document.getElementById("contract_number").value = contractNumber || '';
     document.getElementById("bill_number").value = billNumber || '';
     document.getElementById("refundId").value = refundId || ''; // อัปเดตตรงนี้
+    document.getElementById("manager_name").value = manager || '';
 
     // ค้นหาข้อมูลจากฐานข้อมูล Manager
     const managerData = await Manager.findOne({ nickname: manager });
@@ -53,6 +54,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 //วันที่ปัจจุบัน
 window.onload = setDate;
 
+
+
 function setDate() {
     // Create current date
     var today = new Date();
@@ -65,34 +68,73 @@ function setDate() {
     document.getElementById('return_date_input').value = today.getFullYear() + '-' + month + '-' + day;
 }
 
- // ฟังก์ชันคำนวณส่วนเเบ่งทั้งหมด
- function calculateShares() {
+function calculateShares() {
+    // Get the input values
     const initialProfit = parseFloat(document.getElementById('initial_profit').value) || 0;
-    const collectorShare = parseFloat(document.getElementById('collector_share').value) || 0;
-    const managerShare = parseFloat(document.getElementById('manager_share').value) || 0;
+    const collectorSharePercent = parseFloat(document.getElementById('collector_share_percent').value) || 0;
+    const managerSharePercent = parseFloat(document.getElementById('manager_share2').value) || 0;
+    const receiverSharePercent = parseFloat(document.getElementById('receiver_share_percent').value) || 0;
 
-    const initial_profit2 = initialProfit - collectorShare;
-    const totalShare = collectorShare + managerShare;
-    const netProfit = initialProfit - totalShare;
+    // Calculate collector share
+    let collectorShare = (initialProfit * collectorSharePercent) / 100;
+    const initialProfit2 = initialProfit - Math.abs(collectorShare); // Ensure initialProfit2 is correctly calculated
 
+    // Adjust collectorShare display
+    let formattedCollectorShare = collectorShare.toFixed(0);
+    if (collectorShare < 0) {
+        formattedCollectorShare = Math.abs(collectorShare).toFixed(0);
+    }
+
+    // Calculate manager share
+    let managerShare = (initialProfit2 * managerSharePercent) / 100;
+    if (managerShare < 0) {
+        managerShare = Math.abs(managerShare); // Make managerShare positive if negative
+    }
+
+    // Calculate receiver profit and share
+    const receiverProfit = initialProfit2 - managerShare;
+    const receiverShare = Math.abs(receiverProfit * receiverSharePercent) / 100;
+
+    // Calculate total share and net profit
+    const totalShare = Math.abs(collectorShare) + Math.abs(managerShare) + Math.abs(receiverShare);
+    const netProfit = initialProfit - Math.abs(totalShare);
+
+    // Set the calculated values
+    document.getElementById('collector_share').value = formattedCollectorShare;
+    document.getElementById('initial_profit2').value = initialProfit2.toFixed(0);
+    document.getElementById('manager_share').value = managerShare.toFixed(0);
+    document.getElementById('receiver_profit').value = receiverProfit.toFixed(0);
+    document.getElementById('receiver_share').value = receiverShare.toFixed(0);
     document.getElementById('total_share').value = totalShare.toFixed(0);
     document.getElementById('net_profit').value = netProfit.toFixed(0);
-    document.getElementById('initial_profit2').value = initial_profit2.toFixed(0);
 }
 
-// ฟังก์ชันคำนวณส่วนเเบ่งเเอดมิน
-function calculateManagerShare() {
-    const initialProfit2 = parseFloat(document.getElementById('initial_profit2').value) || 0;
-    const managerShare2 = parseFloat(document.getElementById('manager_share2').value) || 0;
+// Call calculateShares() initially and on input change events
+document.addEventListener('DOMContentLoaded', (event) => {
+    setDate();
+    calculateShares(); // Initial calculation
+    document.getElementById('initial_profit').addEventListener('input', calculateShares);
+    document.getElementById('collector_share_percent').addEventListener('input', calculateShares);
+    document.getElementById('manager_share2').addEventListener('input', calculateShares);
+    document.getElementById('receiver_share_percent').addEventListener('input', calculateShares);
+});
 
-    const managerShare = initialProfit2 * managerShare2 / 100;
 
-    document.getElementById('manager_share').value = managerShare.toFixed(0);
-}
 
-// เรียกใช้ฟังก์ชันเมื่อมีการเปลี่ยนแปลงค่า initial_profit2 หรือ manager_share2
-document.getElementById('initial_profit2').addEventListener('input', calculateManagerShare);
-document.getElementById('manager_share2').addEventListener('input', calculateManagerShare);
 
-// เรียกใช้ฟังก์ชันคำนวณค่าเริ่มต้น
-calculateManagerShare();
+
+//เลือกชื่อเเอดมินรับเงิน
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/receiver_name')
+      .then(response => response.json())
+      .then(data => {
+        const receiver_nameSelect = document.getElementById('receiver_name');
+        data.forEach(receiver_name => {
+          const option = document.createElement('option');
+          option.value = receiver_name.nickname;
+          option.textContent = receiver_name.nickname;
+          receiver_nameSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+});

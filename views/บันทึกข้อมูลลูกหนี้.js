@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       })
       .catch(error => console.error('Error:', error));
-  });
+});
+
 
 //สร้างวันที่ปัจจุบัน
 // เรียกฟังก์ชัน setDate เมื่อหน้าเว็บโหลด

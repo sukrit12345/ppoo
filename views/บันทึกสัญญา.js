@@ -216,3 +216,168 @@ function updateLoan(event) {
     })
     .catch(error => console.error('Error updating loan data:', error));
 }
+
+
+
+//เลือกประเภทการกู้
+function toggleFields() {
+    var loanType = document.getElementById("loanType").value;
+    var storeAssetsFields = document.getElementById("storeAssetsFields");
+    var icloudAssetsFields = document.getElementById("icloudAssetsFields");
+
+    var icloudFields = [
+        document.getElementById("phoneicloud"),
+        document.getElementById("email_icloud"),
+        document.getElementById("code_icloud2"),
+        document.getElementById("code_icloud"),
+        document.getElementById("icloud_assets"),
+        document.getElementById("icloud_asset_photo")
+    ];
+
+    var storeFields = [
+        document.getElementById("store_assets"),
+        document.getElementById("asset_receipt_photo")
+    ];
+
+    if (loanType === "loanCash") {
+        icloudAssetsFields.style.display = "block";
+        storeAssetsFields.style.display = "none";
+        icloudFields.forEach(function(field) {
+            field.setAttribute("required", "true");
+        });
+        storeFields.forEach(function(field) {
+            field.removeAttribute("required");
+        });
+    } else if (loanType === "loanProperty") {
+        icloudAssetsFields.style.display = "none";
+        storeAssetsFields.style.display = "block";
+        icloudFields.forEach(function(field) {
+            field.removeAttribute("required");
+        });
+        storeFields.forEach(function(field) {
+            field.setAttribute("required", "true");
+        });
+    } else {
+        icloudAssetsFields.style.display = "none";
+        storeAssetsFields.style.display = "none";
+        icloudFields.forEach(function(field) {
+            field.removeAttribute("required");
+        });
+        storeFields.forEach(function(field) {
+            field.removeAttribute("required");
+        });
+    }
+}
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneSelect = document.getElementById('phoneicloud');
+    const emailSelect = document.getElementById('email_icloud');
+    const codeInput = document.getElementById('code_icloud2');
+    
+
+    //เบอร์โทรศัพท์ไอคราวร้าน
+    fetch('/api/phone_number')
+        .then(response => response.json())
+        .then(phoneNumbers => {
+            phoneNumbers.forEach(record => {
+                const option = document.createElement('option');
+                option.value = record.phone_number;
+                option.textContent = record.phone_number;
+                phoneSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching phone numbers:', error));
+
+    // Event listener for phoneSelect change
+    phoneSelect.addEventListener('change', function() {
+        const selectedPhoneNumber = phoneSelect.value;
+
+        // Clear previous email options
+        emailSelect.innerHTML = '<option value="">เลือกยูสไอคราวร้าน</option>';
+
+        //อีเมลไอคราวร้าน
+        fetch('/api/user_email')
+            .then(response => response.json())
+            .then(userEmails => {
+                const filteredEmails = userEmails.filter(record => record.phone_number === selectedPhoneNumber);
+                filteredEmails.forEach(record => {
+                    const option = document.createElement('option');
+                    option.value = record.user_email;
+                    option.textContent = record.user_email;
+                    emailSelect.appendChild(option);
+                });
+
+                // Trigger displayIcloudPassword function initially with default selected values
+                displayIcloudPassword(selectedPhoneNumber, emailSelect.value);
+            })
+            .catch(error => console.error('Error fetching user emails:', error));
+    });
+
+    // Event listener for emailSelect change
+    emailSelect.addEventListener('change', function() {
+        const selectedPhoneNumber = phoneSelect.value;
+        const selectedUserEmail = emailSelect.value;
+
+        // Fetch and display iCloud password
+        displayIcloudPassword(selectedPhoneNumber, selectedUserEmail);
+    });
+
+// รหัสไอคราวส่งให้ลูกหนี้
+function displayIcloudPassword(phoneNumber, userEmail) {
+    // Check if phoneNumber and userEmail are both defined
+    if (!phoneNumber || !userEmail) {
+        console.error('Phone number or user email is not defined');
+        return; // Exit the function early if either value is not defined
+    }
+
+    fetch(`/api/icloud_password/${phoneNumber}/${userEmail}`)
+        .then(response => response.text())
+        .then(data => {
+            codeInput.value = data;  // Set the retrieved password in the input field
+        })
+        .catch(error => console.error('Error fetching iCloud password:', error));
+}
+
+});
+
+
+
+//อัปเดตรหัสไอคราวที่พึ่งบันทึก
+async function updateIcloudPassword() {
+    const phoneIcloud = document.getElementById('phoneicloud').value;
+    const emailIcloud = document.getElementById('email_icloud').value;
+    const codeIcloud = document.getElementById('code_icloud').value;
+    
+    if (phoneIcloud && emailIcloud && codeIcloud) {
+        // ส่งข้อมูลไปที่ backend เพื่อทำการอัปเดต
+        try {
+            const response = await fetch('/updateIcloudPassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneicloud: phoneIcloud, email_icloud: emailIcloud, code_icloud: codeIcloud }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('อัปเดตสำเร็จ:', result);
+            } else {
+                const errorResult = await response.json();
+                console.error('เกิดข้อผิดพลาดในการอัปเดต:', errorResult);
+            }
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาด:', error);
+        }
+    } else {
+        console.error('กรุณากรอกข้อมูลให้ครบถ้วน');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('code_icloud').addEventListener('change', updateIcloudPassword);
+});

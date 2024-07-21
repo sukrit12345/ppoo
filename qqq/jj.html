@@ -1,0 +1,313 @@
+//คำนวณหน้าสัญญา
+async function calculateLoanData(loan, currentDate) {
+    try {
+        const returnDate = new Date(loan.returnDate);
+
+        // คำนวณจำนวนวันถึงวันคืนเงิน (totalRepayment)
+        let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
+        if (totalRepayment <= 0) {
+            totalRepayment = '-';
+        }
+
+        // คำนวณจำนวนวันที่เลยวันคืนเงิน (daysUntilReturn)
+        let daysUntilReturn = Math.round((currentDate - returnDate) / (1000 * 60 * 60 * 24));
+        if (daysUntilReturn <= 0) {
+            daysUntilReturn = '-';
+        }
+
+        // คำนวณดอกเบี้ยปรับปรุง (totalInterest2)
+        let totalInterest2 = daysUntilReturn !== '-' ? daysUntilReturn * loan.principal * loan.interestRate / 100 : 0;
+
+        // ตรวจสอบสถานะการคืนเงินก่อนการคำนวณ
+        const refunds = await Refund.find({ id_card_number: loan.id_card_number, bill_number: loan.bill_number, contract_number: loan.contract_number });
+
+        let status;
+        let totalRefund;
+
+        if (refunds.length > 0) {
+            const refund = refunds[0];
+            
+            console.log("Refund.total_refund2: ", refund.total_refund2); // ตรวจสอบค่าของ refund.total_refund2
+            console.log("Loan.totalRefund: ", totalRefund); // ตรวจสอบค่าของ totalRefund
+            
+            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2);
+
+            if (refund.total_refund2 >= totalRefund) {
+                status = "<span style='color: green;'>ชำระครบ</span>";
+                totalRepayment = '-';
+                daysUntilReturn = '-';
+            } else {
+                status = "<span style='color: green;'>ต่อดอก</span>";
+                totalRepayment = '-';
+                daysUntilReturn = '-';
+            }
+        } else {
+            // กำหนดสถานะของสัญญาตามวัน
+            if (currentDate > returnDate) {
+                status = "<span style='color: orange;'>เลยสัญญา</span>";
+            } else if (currentDate < returnDate) {
+                status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
+            } else if (currentDate === returnDate) {
+                status = "<span style='color: pink;'>ครบสัญญา</span>";
+            }
+
+            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+        }
+
+        const totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+
+        const updatedLoanData = {
+            totalRepayment,
+            daysUntilReturn,
+            totalInterest2,
+            totalInterest3: loan.totalInterest3 || 0,
+            status,
+            totalRefund,
+            principal: loan.principal,
+            totalInterest4
+        };
+
+        // อัปเดตข้อมูลในฐานข้อมูล
+        await LoanInformation.updateOne(
+            { _id: loan._id },
+            { $set: updatedLoanData }
+        );
+
+        return {
+            ...loan._doc,
+            ...updatedLoanData
+        };
+    } catch (error) {
+        console.error('Error occurred while calculating loan data:', error.message);
+        throw error;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function calculateLoanData(loan, currentDate) {
+    try {
+        const returnDate = new Date(loan.returnDate);
+
+        // คำนวณจำนวนวันถึงวันคืนเงิน (totalRepayment)
+        let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
+        if (totalRepayment <= 0) {
+            totalRepayment = '-';
+        }
+
+        // คำนวณจำนวนวันที่เลยวันคืนเงิน (daysUntilReturn)
+        let daysUntilReturn = Math.round((currentDate - returnDate) / (1000 * 60 * 60 * 24));
+        if (daysUntilReturn <= 0) {
+            daysUntilReturn = '-';
+        }
+
+        // คำนวณดอกเบี้ยปรับปรุง (totalInterest2)
+        let totalInterest2 = daysUntilReturn !== '-' ? daysUntilReturn * loan.principal * loan.interestRate / 100 : 0;
+
+        // ตรวจสอบสถานะการคืนเงินก่อนการคำนวณ
+        const refunds = await Refund.find({ id_card_number: loan.id_card_number, bill_number: loan.bill_number, contract_number: loan.contract_number });
+
+        let status;
+        let totalRefund = 0; // กำหนดค่าเริ่มต้นของ totalRefund เป็น 0
+
+        // ตรวจสอบว่า loan มีการอ้างอิงใน seizures หรือไม่
+        const seizure = await Seizure.findOne({ loan: loan._id });
+
+        if (seizure) {
+            status = "<span style='color: red;'>ยึดทรัพย์</span>";
+                totalRepayment = '-';
+                daysUntilReturn = '-';
+            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2);
+        } else if (refunds.length > 0) {
+            const refund = refunds[0];
+            
+            console.log("Refund.total_refund2: ", refund.total_refund2); // ตรวจสอบค่าของ refund.total_refund2
+            
+            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2);
+
+            if (refund.total_refund2 >= totalRefund) {
+                status = "<span style='color: green;'>ชำระครบ</span>";
+                totalRepayment = '-';
+                daysUntilReturn = '-';
+            } else {
+                status = "<span style='color: green;'>ต่อดอก</span>";
+                totalRepayment = '-';
+                daysUntilReturn = '-';
+            }
+        } else {
+            // กำหนดสถานะของสัญญาตามวัน
+            if (currentDate > returnDate) {
+                status = "<span style='color: orange;'>เลยสัญญา</span>";
+            } else if (currentDate < returnDate) {
+                status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
+            } else if (currentDate === returnDate) {
+                status = "<span style='color: pink;'>ครบสัญญา</span>";
+            }
+
+            totalRefund = Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+        }
+
+        const totalInterest4 = Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0);
+
+        const updatedLoanData = {
+            totalRepayment,
+            daysUntilReturn,
+            totalInterest2,
+            totalInterest3: loan.totalInterest3 || 0,
+            status,
+            totalRefund,
+            principal: loan.principal,
+            totalInterest4
+        };
+
+        // อัปเดตข้อมูลในฐานข้อมูล
+        await LoanInformation.updateOne(
+            { _id: loan._id },
+            { $set: updatedLoanData }
+        );
+
+        return {
+            ...loan._doc,
+            ...updatedLoanData
+        };
+    } catch (error) {
+        console.error('Error occurred while calculating loan data:', error.message);
+        throw error;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//บันทึกสัญญา
+app.post('/AddLoanInformation/submit', upload.fields([
+    { name: 'asset_receipt_photo', maxCount: 1 },
+    { name: 'icloud_asset_photo', maxCount: 1 },
+    { name: 'refund_receipt_photo', maxCount: 1 },
+    { name: 'Recommended_photo', maxCount: 1 },
+    { name: 'contract', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const idCardNumber = req.body.id_card_number;
+
+        if (!idCardNumber) {
+            console.error('ID card number is required');
+            return res.status(400).json({ error: 'ID card number is required' });
+        }
+
+        console.log('Searching for debtor with ID card number:', idCardNumber);
+        const debtor = await DebtorInformation.findOne({ id_card_number: idCardNumber });
+        if (!debtor) {
+            console.error('Debtor not found');
+            return res.status(404).json({ error: 'Debtor not found' });
+        }
+
+        console.log('Debtor found:', debtor);
+
+        const loanInfo = new LoanInformation({
+            manager: req.body.manager,
+            id_card_number: idCardNumber,
+            fname: req.body.fname,
+            lname: req.body.lname,
+            contract_number: req.body.contract_number,
+            bill_number: req.body.bill_number || "1",
+            loanType: req.body.loanType,
+            loanDate: req.body.loanDate,
+            loanPeriod: req.body.loanPeriod,
+            returnDate: req.body.returnDate,
+            principal: req.body.principal,
+            interestRate: req.body.interestRate,
+            totalInterest: req.body.totalInterest,
+            totalRefund: req.body.totalRefund,
+            manager2: req.body.manager2,
+            Recommended: req.body.Recommended,
+            storeAssets: req.body.store_assets,
+            icloudAssets: req.body.icloud_assets,
+            phoneicloud: req.body.phoneicloud,
+            email_icloud: req.body.email_icloud,
+            code_icloud: req.body.code_icloud,
+            code_icloud2: req.body.code_icloud,
+            assetReceiptPhoto: req.files['asset_receipt_photo'] ? req.files['asset_receipt_photo'][0].path : '',
+            icloudAssetPhoto: req.files['icloud_asset_photo'] ? req.files['icloud_asset_photo'][0].path : '',
+            refundReceiptPhoto: req.files['refund_receipt_photo'] ? req.files['refund_receipt_photo'][0].path : '',
+            Recommended_photo: req.files['Recommended_photo'] ? req.files['Recommended_photo'][0].path : '',
+            contract: req.files['contract'] ? req.files['contract'][0].path : '',
+            debtor: debtor._id
+        });
+
+        console.log('Saving loan information...');
+        const savedLoan = await loanInfo.save();
+        console.log('Loan information saved successfully:', savedLoan);
+
+        console.log('Updating debtor information...');
+        await DebtorInformation.updateOne(
+            { _id: debtor._id },
+            { $push: { loans: savedLoan._id } }
+        );
+        console.log('Debtor information updated successfully');
+
+        console.log('Calling calculate-and-save endpoint...');
+        const response = await fetch('http://localhost:3000/api/calculate-and-save', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id_card_number: idCardNumber })
+        });
+
+
+        if (!response.ok) {
+            const responseText = await response.text();
+            throw new Error(`Error calculating and saving loan data: ${responseText}`);
+        }
+
+        const data = await response.json();
+        console.log('Calculation and saving loan data successful:', data);
+
+        const redirectURL = `/สัญญา.html?id_card_number=${idCardNumber}&fname=${req.body.fname}&lname=${req.body.lname}&manager=${req.body.manager}&manager2=${req.body.manager2}`;
+        res.redirect(redirectURL);
+
+    } catch (err) {
+        console.error('Error occurred while saving loan information:', err);
+        res.status(500).json({ error: 'An error occurred while saving loan information' });
+    }
+});
+

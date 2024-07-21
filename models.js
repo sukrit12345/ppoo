@@ -37,6 +37,7 @@ const loanSchema = new mongoose.Schema({
     lname: { type: String, required: false },
     contract_number: { type: Number, required: false },
     bill_number: { type: Number, required: false },
+    loanType:{ type: String, required: false },
     loanDate: { type: String, required: false },
     loanPeriod: { type: String, required: false },
     returnDate: { type: String, required: false },
@@ -57,12 +58,14 @@ const loanSchema = new mongoose.Schema({
     phoneicloud: { type: String, required: false },
     email_icloud: { type: String, required: false },
     code_icloud: { type: String, required: false },
+    code_icloud2: { type: String, required: false },
     assetReceiptPhoto: { type: String, required: false },
     icloudAssetPhoto: { type: String, required: false },
     refundReceiptPhoto: { type: String, required: false },
     Recommended_photo: { type: String, required: false },
     contract: { type: String, required: false },
-    debtor: { type: mongoose.Schema.Types.ObjectId, ref: 'DebtorInformation', required: true }
+    debtor: { type: mongoose.Schema.Types.ObjectId, ref: 'DebtorInformation', required: true },
+    icloud_records: [{ type: mongoose.Schema.Types.ObjectId, ref: 'iCloudRecord' }]
 });
 
 //คืนเงิน
@@ -100,19 +103,25 @@ const profitSharingSchema = new mongoose.Schema({
     returnDate: { type: String, required: true },
     initialProfit: { type: Number, required: true },
     collectorName: { type: String },
+    collectorSharePercent: { type: Number },
     collectorShare: { type: Number },
-    initialProfit2: { type: String },
+    collectorReceiptPhoto: { type: String },
+    initialProfit2: { type: Number },
     managerName: { type: String },
-    bankName: { type: String, required: false },
-    accountNumber: { type: String, required: false },
-    manager_share2: { type: String, required: false },
+    managerSharePercent: { type: Number },
     managerShare: { type: Number },
+    managerReceiptPhoto: { type: String },
+    receiverProfit: { type: Number },
+    receiverName: { type: String },
+    receiverSharePercent: { type: Number },
+    receiverShare: { type: Number },
+    receiverReceiptPhoto: { type: String },
     totalShare: { type: Number },
     netProfit: { type: Number, required: true },
-    collectorReceiptPhoto: { type: String },
-    managerReceiptPhoto: { type: String },
-    refund: { type: mongoose.Schema.Types.ObjectId, ref: 'Refund', required: true },
+    originalStatus: { type: String },
+    refund: { type: mongoose.Schema.Types.ObjectId, ref: 'Refund', required: true }
 });
+
 
 
 // เเอดมิน
@@ -125,10 +134,12 @@ const managerSchema = new mongoose.Schema({
     phone: { type: String, required: false },
     ig: { type: String, required: false },
     facebook: { type: String, required: false },
-    line: { type: String, required: false }
+    line: { type: String, required: false },
+    authentication: { type: String, required: false }
 });
 
-//ยึดทรัพย์
+
+// ยึดทรัพย์
 const seizureSchema = new mongoose.Schema({
     id_card_number: { type: String, required: false },
     contract_number: { type: String, required: false },
@@ -141,7 +152,9 @@ const seizureSchema = new mongoose.Schema({
     assetName: { type: String, required: false },
     assetDetails: { type: String, required: false },
     assetPhoto: { type: String, required: false },
-    seizureCost2: { type: String, required: false }
+    seizureCost2: { type: String, required: false },
+    status: { type: String, required: false },
+    loan: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation', required: true } // อ้างอิงถึง loanSchema
 });
 
 //ขายทรัพย์
@@ -160,6 +173,50 @@ const saleSchema = new mongoose.Schema({
 });
 
 
+//ไอคราว
+const iCloudRecordSchema = new mongoose.Schema({
+    record_date: { type: String, required: true },
+    device_id: { type: String, required: true },
+    phone_number: { type: String, required: true },
+    user_email: { type: String, required: true },
+    email_password: { type: String, required: true },
+    icloud_password: { type: String, required: true },
+    number_of_users: { type: Number, default: 0 },
+    status: { type: String, required: false },
+    loan: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation' }
+});
+
+
+//เพิ่มรายได้
+const incomeSchema = new mongoose.Schema({
+    record_date: { type: String, required: false },
+    income_amount: { type: Number, required: false },
+    details: { type: String, required: false },
+    income_receipt_path: { type: String, required: false }
+    
+});
+
+//เพิ่มค่าใช้จ่าย
+const expenseSchema = new mongoose.Schema({
+    expense_date: { type: String, required: true },
+    expense_amount: { type: Number, required: true },
+    details: { type: String, required: true },
+    expense_receipt_path: { type: String } 
+});
+
+
+
+//เพิ่มเงินทุน
+const capitalSchema = new mongoose.Schema({
+    capital_date: { type: String, required: true },
+    capital_amount: { type: Number, required: true },
+    details: { type: String, required: true },
+    capital_receipt_path: { type: String }
+});
+
+
+
+
 // กำหนดโมเดล Mongoose สำหรับแต่ละ Schema
 const DebtorInformation = mongoose.model('DebtorInformation', debtorSchema);
 const LoanInformation = mongoose.model('LoanInformation', loanSchema);
@@ -168,6 +225,10 @@ const ProfitSharing = mongoose.model('ProfitSharing', profitSharingSchema);
 const Manager = mongoose.model('Manager', managerSchema);
 const Seizure = mongoose.model('Seizure', seizureSchema);
 const Sale = mongoose.model('Sale', saleSchema);
+const iCloudRecord = mongoose.model('iCloudRecord', iCloudRecordSchema);
+const Income = mongoose.model('Income', incomeSchema);
+const Expense = mongoose.model('expense', expenseSchema);
+const Capital = mongoose.model('Capital', capitalSchema);
 
 // ส่งออกโมเดล
-module.exports = { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale };
+module.exports = { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale, iCloudRecord, Income, Expense, Capital };

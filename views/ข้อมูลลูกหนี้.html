@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>ตารางลูกหนี้</title>
 
 <style>
@@ -284,22 +291,62 @@ tr:nth-child(even) {
     color:rgb(248, 7, 204)
 }
 
+
+.daterangepicker {
+            transform: translateX(-5%);
+            font-size: 18px; /* Adjust font size */
+        }
+        .daterangepicker .calendar-table {
+            font-size: 18px; /* Adjust font size for calendar table */
+        }
+        .daterangepicker .ranges li {
+            font-size: 18px; /* Adjust font size for ranges */
+        }
+        .daterangepicker .drp-calendar {
+            width: 350px; /* Adjust width of the calendar */
+        }
+        .daterangepicker .drp-calendar.left,
+        .daterangepicker .drp-calendar.right {
+            width: 350px; /* Adjust width of both left and right calendars */
+        }
+        .daterangepicker .drp-calendar .calendar-table table {
+            width: 100%; /* Make table width 100% */
+        }
+        .daterangepicker .drp-calendar .calendar-table table tbody tr td,
+        .daterangepicker .drp-calendar .calendar-table table thead tr th {
+            width: 14.28%; /* Adjust cell width for full calendar view */
+        }
+        .daterangepicker .drp-calendar.single .drp-calendar-table {
+            max-width: 600px; /* Adjust max-width for single calendar */
+        }
+        .daterangepicker .drp-calendar .drp-calendar-table {
+            max-width: 600px; /* Adjust max-width for calendar table */
+        }
+        .daterangepicker .drp-calendar {
+            max-width: 600px; /* Adjust max-width for calendar */
+        }
+        .chart-container {
+            max-width: 220px;
+            margin: 0 auto;
+        }        
 </style>
 
 </head>
 <body>
-  <div class="navbar">
-    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-    <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="เเอดมิน.html">เเอดมิน</a>
-    <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
-    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-    <a href="ตั้งค่า.html">ตั้งค่า</a>
-</div>
+
+    <div class="navbar">
+        <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+        <a href="รายงานผล.html">รายงานผล</a>
+        <a href="เช็คเครดิต.html">เช็คเครดิต</a>
+        <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+        <a href="ไอคราว.html">ไอคราว</a>
+        <a href="เเอดมิน.html">เเอดมิน</a>
+        <a href="คนทวง.html">คนทวง</a>
+        <a href="กองทุน.html">กองทุน</a>
+        <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+        <a class="active2" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+        <a href="ตั้งค่า.html">ตั้งค่า</a>
+    </div>
 
 
 <h2 style="text-align:center;">ตารางลูกหนี้</h2>
@@ -327,9 +374,9 @@ tr:nth-child(even) {
     </div>
     <div class="column">
         <div class="search-container">
-            <input type="date" id="newSearchInput2" placeholder="พิมพ์วันที่ต้องคืน">
-            <button type="button" onclick="customSearch2()">ค้นหาวันที่ต้องคืน</button>
-        </div>        
+            <input type="text" id="dateRange" placeholder="เลือกช่วงเวลาที่ต้องคืน">
+            <button onclick="customSearch2()">ค้นหาวันที่ต้องคืน</button>
+        </div>   
     </div>
 
 </div>
@@ -337,13 +384,16 @@ tr:nth-child(even) {
 
 
 
+
+
 <div class="search-container2">
   <select id="statusFilter" onchange="searchIdCard2()">
     <option value="" selected>ทั้งหมด</option>
     <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
-    <option value="เลยกำหนดสัญญา">เลยกำหนดสัญญา</option>
-    <option value="ครบกำหนดชำระ">ครบกำหนดชำระ</option>
+    <option value="เลยสัญญา">เลยสัญญา</option>
+    <option value="ครบสัญญา">ครบสัญญา</option>
     <option value="ชำระครบ">ชำระครบ</option>
+    <option value="ยึดทรัพย์">ยึดทรัพย์</option>
     <option value="เเบล็คลิช">เเบล็คลิช</option>
   </select>
   <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
@@ -352,16 +402,13 @@ tr:nth-child(even) {
 
 
   
-  
-
-
 <div class="row">
-  <div class="column">
-    <div style="text-align: center;">ยอดเงินรวมตามสถานะ</div>
-    <div id="totalPrincipalAmount" style="text-align: center;">เงินต้นทั้งหมด:</div>
-    <div id="totalInterestAmount" style="text-align: center;">ดอกเบี้ยทั้งหมด:</div>
-    <div id="totalRefundAmount" style="text-align: center;">เงินที่ต้องคืนทั้งหมด</div>
-  </div>
+    <div class="column">
+        <div style="text-align: center;">ยอดเงินรวมตามสถานะ</div>
+        <div class="chart-container">
+            <canvas id="myPieChart"></canvas>
+        </div>
+    </div>
   <div class="column">
     <div id="totalid_card" style="text-align: center;"></div>
     <div id="totalDebtorsInContract" style="text-align: center;"></div>
@@ -372,7 +419,7 @@ tr:nth-child(even) {
   </div>
   <div class="column">
     <div style="text-align: center;">ยอดเงินรวมสะสม</div>
-    <div id="totalPrincipal" style="text-align: center;"></div>
+    <div id="totalAccumulatedPrincipal" style="text-align: center;"></div>
     <div id="totalAccumulatedInterest" style="text-align: center;"></div>
     <div id="totalNetProfit" style="text-align: center;"></div>
   </div>
@@ -410,7 +457,7 @@ tr:nth-child(even) {
         <th>ดอกเบี้ยสะสม</th>
         <th>กำไรขั้นต้นสะสม</th>
         <th>จังหวัด</th>
-        <th>เเอดมิน</th>
+        <th>เเอดมินดูเเล</th>
         <th>จัดการ</th>
         <th>สัญญา</th>
     </tr>

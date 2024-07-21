@@ -1,3 +1,5 @@
+
+
 //เเสดงข้อมูลลงตารางลูกหนี้
 document.addEventListener("DOMContentLoaded", function() {
     fetchDataAndPopulateTable();
@@ -10,82 +12,93 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+// ฟังก์ชัน fetchDataAndPopulateTable สำหรับดึงข้อมูลและเติมค่าลงในตาราง
+async function fetchDataAndPopulateTable() {
+    try {
+        const response = await fetch('/api/debtor-data');
+        const data = await response.json();
+        
+        const tableBody = document.getElementById('debtor-table-body');
+        tableBody.innerHTML = ''; // Clear any existing rows
 
-function fetchDataAndPopulateTable() {
-    fetch('/api/debtor-data')
-        .then(response => response.json())
-        .then(async data => {
-            const tableBody = document.getElementById('debtor-table-body');
-            tableBody.innerHTML = ''; // Clear any existing rows
+        // Reverse the data array
+        data.reverse();
 
-            // Reverse the data array
-            data.reverse().forEach(async (row, index) => {
-                const tr = document.createElement('tr');
-                tr.id = `row-${row._id}`; // Set ID for the row
-                tr.innerHTML = `
-                    <td>${data.length - index}</td> <!-- Reverse the index -->
-                    <td>${row.date}</td>
-                    <td>${row.id_card_number}</td> <!-- Cell ที่ 2 -->
-                    <td>${row.fname}</td>
-                    <td>${row.lname}</td>
-                    <td>-</td> <!-- Placeholder for loan.returnDate -->
-                    <td>-</td> <!-- Placeholder for loan.principal -->
-                    <td>-</td> <!-- Placeholder for loan.totalInterest4 -->
-                    <td>-</td> <!-- Placeholder for loan.totalRefund -->
-                    <td>-</td> <!-- Placeholder for loan.status -->
-                    <td>-</td> <!-- Placeholder for Principal Sum -->
-                    <td>-</td> <!-- Placeholder for Refund Interest Sum -->
-                    <td>-</td> <!-- Placeholder for Principal Difference -->
-                    <td>${row.province}</td>
-                    <td>${row.manager}</td>
-                    <td> 
-                        <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
-                        <button onclick="redirectToDelete('${row._id}', '${row.id_card_number}')">ลบ</button>
-                    </td>
-                    <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> 
-                `;
-                tableBody.appendChild(tr);
+        for (const [index, row] of data.entries()) {
+            const tr = document.createElement('tr');
+            tr.id = `row-${row._id}`; // Set ID for the row
+            tr.innerHTML = `
+                <td>${data.length - index}</td> <!-- Reverse the index -->
+                <td>${row.date}</td>
+                <td>${row.id_card_number}</td> <!-- Cell ที่ 2 -->
+                <td>${row.fname}</td>
+                <td>${row.lname}</td>
+                <td>-</td> <!-- Placeholder for loan.returnDate -->
+                <td>-</td> <!-- Placeholder for loan.principal -->
+                <td>-</td> <!-- Placeholder for loan.totalInterest4 -->
+                <td>-</td> <!-- Placeholder for loan.totalRefund -->
+                <td>-</td> <!-- Placeholder for loan.status -->
+                <td>-</td> <!-- Placeholder for Principal Sum -->
+                <td>-</td> <!-- Placeholder for Refund Interest Sum -->
+                <td>-</td> <!-- Placeholder for Principal Difference -->
+                <td>${row.province}</td>
+                <td>${row.manager}</td>
+                <td> 
+                    <button onclick="redirectToEdit('${row._id}')">แก้ไข</button>
+                    <button onclick="redirectToDelete('${row._id}', '${row.id_card_number}')">ลบ</button>
+                </td>
+                <td><button onclick="redirectToContract('${row._id}')">สัญญา</button></td> 
+            `;
+            tableBody.appendChild(tr);
 
-                try {
-                    // Fetch the latest loan information for the debtor
-                    const response = await fetch(`/api/loaninformations/${row._id}`);
-                    const loanData = await response.json();
+            try {
+                // Fetch the latest loan information for the debtor
+                const loanResponse = await fetch(`/api/loaninformations/${row._id}`);
+                const loanData = await loanResponse.json();
 
-                    // Update the row with loan information
-                    const loanRow = document.getElementById(`row-${row._id}`);
-                    loanRow.cells[5].innerText = loanData.returnDate;
-                    loanRow.cells[6].innerText = loanData.principal;
-                    loanRow.cells[7].innerText = loanData.totalInterest4;
-                    loanRow.cells[8].innerText = loanData.totalRefund;
-                    loanRow.cells[9].innerHTML = loanData.status;
-                    loanRow.cells[9].style.color = loanData.status;
+                console.log('Loan data:', loanData); // Debug loan data
 
-                    // Fetch the principal sum for the debtor and update cell 10
-                    const principalResponse = await fetch(`/api/loan-principal-sum/${row.id_card_number}`);
-                    const principalData = await principalResponse.json();
-                    loanRow.cells[10].innerText = principalData.totalPrincipal;
+                // Update the row with loan information
+                const loanRow = document.getElementById(`row-${row._id}`);
+                loanRow.cells[5].innerText = loanData.returnDate || '-';
+                loanRow.cells[6].innerText = loanData.principal || '-';
+                loanRow.cells[7].innerText = loanData.totalInterest4 || '-';
+                loanRow.cells[8].innerText = loanData.totalRefund || '-';
+                loanRow.cells[9].innerHTML = loanData.status || '-';
+                loanRow.cells[9].style.color = loanData.status || 'black';
 
-                    // Fetch the refund interest sum for the debtor and update cell 11
-                    const refundInterestResponse = await fetch(`/api/refund-interest-sum/${row.id_card_number}`);
-                    const refundInterestData = await refundInterestResponse.json();
-                    loanRow.cells[11].innerText = refundInterestData.totalRefundInterest;
+                // Fetch the principal sum for the debtor and update cell 10
+                const principalResponse = await fetch(`/api/loan-principal-sum/${row.id_card_number}`);
+                const principalData = await principalResponse.json();
+                console.log('Principal data:', principalData); // Debug principal data
 
-                    // Calculate and update cell 12 with principal difference
-                    const principalSum = parseFloat(principalData.totalPrincipal);
-                    const refundInterestSum = parseFloat(refundInterestData.totalRefundInterest);
-                    const principalDifference = refundInterestSum - principalSum ;
+                loanRow.cells[10].innerText = principalData.totalPrincipal || '-';
 
-                    // Display principal difference with negative sign if less than zero
-                    loanRow.cells[12].innerText = principalDifference < 0 ? `-${Math.abs(principalDifference)}` : principalDifference.toFixed(2);
+                // Fetch the refund interest sum for the debtor and update cell 11
+                const refundInterestResponse = await fetch(`/api/refund-interest-sum/${row.id_card_number}`);
+                const refundInterestData = await refundInterestResponse.json();
+                console.log('Refund interest data:', refundInterestData); // Debug refund interest data
 
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
+                loanRow.cells[11].innerText = refundInterestData.totalRefundInterest || '-';
 
-            calculateTotalIDCard();
-        })
-        .catch(error => console.error('Error fetching data:', error));
+                // Calculate and update cell 12 with principal difference
+                const principalSum = parseFloat(principalData.totalPrincipal) || 0;
+                const refundInterestSum = parseFloat(refundInterestData.totalRefundInterest) || 0;
+                const principalDifference = refundInterestSum - principalSum ;
+
+                // Display principal difference with negative sign if less than zero
+                loanRow.cells[12].innerText = principalDifference < 0 ? `-${Math.abs(principalDifference).toFixed(0)}` : principalDifference.toFixed(0);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        calculateTotalIDCard();
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 }
 
 
@@ -253,19 +266,48 @@ function customSearch1() {
     }
 } 
 
-//ค้นหาวันที่คืน
+
+
+//ค้นหาวันที่
+$(function() {
+    $('#dateRange').daterangepicker({
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        autoUpdateInput: false, // Don't auto-update the input field
+        startDate: moment().startOf('month'),
+        endDate: moment().endOf('month')
+    });
+
+    // Update input field manually when dates are chosen
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+    });
+
+    // Clear input field when cancel is clicked
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+});
+
 function customSearch2() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("newSearchInput2"); // เปลี่ยน ID ใหม่ที่นี่
-    filter = input.value.toUpperCase();
-    table = document.getElementsByTagName("table")[0];
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[5]; // แก้ index เป็นตำแหน่งที่ต้องการค้นหา ในที่นี้คือ คอลัมน์ที่ 16 (index 15)
+    var dateRange = $('#dateRange').val();
+    if (dateRange === '') {
+        alert("เลือกช่วงเวลาที่ต้องคืน");
+        return;
+    }
+    var dates = dateRange.split(" - ");
+    var startDate = moment(dates[0], 'YYYY-MM-DD');
+    var endDate = moment(dates[1], 'YYYY-MM-DD');
+    var table = document.getElementById("your_table_id");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) { // เริ่มต้นที่ 1 เพื่อข้ามแถวหัวตาราง
+        var td = tr[i].getElementsByTagName("td")[5]; // คอลัมน์ที่ต้องการค้นหา (index 1)
         if (td) {
-            txtValue = td.textContent || td.innerText;
-            // ใช้เงื่อนไขเพิ่มเติมเพื่อให้ค้นหาได้ทั้งตัวเล็กและตัวใหญ่
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            var txtValue = td.textContent || td.innerText;
+            var cellDate = moment(txtValue, 'YYYY-MM-DD');
+            if (cellDate.isBetween(startDate, endDate, undefined, '[]')) { // รวมทั้ง startDate และ endDate
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";
@@ -276,45 +318,38 @@ function customSearch2() {
 
 
 
-//คำนวณค้นหาสถานะ
+
+
+
 window.onload = function() {
-    searchIdCard2();
+    searchIdCard2(); // Call the search function on page load
 };
+
 function searchIdCard2() {
-    var statusFilter, table, tr, i, found;
-    statusFilter = document.getElementById("statusFilter").value;
+    var statusFilter = document.getElementById("statusFilter").value;
+    var table = document.querySelector("table");
+    var tr = table.getElementsByTagName("tr");
 
-    table = document.querySelector("table");
-    tr = table.getElementsByTagName("tr");
-
-    for (i = 0; i < tr.length; i++) {
-        found = false;
+    for (var i = 0; i < tr.length; i++) {
+        var found = false;
 
         if (tr[i].getElementsByTagName("td").length > 0) {
             if (tr[i].cells[9].innerText.trim() === statusFilter || statusFilter === "") {
                 found = true;
             }
 
-            if (found) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
+            tr[i].style.display = found ? "" : "none";
         }
     }
-    
 
-    // Call calculateTotalPrincipalAmount() after filtering
+    // Call calculate functions after filtering
     calculateTotalPrincipalAmount();
     calculateTotalInterestAmount();
     calculateTotalRefundAmount();
-    
+    updatePieChart();
 }
 
-
-
-
-//คำนวณเงินต้นทั้งหมดตามสถานะ
+// คำนวณเงินต้นทั้งหมดตามสถานะ
 function calculateTotalPrincipalAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -329,12 +364,10 @@ function calculateTotalPrincipalAmount() {
         }
     }
 
-    var resultContainer = document.getElementById("totalPrincipalAmount");
-    resultContainer.textContent = "เงินต้นทั้งหมด: " + totalPrincipalAmount.toLocaleString() + " บาท";
+    return totalPrincipalAmount;
 }
 
-
-//คำนวณดอกเบี้ยทั้งหมดตามสถานะ
+// คำนวณดอกเบี้ยทั้งหมดตามสถานะ
 function calculateTotalInterestAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -349,12 +382,10 @@ function calculateTotalInterestAmount() {
         }
     }
 
-    var resultContainer = document.getElementById("totalInterestAmount");
-    resultContainer.textContent = "ดอกเบี้ยทั้งหมด: " + totalInterestAmount.toLocaleString() + " บาท";
+    return totalInterestAmount;
 }
 
-
-//คำนวณเงินที่ต้องคืนทั้งหมดตามสถานะ
+// คำนวณเงินที่ต้องคืนทั้งหมดตามสถานะ
 function calculateTotalRefundAmount() {
     var table = document.querySelector("table");
     var tr = table.getElementsByTagName("tr");
@@ -369,9 +400,74 @@ function calculateTotalRefundAmount() {
         }
     }
 
-    var resultContainer = document.getElementById("totalRefundAmount");
-    resultContainer.textContent = "เงินที่ต้องคืนทั้งหมด: " + totalRefundAmount.toLocaleString() + " บาท";
+    return totalRefundAmount;
 }
+
+// ฟังก์ชันในการสร้างและอัพเดทกราฟวงกลม
+var myPieChart;
+function updatePieChart() {
+    var totalPrincipalAmount = calculateTotalPrincipalAmount();
+    var totalInterestAmount = calculateTotalInterestAmount();
+    var totalRefundAmount = calculateTotalRefundAmount();
+
+    var ctx = document.getElementById('myPieChart').getContext('2d');
+    if (myPieChart) {
+        myPieChart.destroy();
+    }
+    myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['เงินต้นทั้งหมด', 'ดอกเบี้ยทั้งหมด', 'เงินที่ต้องคืนทั้งหมด'],
+            datasets: [{ data: [totalPrincipalAmount, totalInterestAmount, totalRefundAmount], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'] }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: '',
+                },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        if (value === 0) {
+                            return "";
+                        } else {
+                            let percentage = (value * 100 / sum).toFixed() + "%";
+                            return value.toLocaleString() + " บาท\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0" + percentage;
+                        }
+                    },
+                    color: 'black',
+                    font: {
+                        size: 12,
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -577,33 +673,41 @@ function calculateDebtorsBlacklist() {
 
 
 
+
+
+
+
+
+
 //คำนวณเงินต้นปล่อยสะสมทั้งหมด
-document.addEventListener("DOMContentLoaded", function() {
-    // Call calculateTotalPrincipal() when the HTML document is loaded
-    calculateTotalPrincipal();
-});
+window.onload = function() {
+    calculateTotalAccumulatedPrincipal();
+};
 
-function calculateTotalPrincipal() {
-    var table = document.querySelector("table");
-    var tr = table.getElementsByTagName("tr");
-    var totalPrincipal = 0;
+function calculateTotalAccumulatedPrincipal() {
+    var table = document.getElementById('your_table_id');
+    var totalAccumulatedPrincipal = 0;
 
-    // Start from i = 1 to skip the table header row
-    for (var i = 1; i < tr.length; i++) {
-        if (tr[i].getElementsByTagName("td").length > 0) {
-            // Get the principal amount from the cell at index 8 (starting from 0)
-            var principal = parseFloat(tr[i].cells[9].innerText.trim());
-            if (!isNaN(principal)) {
-                totalPrincipal += principal;
-            }
+    // Loop through each row in the table
+    for (var i = 1; i < table.rows.length; i++) { // Start from 1 to skip header row
+        var row = table.rows[i];
+        var accumulatedPrincipalCell = row.cells[10]; // Cell index 10 for accumulated principal
+
+        // Get the text content of the cell, remove commas, and convert to float
+        var cellText = accumulatedPrincipalCell.innerText.trim().replace(/,/g, '');
+        var accumulatedPrincipal = parseFloat(cellText);
+
+        console.log(`Row ${i}: ${cellText} -> ${accumulatedPrincipal}`); // Debug log
+
+        if (!isNaN(accumulatedPrincipal)) {
+            totalAccumulatedPrincipal += accumulatedPrincipal;
         }
     }
 
-    // Display the result in the element with id "totalPrincipal"
-    var resultContainer = document.getElementById("totalPrincipal");
-    resultContainer.textContent = "เงินต้นปล่อยสะสมทั้งหมด: " + totalPrincipal.toLocaleString() + " บาท";
+    // Update the total accumulated principal element
+    var totalAccumulatedPrincipalElement = document.getElementById('totalAccumulatedPrincipal');
+    totalAccumulatedPrincipalElement.textContent = 'เงินต้นสะสมทั้งหมด: ' + totalAccumulatedPrincipal.toLocaleString() + ' บาท';
 }
-
 
 
 //คำนวณดอกเบี้ยสะสมทั้งหมด
@@ -648,7 +752,7 @@ function calculateTotalNetProfit() {
 
     for (var i = 1; i < tr.length; i++) {
         if (tr[i].getElementsByTagName("td").length > 0) {
-            var profit = parseFloat(tr[i].cells[11].innerText.trim());
+            var profit = parseFloat(tr[i].cells[12].innerText.trim());
             if (!isNaN(profit)) {
                 totalNetProfit += profit;
             }
@@ -669,9 +773,14 @@ function calculateTotalNetProfit() {
 
 
 
-
-
-
-
-
-
+//เเสดงจำนวนหน้าเเจ้งเตือน
+document.addEventListener('DOMContentLoaded', () => {
+    // ดึงค่าจำนวนแจ้งเตือนจาก localStorage
+    const notificationCount = localStorage.getItem('notificationCount');
+    if (notificationCount) {
+        const notificationLink = document.querySelector('a.active2');
+        if (notificationLink) {
+            notificationLink.setAttribute('data-count', notificationCount);
+        }
+    }
+});

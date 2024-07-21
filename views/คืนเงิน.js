@@ -119,18 +119,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         const response = await fetch(`/api/refunds/${idCardNumber}`);
         const refunds = await response.json();
 
-        // Sort the data
-        refunds.sort((a, b) => {
-            const dateA = new Date(a.return_date);
-            const dateB = new Date(b.return_date);
-            if (dateB - dateA !== 0) {
-                return dateB - dateA; // Compare return_date from newest to oldest
-            }
-            if (b.contract_number !== a.contract_number) {
-                return b.contract_number.localeCompare(a.contract_number); // Compare contract_number in descending order
-            }
-            return b.bill_number.localeCompare(a.bill_number); // Compare bill_number in descending order
-        });
 
         const refundData = document.getElementById('refundData');
 

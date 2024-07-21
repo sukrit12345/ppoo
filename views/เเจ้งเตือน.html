@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางลูกหนี้</title>
+<title>เเจ้งเตือน</title>
 
 <style>
 .navbar {
@@ -284,22 +284,53 @@ tr:nth-child(even) {
     color:rgb(248, 7, 204)
 }
 
+
+/* สไตล์สำหรับลิงก์ที่เป็น active */
+.navbar a.active2 {
+    background-color: #555; /* เปลี่ยนสีพื้นหลังของลิงก์ active */
+    color: white; /* เปลี่ยนสีข้อความของลิงก์ active */
+    position: relative; /* เพิ่มการจัดตำแหน่งเพื่อการแสดงจำนวน */
+    padding: 14px 20px; /* เพิ่ม padding เพื่อให้มีพื้นที่พอสมควร */
+    text-decoration: none; /* เอาเส้นขีดใต้ลิงก์ออก */
+}
+
+/* สไตล์สำหรับจำนวนในลิงก์ */
+.navbar a.active2::after {
+    content: attr(data-count);
+    display: inline-block;
+    background-color: red; /* เปลี่ยนสีพื้นหลังของวงกลม */
+    color: white; /* เปลี่ยนสีข้อความภายในวงกลม */
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    width: 20px; /* ความกว้างของวงกลม */
+    height: 20px; /* ความสูงของวงกลม */
+    font-size: 0.9em; /* ขนาดตัวอักษร */
+    line-height: 20px; /* ทำให้ข้อความอยู่ตรงกลางแนวตั้ง */
+    text-align: center; /* จัดข้อความให้ตรงกลางแนวนอน */
+    margin-left: 8px; /* ระยะห่างระหว่างข้อความหลักและวงกลม */
+    position: absolute;
+    top: 22%;
+    right: -10px;
+    transform: translateY(-50%);
+}
+
+
 </style>
 
 </head>
 <body>
-  <div class="navbar">
-    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-    <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="เเอดมิน.html">เเอดมิน</a>
-    <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
-    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-    <a class="active" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-    <a href="ตั้งค่า.html">ตั้งค่า</a>
-</div>
+    <div class="navbar">
+        <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+        <a href="รายงานผล.html">รายงานผล</a>
+        <a href="เช็คเครดิต.html">เช็คเครดิต</a>
+        <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+        <a href="ไอคราว.html">ไอคราว</a>
+        <a href="เเอดมิน.html">เเอดมิน</a>
+        <a href="คนทวง.html">คนทวง</a>
+        <a href="กองทุน.html">กองทุน</a>
+        <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+        <a class="active2" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+        <a href="ตั้งค่า.html">ตั้งค่า</a>
+    </div>
 
 
 <h2 style="text-align:center;">เเจ้งเตือนครบกำหนดชำระวันนี้</h2>
@@ -311,9 +342,9 @@ tr:nth-child(even) {
 
 
 
-<table id="">
-  <thead>
-    <tr>
+<table id="loanTable">
+    <thead>
+      <tr>
         <th>ลำดับ</th>
         <th>วันที่บันทึก</th>
         <th>เลขบัตรประชาชน</th>
@@ -323,11 +354,10 @@ tr:nth-child(even) {
         <th>เงินต้น</th>
         <th>ดอกเบี้ย</th>
         <th>เงินที่ต้องคืน</th>
-        <th>จังหวัด</th>
         <th>เเอดมิน</th>
-    </tr>
- </thead>
- <tbody id=""></tbody>
+      </tr>
+    </thead>
+    <tbody id="loanTableBody"></tbody>
 </table>
 
 <script src="เเจ้งเตือน.js"></script>

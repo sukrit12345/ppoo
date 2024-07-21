@@ -20,19 +20,6 @@ async function fetchSales() {
         // Clear existing table rows
         table.innerHTML = '';
 
-        // Sort data
-        sales.sort((a, b) => {
-            const dateA = new Date(a.sell_date);
-            const dateB = new Date(b.sell_date);
-            if (dateB - dateA !== 0) {
-                return dateB - dateA; // Compare sell dates from newest to oldest
-            }
-            if (b.contract_number !== a.contract_number) {
-                return b.contract_number.localeCompare(a.contract_number); // Compare contract numbers in descending order
-            }
-            return b.bill_number.localeCompare(a.bill_number); // Compare bill numbers in descending order
-        });
-        
         // Add new rows for each sale
         sales.forEach((sale, index) => {
             const row = table.insertRow();
@@ -65,8 +52,14 @@ function redirectToEdit(saleId) {
     console.log('Redirect to edit:', saleId);
 }
 
+
+
 //ลบทิ้ง
 async function deleteSale(saleId) {
+    const confirmDelete = confirm("คุณต้องการลบรายการขายทรัพย์สินนี้หรือไม่?");
+    if (!confirmDelete) {
+        return; // ยกเลิกการลบถ้าผู้ใช้ไม่ยืนยัน
+    }
     try {
         const response = await fetch(`/sales/${saleId}`, {
             method: 'DELETE'
@@ -83,3 +76,48 @@ async function deleteSale(saleId) {
 
 // Call fetchSales function when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", fetchSales);
+
+
+
+
+//ค้นหาเลขบัตรประชาชน13หลัก
+function searchTable() {
+    var input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.trim(); // ตัดช่องว่างที่อาจเกิดขึ้นได้
+    
+    // ตรวจสอบว่าเลขบัตรประชาชนมีความยาว 13 หลักหรือไม่
+    if (filter.length !== 13 || isNaN(filter)) {
+        alert("โปรดป้อนเลขบัตรประชาชนที่ถูกต้อง (13 หลัก)");
+        return;
+    }
+  
+    // ค้นหาในทุกคอลัมน์
+    table = document.querySelector("table");
+    tr = table.getElementsByTagName("tr");
+  
+    for (i = 0; i < tr.length; i++) {
+        var found = false; // เพิ่มตัวแปรเพื่อตรวจสอบว่าพบข้อมูลหรือไม่
+  
+        for (j = 0; j < tr[i].cells.length; j++) {
+            td = tr[i].getElementsByTagName("td")[j];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                // เปรียบเทียบข้อมูลในคอลัมน์กับค่าที่ค้นหา
+                if (txtValue.trim() === filter) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+  
+        if (found) {
+            tr[i].style.display = ""; // แสดงแถวที่พบข้อมูล
+        } else {
+            // ตรวจสอบว่าอิลิเมนต์ที่กำลังตรวจสอบเป็น <th> หรือไม่
+            if (tr[i].getElementsByTagName("th").length === 0) {
+                tr[i].style.display = "none"; // ซ่อนแถวที่ไม่พบข้อมูล
+            }
+        }
+    }
+}

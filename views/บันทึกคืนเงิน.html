@@ -135,6 +135,7 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -146,44 +147,60 @@ input[type=text] {
 <div class="container">
 
   <form action="/refunds/submit_form" method="post" enctype="multipart/form-data">
-    <label for="manager">เเอดมิน:</label>
-    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required>
+
+    <fieldset>
+      <legend>ข้อมูลรหัสคืนเงิน</legend>
+      <br> 
+    <label for="manager">เเอดมินดูเเล:</label>
+    <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมินดูเเล" required readonly>
     
     <label for="id_card_number">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required readonly>
 
     <label for="fname">ชื่อจริง:</label>
-    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required readonly>
 
     <label for="lname">นามสกุล:</label>
-    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required readonly>
 
     <label for="contract_number">หมายเลขสัญญา:</label>
-    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required readonly>
 
     <label for="bill_number">หมายเลขบิล:</label>
-    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
+    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required readonly>
+
+  </fieldset> 
+  <br> 
+
+  <fieldset>
+    <legend>ข้อมูลสัญญา</legend>
+    <br> 
 
     <label for="principal">เงินต้นที่ต้องคืน:</label>
-    <input type="text" id="principal" name="principal" placeholder="กรอกเงินต้นที่ต้องคืน" required>
+    <input type="text" id="principal" name="principal" placeholder="กรอกเงินต้นที่ต้องคืน" required readonly>
 
     <label for="totalInterest4">ดอกเบี้ยที่ต้องคืน:</label>
-    <input type="text" id="totalInterest4" name="totalInterest4" placeholder="กรอกดอกเบี้ยที่ต้องคืน" required>
+    <input type="text" id="totalInterest4" name="totalInterest4" placeholder="กรอกดอกเบี้ยที่ต้องคืน" required readonly>
 
     <label for="totalRefund">รวมเงินที่ต้องคืน:</label>
-    <input type="text" id="totalRefund" name="totalRefund" placeholder="กรอกรวมเงินที่ต้องคืน" required>
+    <input type="text" id="totalRefund" name="totalRefund" placeholder="กรอกรวมเงินที่ต้องคืน" required readonly>
+  </fieldset> 
+  <br> 
 
+  <fieldset>
+    <legend>ข้อมูลคืนเงิน</legend>
+    <br> 
     <label for="return_date_input">วันที่คืน (เดือน-วัน-ปี):</label>
     <input type="date" id="return_date_input" name="return_date" placeholder="เลือกวันที่คืน" required><br><br>
+
+    <label for="refund_interest">ดอกเบี้ยรวมคืน:  <span id="error_message"></span></label>
+    <input type="number" id="refund_interest" name="refund_interest" placeholder="กรอกจำนวนดอกเบี้ยรวมคืน"  required >
 
     <label for="refund_principal">เงินต้นคืน:</label>
     <input type="number" id="refund_principal" name="refund_principal" placeholder="กรอกจำนวนเงินต้นที่คืน" required>
 
-    <label for="refund_interest">ดอกเบี้ยรวมคืน:</label>
-    <input type="number" id="refund_interest" name="refund_interest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมดที่คืน" required>
-
     <label for="debtAmount">ค่าทวงเงินคืน:</label>
-    <input type="number" id="debtAmount" name="debtAmount" placeholder="กรอกค่าทวงเงิน" required>
+    <input type="number" id="debtAmount" name="debtAmount" placeholder="กรอกจำนวนเงินค่าทวงเงิน" required>
 
     <label for="total_refund2">รวมเงินที่คืน:</label>
     <input type="number" id="total_refund2" name="total_refund2" placeholder="กรอกจำนวนเงินทั้งหมดที่คืน" required>
@@ -191,9 +208,16 @@ input[type=text] {
     <label for="refund_receipt_photo">รูปสลิปเงินคืน:</label>
     <input type="file" id="refund_receipt_photo" name="refund_receipt_photo">
 
+  </fieldset> 
+  <br> 
+
     <input type="hidden" id="loan" name="loan">
 
-    <input type="submit" value="บันทึกคืนเงิน" class="button">
+    <span id="interest_exceed_message"></span>
+
+
+    <input type="submit" value="บันทึกคืนเงิน" class="button" id="save_button">
+
 </form>
 
 

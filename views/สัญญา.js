@@ -149,18 +149,7 @@ async function displayLoanData() {
         const tableBody = document.getElementById("loanData");
         tableBody.innerHTML = ''; // Clear table before adding new data
 
-        // เรียงลำดับข้อมูล
-        // data.sort((a, b) => {
-        //     const dateA = new Date(a.loanDate);
-        //     const dateB = new Date(b.loanDate);
-        //     if (dateB - dateA !== 0) {
-        //         return dateB - dateA; // เปรียบเทียบ return_date จากใหม่ไปเก่า
-        //     }
-        //     if (b.contract_number !== a.contract_number) {
-        //         return b.contract_number.localeCompare(a.contract_number); // เปรียบเทียบ contract_number จากมากไปน้อย
-        //     }
-        //     return b.bill_number.localeCompare(a.bill_number); // เปรียบเทียบ bill_number จากมากไปน้อย
-        // });
+
 
         data.forEach(loan => {
             const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody
@@ -195,6 +184,12 @@ async function displayLoanData() {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
     }
 }
+
+
+
+window.onload = function () {
+    displayLoanData();
+};
 
 
 
@@ -245,9 +240,47 @@ function redirectToDelete(objectId, idCardNumber) {
     }
 }
 
-window.onload = function () {
-    displayLoanData();
-};
+
+
+
+
+//ปิดสัญญา
+async function redirectToclose(loanId, idCardNumber) {
+    const confirmation = confirm(`คุณต้องการปิดสัญญานี้หรือไม่?`);
+    if (!confirmation) {
+        return; // ถ้าผู้ใช้ยกเลิกการยืนยัน ให้หยุดฟังก์ชัน
+    }
+
+    try {
+        const response = await fetch(`/api/close-loan/${loanId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ idCardNumber }) // ส่ง idCardNumber ในรูปแบบ JSON
+        });
+
+        console.log(`Response status: ${response.status}`); // ตรวจสอบสถานะการตอบสนอง
+
+        if (response.ok) {
+            // อัปเดตสถานะใน Frontend
+            const row = document.getElementById(`row-${loanId}`);
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(14)');
+                if (statusCell) {
+                    statusCell.innerHTML = "<span style='color: red;'>เเบล็คลิช</span>";
+                    console.log('ปิดสัญญาสำเร็จ');
+                }
+            }
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'ไม่สามารถปิดสัญญาได้');
+        }
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการปิดสัญญา:', error.message);
+    }
+}
+
 
 
 

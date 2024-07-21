@@ -135,6 +135,7 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a class="active" href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -146,26 +147,46 @@ input[type=text] {
 <div class="container">
 
     <form action="/submit-sale" method="post" enctype="multipart/form-data">
+
+
+      <fieldset>
+        <legend>ข้อมูลรหัสขายทรัพย์</legend>
+        <br> 
         <label for="id_card_number">เลขบัตรประชาชน:</label>
-        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required  readonly>
         
         <label for="contract_number">หมายเลขสัญญา:</label>
-        <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required>
+        <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required  readonly>
         
         <label for="bill_number">หมายเลขบิล:</label>
-        <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required>
+        <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required  readonly>
+
+      </fieldset>
+      <br>
+
+      <fieldset>
+        <legend>ข้อมูลยึดทรัพย์</legend>
+        <br> 
         
         <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
-        <input type="number" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required>
-        
-        <label for="sell_date">วันที่ขาย (เดือน-วัน-ปี):</label>
-        <input type="date" id="sell_date" name="sell_date" placeholder="กรอกวันที่ขาย" required><br><br>
-        
+        <input type="number" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required  readonly>
+
         <label for="assetName">ชื่อทรัพย์:</label>
-        <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์" required>
+        <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์" required  readonly>
         
         <label for="assetDetails">รายละเอียดทรัพย์:</label>
-        <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required>
+        <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required readonly>
+
+      </fieldset>
+      <br>
+        
+      <fieldset>
+        <legend>ข้อมูลขายทรัพย์</legend>
+        <br> 
+
+        <label for="sell_date">วันที่ขาย (เดือน-วัน-ปี):</label>
+        <input type="date" id="sell_date" name="sell_date" placeholder="กรอกวันที่ขาย" required><br><br>
+  
         
         <label for="sellamount">เงินขายทรัพย์:</label>
         <input type="number" id="sellamount" name="sellamount" placeholder="กรอกเงินขายทรัพย์" required>
@@ -175,6 +196,9 @@ input[type=text] {
         
         <label for="sell_slip">รูปสลิปเงินขายทรัพย์:</label>
         <input type="file" id="sell_slip" name="sell_slip">
+      </fieldset>
+      <br>
+        
     
         <!-- Input hidden สำหรับเก็บ ID ของการยึดทรัพย์ -->
         <input type="hidden" id="seizure_id" name="seizure_id"> 

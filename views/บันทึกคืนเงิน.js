@@ -54,11 +54,13 @@ function setReturnDateInput() {
     document.getElementById('return_date_input').value = today.getFullYear() + '-' + month + '-' + day;
 }
 
-// คำนวณรวมเงินที่คืน
+
 // เรียกฟังก์ชัน calculateTotalRefund เมื่อมีการเปลี่ยนแปลงในเงินต้นคืนหรือดอกเบี้ยคืน
 document.getElementById('refund_principal').addEventListener('input', calculateTotalRefund);
 document.getElementById('refund_interest').addEventListener('input', calculateTotalRefund);
 document.getElementById('debtAmount').addEventListener('input', calculateTotalRefund);
+
+
 
 function calculateTotalRefund() {
     var principal = parseFloat(document.getElementById('refund_principal').value);
@@ -81,3 +83,38 @@ function calculateTotalRefund() {
     // กำหนดค่าเงินคืนทั้งหมดให้กับ input element ของ "total_refund_input"
     document.getElementById('total_refund2').value = total_refund2.toFixed(0);
 }
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const refundInterestInput = document.getElementById('refund_interest');
+    const totalInterest4Input = document.getElementById('totalInterest4');
+    const refundPrincipalInput = document.getElementById('refund_principal');
+    const saveButton = document.getElementById('save_button');
+    const errorMessage = document.getElementById('error_message');
+
+    refundInterestInput.addEventListener('input', function() {
+        const refundInterest = parseFloat(refundInterestInput.value);
+        const totalInterest4 = parseFloat(totalInterest4Input.value);
+
+        if (refundInterest > totalInterest4) {
+            errorMessage.textContent = 'ดอกเบี้ยเกินสัญญา ให้นำเงินส่วนเกินกรอกลงเงินต้นคืนหรือค่าทวงเงินคืน';
+            errorMessage.style.color = 'red'; // กำหนดสีข้อความเป็นแดง
+            saveButton.disabled = true;
+            refundPrincipalInput.value = ''; // เคลียร์ค่า refund_principal
+            refundPrincipalInput.readOnly = false; // ให้สามารถแก้ไขค่าได้
+        } else if (refundInterest < totalInterest4) {
+            refundPrincipalInput.value = '0';
+            refundPrincipalInput.readOnly = true;
+            errorMessage.textContent = ''; // เคลียร์ข้อความแจ้งเตือน
+            saveButton.disabled = false; // ปุ่มบันทึกสามารถใช้งานได้
+        } else { // refundInterest === totalInterest4
+            refundPrincipalInput.value = '';
+            refundPrincipalInput.readOnly = false;
+            errorMessage.textContent = ''; // เคลียร์ข้อความแจ้งเตือน
+            saveButton.disabled = false; // ปุ่มบันทึกสามารถใช้งานได้
+        }
+    });
+});

@@ -107,3 +107,72 @@ function redirectToContractPage5() {
     // นำ URL ใหม่ไปที่หน้าที่ต้องการ
     window.location.href = newURL;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+async function fetchLoanInfo(id_card_number) {
+  try {
+      const response = await fetch(`/api/loaninfo/${id_card_number}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const loanData = await response.json();
+      const loanTableBody = document.getElementById('loanTableBody');
+      loanTableBody.innerHTML = '';
+
+      loanData.forEach(loan => {
+          // คำนวณผลรวมของ total_refund2 ทั้งหมดใน refundDocuments
+          const totalRefundSum = loan.refundDocuments.reduce((total, doc) => total + parseFloat(doc.total_refund2), 0);
+
+          // คำนวณ netProfit
+          // คำนวณ netProfit
+          const netProfit = totalRefundSum
+          - (loan.principal || 0)
+          - (loan.recommended || 0)
+          - (loan.totalShare || 0);
+
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${loan.contract_number}</td>
+              <td>${totalRefundSum}</td>
+              <td>${loan.principal}</td>
+              <td>${loan.recommended}</td>
+              <td>${loan.totalShare}</td>
+              <td>${loan.status}</td>
+              <td>${netProfit}</td>
+          `;
+          loanTableBody.appendChild(row);
+      });
+  } catch (error) {
+      console.error('Error fetching loan information:', error);
+  }
+}
+
+  // ฟังก์ชันสำหรับดึงพารามิเตอร์จาก URL
+  function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
+    const results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+  // ดึงค่า id_card_number จาก URL
+  const idCardNumber = getParameterByName('id_card_number');
+
+  // เรียกใช้ฟังก์ชัน fetchLoanInfo ด้วยค่า id_card_number ที่ดึงมาได้
+  if (idCardNumber) {
+    fetchLoanInfo(idCardNumber);
+  } else {
+    console.error('ไม่พบพารามิเตอร์ id_card_number ใน URL');
+  }
