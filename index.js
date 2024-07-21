@@ -653,7 +653,6 @@ app.get('/api/loan/in-contract', async (req, res) => {
             },
             {
                 $sort: {
-                    loanDate: -1,
                     contract_number: -1,
                     bill_number: -1
                 }
