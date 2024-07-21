@@ -9,17 +9,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         for (let index = 0; index < managers.length; index++) {
             const manager = managers[index];
-
-            // ดึงข้อมูล loanCount โดยใช้ API
-            const loanCountResponse = await fetch(`/api/loan/count?nickname=${manager.nickname}`);
-            const loanCountData = await loanCountResponse.json();
-            const loanCount = loanCountData.loanCount || 0;
-
-            // ดึงข้อมูล inContractCount โดยใช้ API
-            const inContractCountResponse = await fetch(`/api/loan/in-contract?nickname=${manager.nickname}`);
-            const inContractCountData = await inContractCountResponse.json();
-            const inContractCount = inContractCountData.inContractCount || 0;
-
+            // api เดิมที่ใช้ ก่อนจะเเก้โค้ด
+            // /api/loan/count?nickname=${manager.nickname}
+            // `/api/loan/in-contract?nickname=${manager.nickname}`
             const row = document.createElement('tr');
 
             row.innerHTML = `
@@ -30,9 +22,9 @@ document.addEventListener("DOMContentLoaded", async function() {
                 <td>${manager.lname || ''}</td>
                 <td>${manager.phone || ''}</td>
                 <td>${manager.nickname || ''}</td>
-                <td>${loanCount}</td>
-                <td>${inContractCount}</td>
-                <td></td>
+                <td>${manager.debtor.loanCount}</td>
+                <td>${manager.debtor.inContractCount}</td>
+                <td>${manager.debtor.lateContractCount}</td>
                 <td></td>
                 <td>
                     <button onclick="editManager('${manager._id}')">แก้ไข</button>

@@ -1326,17 +1326,61 @@ app.post('/submit', async (req, res) => {
 });
 
 
+async function findDebtorStatus(manager){
+    const result = await LoanInformation.aggregate([
+        { 
+            $match: { 
+                manager: manager.nickname, // ใช้ managerNickname ตรงๆ
+            }
+        },
+        {
+            $sort: {
+                contract_number: -1,
+                bill_number: -1
+            }
+        },
+        {
+            $group: {
+                _id: "$id_card_number",
+                latestLoan: { $first: "$$ROOT" }
+            }
+        },
+
+    ]);
+    let inContractCount = 0
+    let lateContractCount = 0
+    const statusLoan = ["<span style='color: blue;'>อยู่ในสัญญา</span>","<span style='color: green;'>ต่อดอก</span>"]
+
+    for(let i of result){
+        if (statusLoan.includes(i.latestLoan.status)){
+            inContractCount += 1
+        }
+        else if (i.latestLoan.status=="<span style='color: orange;'>เลยสัญญา</span>") {
+            lateContractCount += 1
+        }
+    }
+
+    return {
+        inContractCount : inContractCount,
+        lateContractCount : lateContractCount,
+        loanCount: result.length,
+    }
+}
 
 
 
 // ส่งข้อมูลเเอดมินไปยังหน้าเเอดมิน
 app.get('/api/managersList', async (req, res) => {
     try {
-        const managers = await Manager.find().sort({ lname: 1 }); // จัดเรียงตาม lname
-        console.log("🚀 ~ app.get ~ managers:", managers);
-        console.log('Managers:', managers); // ตรวจสอบข้อมูลที่ดึงมา
+        let managers = await Manager.find().sort({ lname: 1 });
+        const statusLoan = ["<span style='color: blue;'>อยู่ในสัญญา</span>","<span style='color: green;'>ต่อดอก</span>"]
+        managers = await Promise.all(managers.map(async (manager) => ({
+            ...manager._doc,
+            debtor: await findDebtorStatus(manager, statusLoan)
+        })));
         res.json(managers);
     } catch (error) {
+        console.log("🚀 ~ app.get ~ error:", error)
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลแอดมิน' });
     }
 });
