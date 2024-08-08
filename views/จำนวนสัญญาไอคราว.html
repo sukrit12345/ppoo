@@ -6,7 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
-<title>ตารางเเอดมิน</title>
+<title>ตารางสัญญาที่เชื่อมไอคราว</title>
 
 <style>
 .navbar {
@@ -291,80 +291,48 @@ tr:nth-child(even) {
 </head>
 <body>
 
-    <div class="navbar">
-        <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-        <a href="รายงานผล.html">รายงานผล</a>
-        <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-        <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-        <a href="ไอคราว.html">ไอคราว</a>
-        <a class="active" href="เเอดมิน.html">เเอดมิน</a>
-        <a href="คนทวง.html">คนทวง</a>
-        <a href="กองทุน.html">กองทุน</a>
-        <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-        <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-        <a href="ตั้งค่า.html">ตั้งค่า</a>
-    </div>
-
-
-<h2 style="text-align:center;">ตารางเเอดมิน</h2>
-
-
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
-    <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
+<div class="navbar">
+    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="รายงานผล.html">รายงานผล</a>
+    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
+    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a class="active" href="ไอคราว.html">ไอคราว</a>
+    <a href="เเอดมิน.html">เเอดมิน</a>
+    <a href="คนทวง.html">คนทวง</a>
+    <a href="กองทุน.html">กองทุน</a>
+    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+    <a href="ตั้งค่า.html">ตั้งค่า</a>
 </div>
 
 
-<div class="search-container">
-    <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อเล่นเเอดมิน">
-    <button type="button" onclick="customSearch1()">ค้นหาเเอดมิน</button>
-</div>
-
-  
-
-<div class="search-container2">
-  <select id="statusFilter">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="ดี">ดี</option>
-    <option value="ปานกลาง">ปานกลาง</option>
-    <option value="ปรับปรุง">ปรับปรุง</option>
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
-</div>
+<h2 style="text-align:center;">ตารางiosที่เชื่อมไอคราว</h2>
 
 
-<div class="button-container">
-    <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลเเอดมิน.html';">
-        <a href="บันทึกข้อมูลเเอดมิน.html" class="button-link">เพิ่มข้อมูลเเอดมิน</a>
-    </button>
-</div>
+
 
   
   
 
 
-<table id="f">
+<table id="recordsTable">
     <thead>
         <tr>
             <th>ลำดับ</th>
-            <th>วันที่บันทึก</th>
+            <th>วันที่กู้</th>
+            <th>เเอดมินดูเเล</th>
             <th>เลขบัตรประชาชน</th>
-            <th>ชื่อ</th>
+            <th>ชื่อจริง</th>
             <th>นามสกุล</th>
-            <th>เบอร์โทรศัพท์</th>
-            <th>ชื่อเล่น</th>
-            <th>ลูกหนี้ทั้งหมด</th>
-            <th>ลูกหนี้อยู่ในสัญญา</th>
-            <th>ลูกหนี้เลยสัญญา</th>
-            <th>สถานะ</th>
+            <th>ทรัพย์สินที่ใส่ไอคราวร้าน</th>
             <th>จัดการ</th>
         </tr>
     </thead>
-    <tbody id="managerData"></tbody>
+    <tbody id="recordsTableBody"></tbody>
 </table>
 
+<script src="จำนวนสัญญาไอคราว.js"></script>
 
-<script src="เเอดมิน.js"></script>  
 
 </body>
 </html>

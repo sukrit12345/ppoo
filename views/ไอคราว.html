@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>ตารางไอคราว</title>
 
 <style>
@@ -334,19 +336,15 @@ tr:nth-child(even) {
 </div>
   
 
-<div class="search-container2">
-  <select id="statusFilter">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="ยังไม่ใช้งาน">ยังไม่ใช้งาน</option>
-    <option value="ใช้งานอยู่">ใช้งานอยู่</option>
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
+<div class="search-container">
+  <input type="text" id="" placeholder="พิมพ์จำนวนผู้ใช้">
+  <button type="button" onclick="searchIdCard2()">ค้นหาจำนวนผู้ใช้</button>
 </div>
 
 
 <div class="button-container">
     <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลไอคราว.html';">
-        <a href="บันทึกข้อมูลไอคราว.html" class="button-link">บันทึกข้อมูลไอคราว</a>
+        <a href="บันทึกข้อมูลไอคราว.html" class="button-link">เพิ่มข้อมูลไอคราว</a>
     </button>
 </div>
 
@@ -365,7 +363,6 @@ tr:nth-child(even) {
             <th>รหัสเมล</th>
             <th>รหัสไอคราว</th>
             <th>จำนวนผู้ใช้</th>
-            <th>สถานะ</th>
             <th>จัดการ</th>
         </tr>
     </thead>

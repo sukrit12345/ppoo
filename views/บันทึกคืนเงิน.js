@@ -118,3 +118,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+
+
+//เเสดงไฟล์ภาพที่กำลังบันทึก
+function handleFileSelect(event) {
+    const input = event.target;
+    const file = input.files[0];
+    const preview = document.getElementById(input.id + '_preview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block'; // แสดงภาพ
+        };
+        reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
+    } else {
+        preview.src = '';
+        preview.style.display = 'none'; // ซ่อนภาพ
+    }
+}
+
+// เพิ่ม event listeners ให้กับ input file
+document.getElementById('refund_receipt_photo').addEventListener('change', handleFileSelect);
+
+
+
+
+
+
+
+
+//เเสดงข้อมูลตามไอดี
+document.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refundId = urlParams.get('_id');
+    
+    if (refundId) {
+        try {
+            const response = await fetch(`/api/refundss/${refundId}`);
+            const refund = await response.json();
+
+            // เติมข้อมูลในฟอร์ม
+            document.getElementById('manager').value = refund.manager;
+            document.getElementById('id_card_number').value = refund.id_card_number;
+            document.getElementById('fname').value = refund.fname;
+            document.getElementById('lname').value = refund.lname;
+            document.getElementById('contract_number').value = refund.contract_number;
+            document.getElementById('bill_number').value = refund.bill_number;
+            document.getElementById('principal').value = refund.principal;
+            document.getElementById('totalInterest4').value = refund.totalInterest4;
+            document.getElementById('totalRefund').value = refund.totalRefund;
+            document.getElementById('refund_interest').value = refund.refund_interest;
+            document.getElementById('refund_principal').value = refund.refund_principal;
+            document.getElementById('debtAmount').value = refund.debtAmount;
+            document.getElementById('total_refund2').value = refund.total_refund2;
+            
+
+            // แสดงภาพถ่ายสลิปเงินคืนถ้ามี
+            const receiptPhotoInput = document.getElementById('refund_receipt_photo');
+            if (refund.refund_receipt_photo) {
+                document.getElementById('refund_receipt_photo_preview').style.display = 'block';
+                document.getElementById('refund_receipt_photo_preview').src = `/path/to/uploads/${refund.refund_receipt_photo}`;
+            }
+
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        }
+    }
+});

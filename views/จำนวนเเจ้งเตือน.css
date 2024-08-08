@@ -24,3 +24,8 @@
     right: -10px;
     transform: translateY(-50%);
 }
+
+/* ซ่อนวงกลมเมื่อจำนวนเป็น 0 */
+.navbar a.active2[data-count="0"]::after {
+    display: none; /* ซ่อนวงกลมเมื่อจำนวนเป็น 0 */
+}

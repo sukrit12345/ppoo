@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 <td>${refund.initial_profit}</td>
                 <td>${refund.status}</td> 
                 <td>
-                    <button onclick="editRefund('${refund._id}')">แก้ไข</button>
+                    <button onclick="redirectToEdit('${refund._id}')">แก้ไข</button>
                     <button onclick="deleteRefund('${refund._id}')">ลบ</button>
                 </td>
                 <td>
@@ -166,7 +166,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
-
+function redirectToEdit(_id) {
+    // เปลี่ยนเส้นทางไปยังหน้า "บันทึกคืนเงิน" และส่ง _id เป็นพารามิเตอร์ใน URL
+    window.location.href = `/บันทึกคืนเงิน.html?_id=${encodeURIComponent(_id)}`;
+}
 
 // ลบข้อมูลคืนเงิน
 function deleteRefund(refundId) {

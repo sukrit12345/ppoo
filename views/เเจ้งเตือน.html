@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>เเจ้งเตือน</title>
 
 <style>
@@ -313,6 +315,12 @@ tr:nth-child(even) {
     transform: translateY(-50%);
 }
 
+/* ซ่อนวงกลมถ้าจำนวนการแจ้งเตือนเป็น 0 */
+.navbar a.active2[data-count="0"]::after {
+    display: none;
+}
+
+
 
 </style>
 
@@ -346,7 +354,7 @@ tr:nth-child(even) {
     <thead>
       <tr>
         <th>ลำดับ</th>
-        <th>วันที่บันทึก</th>
+        <th>วันที่กู้</th>
         <th>เลขบัตรประชาชน</th>
         <th>ชื่อ</th>
         <th>นามสกุล</th>

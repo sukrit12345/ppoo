@@ -169,53 +169,6 @@ window.onload = function() {
 
 
 
-// ดึงค่า loanId จาก URL เพื่อแสดงข้อมูลสัญญาเมื่อกดปุ่มแก้ไข
-const urlParams = new URLSearchParams(window.location.search);
-const loanId = urlParams.get('loan_id');
-
-if (loanId) {
-    fetch(`/api/loan/${loanId}`)
-        .then(response => response.json())
-        .then(loan => {
-            document.getElementById('manager').value = loan.manager;
-            document.getElementById('id_card_number').value = loan.id_card_number;
-            document.getElementById('fname').value = loan.fname;
-            document.getElementById('lname').value = loan.lname;
-            document.getElementById('contract_number').value = loan.contract_number;
-            document.getElementById('bill_number').value = loan.bill_number;
-            document.getElementById('loanDate').value = loan.loanDate;
-            document.getElementById('loanPeriod').value = loan.loanPeriod;
-            document.getElementById('returnDate').value = loan.returnDate;
-            document.getElementById('principal').value = loan.principal;
-            document.getElementById('interestRate').value = loan.interestRate;
-            document.getElementById('totalInterest').value = loan.totalInterest;
-            document.getElementById('totalRefund').value = loan.totalRefund;
-            document.getElementById('store_assets').value = loan.store_assets;
-            document.getElementById('icloud_assets').value = loan.icloud_assets;
-        })
-        .catch(error => console.error('Error fetching loan data:', error));
-}
-
-// กดปุ่มบันทึกจะทำการอัปเดตข้อมูล
-function updateLoan(event) {
-    event.preventDefault();
-    const form = document.getElementById('loanForm');
-    const formData = new FormData(form);
-
-    fetch(`/api/loan/${loanId}`, {
-        method: 'PUT',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-        } else {
-            alert('อัปเดตข้อมูลสัญญาเรียบร้อยแล้ว');
-        }
-    })
-    .catch(error => console.error('Error updating loan data:', error));
-}
 
 
 
@@ -381,3 +334,187 @@ async function updateIcloudPassword() {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('code_icloud').addEventListener('change', updateIcloudPassword);
 });
+
+
+
+
+
+
+
+
+
+
+
+//เเสดงไฟล์ภาพที่กำลังบันทึก
+function handleFileSelect(event) {
+    const input = event.target;
+    const file = input.files[0];
+    const preview = document.getElementById(input.id + '_preview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block'; // แสดงภาพ
+        };
+        reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
+    } else {
+        preview.src = '';
+        preview.style.display = 'none'; // ซ่อนภาพ
+    }
+}
+
+// เพิ่ม event listeners ให้กับ input file
+document.getElementById('refund_receipt_photo').addEventListener('change', handleFileSelect);
+document.getElementById('contract').addEventListener('change', handleFileSelect);
+document.getElementById('Recommended_photo').addEventListener('change', handleFileSelect);
+document.getElementById('asset_receipt_photo').addEventListener('change', handleFileSelect);
+document.getElementById('icloud_asset_photo').addEventListener('change', handleFileSelect);
+
+
+
+
+
+
+
+
+
+
+
+
+// แสดงข้อมูลที่ถูกบันทึกแล้ว
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const loanId = urlParams.get('loan_id');
+
+    if (loanId) {
+        fetch(`/api/loanss/${loanId}`)
+            .then(response => response.json())
+            .then(data => {
+                // การกรอกข้อมูลในฟอร์ม
+                document.getElementById('manager').value = data.manager;
+                document.getElementById('id_card_number').value = data.id_card_number;
+                document.getElementById('fname').value = data.fname;
+                document.getElementById('lname').value = data.lname;
+                document.getElementById('contract_number').value = data.contract_number;
+                document.getElementById('bill_number').value = data.bill_number;
+
+                // ตั้งค่า loanType และเรียกใช้ toggleFields()
+                const loanTypeField = document.getElementById('loanType');
+                loanTypeField.value = data.loanType;
+                toggleFields(); // เรียกใช้เพื่อจัดการการแสดงผลของฟิลด์ที่เกี่ยวข้อง
+
+                // ตั้งค่า phoneicloud เป็นตัวเลือก (dropdown)
+                const phoneSelect = document.getElementById('phoneicloud');
+                phoneSelect.innerHTML = ''; // ล้างตัวเลือกก่อน
+
+                // ดึงข้อมูลเบอร์โทรศัพท์จาก API
+                fetch('/api/phone_number')
+                    .then(response => response.json())
+                    .then(phoneNumbers => {
+                        phoneNumbers.forEach(record => {
+                            const option = document.createElement('option');
+                            option.value = record.phone_number;
+                            option.textContent = record.phone_number;
+                            phoneSelect.appendChild(option);
+                        });
+
+                        // ตั้งค่าให้ select มีค่าเป็น phoneicloud ที่ได้รับจากฐานข้อมูล
+                        if (data.phoneicloud) {
+                            phoneSelect.value = data.phoneicloud;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching phone numbers:', error));
+
+                // ตรวจสอบและตั้งค่า email_icloud
+                const emailSelect = document.getElementById('email_icloud');
+                emailSelect.innerHTML = ''; // ล้างตัวเลือกก่อน
+                if (data.email_icloud) {
+                    const option = document.createElement('option');
+                    option.value = data.email_icloud;
+                    option.textContent = data.email_icloud;
+                    emailSelect.appendChild(option);
+                    emailSelect.value = data.email_icloud; // ตั้งค่าให้ select มีค่าเป็น email_icloud ที่ได้รับ
+                }
+
+                document.getElementById('code_icloud2').value = data.code_icloud2 || '';
+                document.getElementById('code_icloud').value = data.code_icloud || '';
+                document.getElementById('icloud_assets').value = data.icloudAssets || '';
+                document.getElementById('loanDate').value = data.loanDate || '';
+                document.getElementById('loanPeriod').value = data.loanPeriod || '';
+                document.getElementById('returnDate').value = data.returnDate || '';
+                document.getElementById('principal').value = data.principal || '';
+                document.getElementById('interestRate').value = data.interestRate || '';
+                document.getElementById('totalInterest').value = data.totalInterest || '';
+                document.getElementById('totalRefund').value = data.totalRefund || '';
+                document.getElementById('manager2').value = data.manager2 || '';
+                document.getElementById('Recommended').value = data.Recommended || '';
+            })
+            .catch(error => {
+                console.error('Error fetching loan data:', error);
+            });
+    }
+
+    // Event listener for phoneSelect change
+    const phoneSelect = document.getElementById('phoneicloud');
+    phoneSelect.addEventListener('change', function() {
+        const selectedPhoneNumber = phoneSelect.value;
+        console.log('Selected phone number:', selectedPhoneNumber);
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// แสดงข้อมูลไฟล์ภาพที่ถูกบันทึกแล้ว
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const loan_id = urlParams.get('loan_id');
+
+    if (loan_id) {
+        fetch(`/loan_id2/${loan_id}`)
+            .then(response => response.json())
+            .then(data => {
+                // ตรวจสอบและแสดงข้อมูลลูกหนี้
+                if (data.icloud_asset_photo_base64 && data.icloud_asset_photo_base64.length > 0) {
+                    document.getElementById('icloud_asset_photo_preview').src = data.icloud_asset_photo_base64[0];
+                    document.getElementById('icloud_asset_photo_preview').style.display = 'block';
+                }
+                if (data.asset_receipt_photo_base64 && data.asset_receipt_photo_base64.length > 0) {
+                    document.getElementById('asset_receipt_photo_preview').src = data.asset_receipt_photo_base64[0];
+                    document.getElementById('asset_receipt_photo_preview').style.display = 'block';
+                }
+                if (data.refund_receipt_photo_base64 && data.refund_receipt_photo_base64.length > 0) {
+                    document.getElementById('refund_receipt_photo_preview').src = data.refund_receipt_photo_base64[0];
+                    document.getElementById('refund_receipt_photo_preview').style.display = 'block';
+                }
+                if (data.contract_base64 && data.contract_base64.length > 0) {
+                    document.getElementById('contract_preview').src = data.contract_base64[0];
+                    document.getElementById('contract_preview').style.display = 'block';
+                }
+                if (data.Recommended_photo_base64 && data.Recommended_photo_base64.length > 0) {
+                    document.getElementById('Recommended_photo_preview').src = data.Recommended_photo_base64[0];
+                    document.getElementById('Recommended_photo_preview').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching loan data:', error);
+            });
+    }
+});
+
+
+
+

@@ -74,33 +74,39 @@ function calculateShares() {
     const collectorSharePercent = parseFloat(document.getElementById('collector_share_percent').value) || 0;
     const managerSharePercent = parseFloat(document.getElementById('manager_share2').value) || 0;
     const receiverSharePercent = parseFloat(document.getElementById('receiver_share_percent').value) || 0;
+    
+    // Get direct inputs for shares
+    const collectorShareInput = parseFloat(document.getElementById('collector_share').value) || 0;
+    const managerShareInput = parseFloat(document.getElementById('manager_share').value) || 0;
+    const receiverShareInput = parseFloat(document.getElementById('receiver_share').value) || 0;
 
-    // Calculate collector share
-    let collectorShare = (initialProfit * collectorSharePercent) / 100;
-    const initialProfit2 = initialProfit - Math.abs(collectorShare); // Ensure initialProfit2 is correctly calculated
-
-    // Adjust collectorShare display
-    let formattedCollectorShare = collectorShare.toFixed(0);
-    if (collectorShare < 0) {
-        formattedCollectorShare = Math.abs(collectorShare).toFixed(0);
+    // Calculate collector share if not set directly
+    let collectorShare = collectorShareInput;
+    if (collectorShare === 0) {
+        collectorShare = (initialProfit * collectorSharePercent) / 100;
     }
 
-    // Calculate manager share
-    let managerShare = (initialProfit2 * managerSharePercent) / 100;
-    if (managerShare < 0) {
-        managerShare = Math.abs(managerShare); // Make managerShare positive if negative
+    const initialProfit2 = initialProfit - Math.abs(collectorShare);
+
+    // Calculate manager share if not set directly
+    let managerShare = managerShareInput;
+    if (managerShare === 0) {
+        managerShare = (initialProfit2 * managerSharePercent) / 100;
     }
 
-    // Calculate receiver profit and share
+    // Calculate receiver profit and share if not set directly
     const receiverProfit = initialProfit2 - managerShare;
-    const receiverShare = Math.abs(receiverProfit * receiverSharePercent) / 100;
+    let receiverShare = receiverShareInput;
+    if (receiverShare === 0) {
+        receiverShare = (receiverProfit * receiverSharePercent) / 100;
+    }
 
     // Calculate total share and net profit
     const totalShare = Math.abs(collectorShare) + Math.abs(managerShare) + Math.abs(receiverShare);
     const netProfit = initialProfit - Math.abs(totalShare);
 
     // Set the calculated values
-    document.getElementById('collector_share').value = formattedCollectorShare;
+    document.getElementById('collector_share').value = collectorShare.toFixed(0);
     document.getElementById('initial_profit2').value = initialProfit2.toFixed(0);
     document.getElementById('manager_share').value = managerShare.toFixed(0);
     document.getElementById('receiver_profit').value = receiverProfit.toFixed(0);
@@ -117,7 +123,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('collector_share_percent').addEventListener('input', calculateShares);
     document.getElementById('manager_share2').addEventListener('input', calculateShares);
     document.getElementById('receiver_share_percent').addEventListener('input', calculateShares);
+    document.getElementById('collector_share').addEventListener('input', calculateShares);
+    document.getElementById('manager_share').addEventListener('input', calculateShares);
+    document.getElementById('receiver_share').addEventListener('input', calculateShares);
 });
+
+
 
 
 

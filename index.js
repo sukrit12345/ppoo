@@ -5,9 +5,7 @@ const path = require('path');
 const app = express();
 const multer = require('multer');
 const cors = require('cors');
-const { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale, iCloudRecord, Income, Expense, Capital  } = require('./models'); // Assuming you saved the schema in 'models.js'
-
-
+const { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale, iCloudRecord, Income, Expense, Capital, File } = require('./models'); // Assuming you saved the schema in 'models.js'
 
 // กำหนดการใช้งาน bodyParser
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,20 +17,40 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-
+// ใช้ memoryStorage แทน diskStorage
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-mongoose.connect('mongodb://localhost:27017/bank', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
+// ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64
+function encodeFileToBase64(fileBuffer, mimetype) {
+    return `data:${mimetype};base64,${fileBuffer.toString('base64')}`;
+}
+
+// ฟังก์ชันสำหรับบันทึกไฟล์ลงฐานข้อมูล
+async function saveFile(file) {
+    const encodedFile = encodeFileToBase64(file.buffer, file.mimetype);
+    const newFile = new File({
+        filename: file.originalname,
+        data: encodedFile,
+        mimetype: file.mimetype
+    });
+    return await newFile.save();
+}
+
+
+const transformFileToBase64 = async (fileArray) => {
+    if (!fileArray || fileArray.length === 0) return null;
+    const file = fileArray[0];
+    return `data:${file.contentType};base64,${file.data.toString('base64')}`;
+};
+
+
+
+
+
+
+
+
 
 
 // เปิดไฟล์หน้าเเรก
@@ -44,7 +62,7 @@ app.get('/', (req, res) => {
 
 
 
-// บันทึกข้อมูลลุกหนี้
+// บันทึกข้อมูลลูกหนี้
 app.post('/Adddebtorinformation/submit', upload.fields([
     { name: 'id_card_photo', maxCount: 1 },
     { name: 'id_card_photo2', maxCount: 1 },
@@ -52,59 +70,122 @@ app.post('/Adddebtorinformation/submit', upload.fields([
     { name: 'work_address_map', maxCount: 1 },
     { name: 'student_record_photo', maxCount: 1 },
     { name: 'timetable_photo', maxCount: 1 }
-
 ]), async (req, res) => {
     try {
-        const debtorInf = {
-            manager: req.body.manager,
-            manager2: req.body.manager2,
-            date: req.body.date,
-            id_card_number: req.body.id_card_number,
-            fname: req.body.fname,
-            lname: req.body.lname,
-            occupation: req.body.occupation,
-            monthly_income_amount: req.body.monthly_income_amount,
-            seizable_assets_description: req.body.seizable_assets_description,
-            ig: req.body.ig,
-            facebook: req.body.facebook,
-            line: req.body.line,
-            phone: req.body.phone,
-            grade: req.body.grade,
-            course: req.body.course,
-            province: req.body.province,
-            currentAddress: req.body.currentAddress,
-            workOrStudyAddress: req.body.workOrStudyAddress,
-            workOrStudyAddress2: req.body.workOrStudyAddress2,
-            id_card_photo: req.files['id_card_photo'] ? req.files['id_card_photo'][0].path : '',
-            id_card_photo2: req.files['id_card_photo2'] ? req.files['id_card_photo2'][0].path : '',
-            current_address_map: req.files['current_address_map'] ? req.files['current_address_map'][0].path : '',
-            work_address_map: req.files['work_address_map'] ? req.files['work_address_map'][0].path : '',
-            student_record_photo: req.files['student_record_photo'] ? req.files['student_record_photo'][0].path : '',
-            timetable_photo: req.files['timetable_photo'] ? req.files['timetable_photo'][0].path : ''
+        // สร้างอ็อบเจกต์สำหรับการจัดเก็บไฟล์
+        const fileRecords = {};
+
+        // ฟังก์ชันเพื่อบันทึกไฟล์
+        const saveFile = async (file) => {
+            const base64Data = file.buffer.toString('base64');
+            const newFile = new File({
+                name: file.originalname,
+                data: base64Data,
+                mimetype: file.mimetype
+            });
+            await newFile.save();
+            return newFile._id;
         };
 
-        // ตรวจสอบว่ามีข้อมูลลูกหนี้ที่มี id_card_number ตรงกับที่ส่งมาหรือไม่
-        const existingDebtor = await DebtorInformation.findOne({ id_card_number: req.body.id_card_number });
+        // บันทึกไฟล์และเก็บ _id ไว้ใน fileRecords
+        if (req.files.id_card_photo) {
+            fileRecords.id_card_photo = await saveFile(req.files.id_card_photo[0]);
+        }
+        if (req.files.id_card_photo2) {
+            fileRecords.id_card_photo2 = await saveFile(req.files.id_card_photo2[0]);
+        }
+        if (req.files.current_address_map) {
+            fileRecords.current_address_map = await saveFile(req.files.current_address_map[0]);
+        }
+        if (req.files.work_address_map) {
+            fileRecords.work_address_map = await saveFile(req.files.work_address_map[0]);
+        }
+        if (req.files.student_record_photo) {
+            fileRecords.student_record_photo = await saveFile(req.files.student_record_photo[0]);
+        }
+        if (req.files.timetable_photo) {
+            fileRecords.timetable_photo = await saveFile(req.files.timetable_photo[0]);
+        }
 
-        // ถ้ามีข้อมูลลูกหนี้ที่มี id_card_number ตรงกับที่ส่งมา
-        if (existingDebtor) {
-            // อัปเดตข้อมูลลูกหนี้
+        // ตรวจสอบว่ามีข้อมูลลูกหนี้อยู่แล้วหรือไม่
+        let debtor = await DebtorInformation.findOne({ id_card_number: req.body.id_card_number });
+
+        if (debtor) {
+            // หากมีข้อมูลลูกหนี้อยู่แล้ว, อัปเดตเฉพาะข้อมูลที่มีการเปลี่ยนแปลง
+            debtor = {
+                ...debtor.toObject(),
+                manager: req.body.manager || debtor.manager,
+                date: req.body.date || debtor.date,
+                fname: req.body.fname || debtor.fname,
+                lname: req.body.lname || debtor.lname,
+                occupation: req.body.occupation || debtor.occupation,
+                monthly_income_amount: req.body.monthly_income_amount || debtor.monthly_income_amount,
+                seizable_assets_description: req.body.seizable_assets_description || debtor.seizable_assets_description,
+                ig: req.body.ig || debtor.ig,
+                facebook: req.body.facebook || debtor.facebook,
+                line: req.body.line || debtor.line,
+                phone: req.body.phone || debtor.phone,
+                province: req.body.province || debtor.province,
+                currentAddress: req.body.currentAddress || debtor.currentAddress,
+                workOrStudyAddress: req.body.workOrStudyAddress || debtor.workOrStudyAddress,
+                workOrStudyAddress2: req.body.workOrStudyAddress2 || debtor.workOrStudyAddress2,
+                grade: req.body.grade || debtor.grade,
+                course: req.body.course || debtor.course,
+                id_card_photo: fileRecords.id_card_photo ? [fileRecords.id_card_photo] : debtor.id_card_photo,
+                id_card_photo2: fileRecords.id_card_photo2 ? [fileRecords.id_card_photo2] : debtor.id_card_photo2,
+                current_address_map: fileRecords.current_address_map ? [fileRecords.current_address_map] : debtor.current_address_map,
+                work_address_map: fileRecords.work_address_map ? [fileRecords.work_address_map] : debtor.work_address_map,
+                student_record_photo: fileRecords.student_record_photo ? [fileRecords.student_record_photo] : debtor.student_record_photo,
+                timetable_photo: fileRecords.timetable_photo ? [fileRecords.timetable_photo] : debtor.timetable_photo,
+            };
+
             await DebtorInformation.findOneAndUpdate(
                 { id_card_number: req.body.id_card_number },
-                debtorInf,
+                debtor,
                 { new: true }
             );
         } else {
-            // สร้างข้อมูลลูกหนี้ใหม่
-            await new DebtorInformation(debtorInf).save();
+            // หากไม่มี, สร้างข้อมูลใหม่
+            debtor = new DebtorInformation({
+                manager: req.body.manager,
+                date: req.body.date,
+                id_card_number: req.body.id_card_number,
+                fname: req.body.fname,
+                lname: req.body.lname,
+                occupation: req.body.occupation,
+                monthly_income_amount: req.body.monthly_income_amount,
+                seizable_assets_description: req.body.seizable_assets_description,
+                ig: req.body.ig,
+                facebook: req.body.facebook,
+                line: req.body.line,
+                phone: req.body.phone,
+                province: req.body.province,
+                currentAddress: req.body.currentAddress,
+                workOrStudyAddress: req.body.workOrStudyAddress,
+                workOrStudyAddress2: req.body.workOrStudyAddress2,
+                grade: req.body.grade,
+                course: req.body.course,
+                id_card_photo: fileRecords.id_card_photo ? [fileRecords.id_card_photo] : [],
+                id_card_photo2: fileRecords.id_card_photo2 ? [fileRecords.id_card_photo2] : [],
+                current_address_map: fileRecords.current_address_map ? [fileRecords.current_address_map] : [],
+                work_address_map: fileRecords.work_address_map ? [fileRecords.work_address_map] : [],
+                student_record_photo: fileRecords.student_record_photo ? [fileRecords.student_record_photo] : [],
+                timetable_photo: fileRecords.timetable_photo ? [fileRecords.timetable_photo] : [],
+                loans: [] // คุณสามารถเพิ่มค่าจาก req.body หากมีการส่งข้อมูลนี้
+            });
+
+            await debtor.save();
         }
 
+        // รีไดเร็กไปที่หน้าแสดงข้อมูลลูกหนี้
         res.redirect('/ข้อมูลลูกหนี้.html');
     } catch (err) {
         console.error(err);
         res.status(500).redirect('/บันทึกข้อมูลลูกหนี้.html');
     }
 });
+
+
 
 
 
@@ -130,7 +211,7 @@ app.get('/api/managers', async (req, res) => {
 
 
 
-//ดึงข้อมูลลูกหนี้ตามid
+//เเสดงข้อมูลลูกหนี้ตามid
 app.get('/api/debtor/:id', async (req, res) => {
     try {
         const debtor = await DebtorInformation.findById(req.params.id);
@@ -143,68 +224,54 @@ app.get('/api/debtor/:id', async (req, res) => {
     }
 });
 
-//เเก้ไขข้อมูลลูกหนี้ตามID
-app.put('/api/debtor/:id', upload.fields([
-    { name: 'id_card_photo', maxCount: 1 },
-    { name: 'id_card_photo2', maxCount: 1 },
-    { name: 'current_address_map', maxCount: 1 },
-    { name: 'work_address_map', maxCount: 1 },
-    { name: 'student_record_photo', maxCount: 1 },
-    { name: 'timetable_photo', maxCount: 1 }
-]), async (req, res) => {
+
+
+
+
+//เเสดงข้อมูลลูกหนี้รูปภาพตามid
+app.get('/debtorinfo/:id', async (req, res) => {
     try {
-        const debtorInf = req.body;
-        const updateFields = {
-            manager: debtorInf.manager,
-            manager2: debtorInf.manager2,
-            date: debtorInf.date,
-            id_card_number: debtorInf.id_card_number,
-            fname: debtorInf.fname,
-            lname: debtorInf.lname,
-            occupation: debtorInf.occupation,
-            monthly_income_amount: debtorInf.monthly_income_amount,
-            seizable_assets_description: debtorInf.seizable_assets_description,
-            ig: debtorInf.ig,
-            facebook: debtorInf.facebook,
-            line: debtorInf.line,
-            phone: debtorInf.phone,
-            province: debtorInf.province,
-            currentAddress: debtorInf.currentAddress,
-            workOrStudyAddress: debtorInf.workOrStudyAddress,
-            workOrStudyAddress2: debtorInf.workOrStudyAddress2,
-            grade: debtorInf.grade,
-            course: debtorInf.course,
-        };
+        const debtorId = req.params.id;
+        const debtor = await DebtorInformation.findById(debtorId).populate([
+            'id_card_photo', 
+            'id_card_photo2', 
+            'current_address_map', 
+            'work_address_map', 
+            'student_record_photo', 
+            'timetable_photo',
+            'manager' // Populate the manager field
+        ]).lean();
 
-        // อัปเดตไฟล์ถ้ามีการอัปโหลดใหม่
-        if (req.files['id_card_photo']) {
-            updateFields.id_card_photo = req.files['id_card_photo'][0].path;
-        }
-        if (req.files['id_card_photo2']) {
-            updateFields.id_card_photo2 = req.files['id_card_photo2'][0].path;
-        }
-        if (req.files['current_address_map']) {
-            updateFields.current_address_map = req.files['current_address_map'][0].path;
-        }
-        if (req.files['work_address_map']) {
-            updateFields.work_address_map = req.files['work_address_map'][0].path;
-        }
-        if (req.files['student_record_photo']) {
-            updateFields.student_record_photo = req.files['student_record_photo'][0].path;
-        }
-        if (req.files['timetable_photo']) {
-            updateFields.timetable_photo = req.files['timetable_photo'][0].path;
-        }
+        if (debtor) {
+            const transformFileToBase64 = async (fileArray) => {
+                if (!fileArray || fileArray.length === 0) return null;
+                const file = fileArray[0];
+                return `data:${file.mimetype};base64,${file.data}`;
+            };
 
-        const updatedDebtor = await DebtorInformation.findByIdAndUpdate(req.params.id, updateFields, { new: true });
-        if (!updatedDebtor) {
-            return res.status(404).json({ message: 'ไม่พบข้อมูลลูกหนี้' });
+            debtor.id_card_photo_base64 = await transformFileToBase64(debtor.id_card_photo);
+            debtor.id_card_photo2_base64 = await transformFileToBase64(debtor.id_card_photo2);
+            debtor.current_address_map_base64 = await transformFileToBase64(debtor.current_address_map);
+            debtor.work_address_map_base64 = await transformFileToBase64(debtor.work_address_map);
+            debtor.student_record_photo_base64 = await transformFileToBase64(debtor.student_record_photo);
+            debtor.timetable_photo_base64 = await transformFileToBase64(debtor.timetable_photo);
+
+            res.json(debtor);
+        } else {
+            res.status(404).json({ error: 'Debtor not found' });
         }
-        res.json(updatedDebtor);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+
+
+
+
+
 
 
 
@@ -221,23 +288,12 @@ app.delete('/api/delete-debtor/:id', async (req, res) => {
             return res.status(404).json({ error: 'Debtor not found' });
         }
 
-        // ลบข้อมูลการคืนเงินที่เชื่อมโยงกับลูกหนี้นี้
-        await Refund.deleteMany({ debtor: debtorId });
-
-        // ลบข้อมูลเงินกู้ที่เชื่อมโยงกับลูกหนี้นี้
-        await LoanInformation.deleteMany({ debtor: debtorId });
-
-        // ลบข้อมูลอื่นๆ ที่เชื่อมโยงกับลูกหนี้นี้ (เพิ่มตามความจำเป็น)
-        // ...
-
         res.status(200).json({ message: 'Debtor and related data deleted successfully' });
     } catch (err) {
         console.error('Error deleting debtor:', err);
         res.status(500).json({ error: 'Failed to delete debtor and related data' });
     }
 });
-
-
 
 
 
@@ -268,6 +324,8 @@ app.get('/api/max-contract-number', async (req, res) => {
 });
 
 
+
+
 //บันทึกสัญญา
 app.post('/AddLoanInformation/submit', upload.fields([
     { name: 'asset_receipt_photo', maxCount: 1 },
@@ -277,86 +335,143 @@ app.post('/AddLoanInformation/submit', upload.fields([
     { name: 'contract', maxCount: 1 }
 ]), async (req, res) => {
     try {
-        const idCardNumber = req.body.id_card_number;
+        const {
+            manager,
+            id_card_number,
+            fname,
+            lname,
+            contract_number,
+            bill_number = 1,
+            loanType,
+            loanDate,
+            loanPeriod,
+            returnDate,
+            principal,
+            interestRate,
+            totalInterest,
+            totalRefund,
+            manager2,
+            Recommended,
+            store_assets,
+            icloud_assets,
+            phoneicloud,
+            email_icloud,
+            code_icloud,
+            code_icloud2
+        } = req.body;
 
-        if (!idCardNumber) {
+        // Validate required fields
+        if (!id_card_number) {
             console.error('ID card number is required');
             return res.status(400).json({ error: 'ID card number is required' });
         }
 
-        console.log('Searching for debtor with ID card number:', idCardNumber);
-        const debtor = await DebtorInformation.findOne({ id_card_number: idCardNumber });
+        const debtor = await DebtorInformation.findOne({ id_card_number });
         if (!debtor) {
             console.error('Debtor not found');
             return res.status(404).json({ error: 'Debtor not found' });
         }
 
-        console.log('Debtor found:', debtor);
-
-        // ค้นหา iCloudRecord ที่เกี่ยวข้อง
         const icloudRecords = await iCloudRecord.find({ 
-            phone_number: req.body.phoneicloud,
-            user_email: req.body.email_icloud
+            phone_number: phoneicloud,
+            user_email: email_icloud
         });
 
-        // ตรวจสอบและแสดงผล iCloudRecords ที่ค้นหาได้
-        if (icloudRecords.length === 0) {
-            console.log(`No iCloudRecords found with phone_number: ${req.body.phoneicloud} and user_email: ${req.body.email_icloud}`);
-        } else {
-            console.log(`Found ${icloudRecords.length} iCloudRecords with phone_number: ${req.body.phoneicloud} and user_email: ${req.body.email_icloud}`);
-            icloudRecords.forEach(record => console.log(record));
+        const files = req.files;
+        const savedFiles = {};
+
+        for (let key in files) {
+            if (files[key] && files[key].length > 0) {
+                savedFiles[key] = await saveFile(files[key][0]);
+            }
         }
 
-        const loanInfo = new LoanInformation({
-            manager: req.body.manager,
-            id_card_number: idCardNumber,
-            fname: req.body.fname,
-            lname: req.body.lname,
-            contract_number: req.body.contract_number,
-            bill_number: req.body.bill_number || "1",
-            loanType: req.body.loanType,
-            loanDate: req.body.loanDate,
-            loanPeriod: req.body.loanPeriod,
-            returnDate: req.body.returnDate,
-            principal: req.body.principal,
-            interestRate: req.body.interestRate,
-            totalInterest: req.body.totalInterest,
-            totalRefund: req.body.totalRefund,
-            manager2: req.body.manager2,
-            Recommended: req.body.Recommended,
-            storeAssets: req.body.store_assets,
-            icloudAssets: req.body.icloud_assets,
-            phoneicloud: req.body.phoneicloud,
-            email_icloud: req.body.email_icloud,
-            code_icloud: req.body.code_icloud,
-            code_icloud2: req.body.code_icloud2,
-            assetReceiptPhoto: req.files['asset_receipt_photo'] ? req.files['asset_receipt_photo'][0].path : '',
-            icloudAssetPhoto: req.files['icloud_asset_photo'] ? req.files['icloud_asset_photo'][0].path : '',
-            refundReceiptPhoto: req.files['refund_receipt_photo'] ? req.files['refund_receipt_photo'][0].path : '',
-            Recommended_photo: req.files['Recommended_photo'] ? req.files['Recommended_photo'][0].path : '',
-            contract: req.files['contract'] ? req.files['contract'][0].path : '',
-            debtor: debtor._id,
-            icloud_records: icloudRecords.map(record => record._id) // เพิ่มการอ้างอิง iCloudRecord
+        // ตรวจสอบว่ามีข้อมูลเดิมที่ตรงกับ id_card_number, contract_number, และ bill_number หรือไม่
+        let loanInfo = await LoanInformation.findOne({
+            id_card_number,
+            contract_number,
+            bill_number
         });
 
-        console.log('Saving loan information...');
-        const savedLoan = await loanInfo.save();
-        console.log('Loan information saved successfully:', savedLoan);
+        if (loanInfo) {
+            // อัปเดตข้อมูลเดิมหรือใช้งานข้อมูลเดิมถ้าไม่มีการส่งข้อมูลใหม่มา
+            loanInfo.manager = manager || loanInfo.manager;
+            loanInfo.fname = fname || loanInfo.fname;
+            loanInfo.lname = lname || loanInfo.lname;
+            loanInfo.loanType = loanType || loanInfo.loanType;
+            loanInfo.loanDate = loanDate || loanInfo.loanDate;
+            loanInfo.loanPeriod = loanPeriod || loanInfo.loanPeriod;
+            loanInfo.returnDate = returnDate || loanInfo.returnDate;
+            loanInfo.principal = principal || loanInfo.principal;
+            loanInfo.interestRate = interestRate || loanInfo.interestRate;
+            loanInfo.totalInterest = totalInterest || loanInfo.totalInterest;
+            loanInfo.totalRefund = totalRefund || loanInfo.totalRefund;
+            loanInfo.manager2 = manager2 || loanInfo.manager2;
+            loanInfo.Recommended = Recommended || loanInfo.Recommended;
+            loanInfo.storeAssets = store_assets || loanInfo.storeAssets;
+            loanInfo.icloudAssets = icloud_assets || loanInfo.icloudAssets;
+            loanInfo.phoneicloud = phoneicloud || loanInfo.phoneicloud;
+            loanInfo.email_icloud = email_icloud || loanInfo.email_icloud;
+            loanInfo.code_icloud = code_icloud || loanInfo.code_icloud;
+            loanInfo.code_icloud2 = code_icloud2 || loanInfo.code_icloud2;
 
-        console.log('Updating debtor information...');
-        await DebtorInformation.updateOne(
-            { _id: debtor._id },
-            { $push: { loans: savedLoan._id } }
-        );
-        console.log('Debtor information updated successfully');
+            loanInfo.asset_receipt_photo = savedFiles['asset_receipt_photo'] ? [savedFiles['asset_receipt_photo']._id] : loanInfo.asset_receipt_photo;
+            loanInfo.icloud_asset_photo = savedFiles['icloud_asset_photo'] ? [savedFiles['icloud_asset_photo']._id] : loanInfo.icloud_asset_photo;
+            loanInfo.refund_receipt_photo = savedFiles['refund_receipt_photo'] ? [savedFiles['refund_receipt_photo']._id] : loanInfo.refund_receipt_photo;
+            loanInfo.Recommended_photo = savedFiles['Recommended_photo'] ? [savedFiles['Recommended_photo']._id] : loanInfo.Recommended_photo;
+            loanInfo.contract = savedFiles['contract'] ? [savedFiles['contract']._id] : loanInfo.contract;
+            loanInfo.debtor = debtor._id;
+            loanInfo.icloud_records = icloudRecords.map(record => record._id);
 
-        console.log('Calling calculate-and-save endpoint...');
+            await loanInfo.save();
+        } else {
+            // สร้างข้อมูลใหม่
+            loanInfo = new LoanInformation({
+                manager,
+                id_card_number,
+                fname,
+                lname,
+                contract_number,
+                bill_number,
+                loanType,
+                loanDate,
+                loanPeriod,
+                returnDate,
+                principal,
+                interestRate,
+                totalInterest,
+                totalRefund,
+                manager2,
+                Recommended,
+                storeAssets: store_assets,
+                icloudAssets: icloud_assets,
+                phoneicloud,
+                email_icloud,
+                code_icloud,
+                code_icloud2,
+                asset_receipt_photo: savedFiles['asset_receipt_photo'] ? [savedFiles['asset_receipt_photo']._id] : [],
+                icloud_asset_photo: savedFiles['icloud_asset_photo'] ? [savedFiles['icloud_asset_photo']._id] : [],
+                refund_receipt_photo: savedFiles['refund_receipt_photo'] ? [savedFiles['refund_receipt_photo']._id] : [],
+                Recommended_photo: savedFiles['Recommended_photo'] ? [savedFiles['Recommended_photo']._id] : [],
+                contract: savedFiles['contract'] ? [savedFiles['contract']._id] : [],
+                debtor: debtor._id,
+                icloud_records: icloudRecords.map(record => record._id)
+            });
+
+            const savedLoan = await loanInfo.save();
+
+            await DebtorInformation.updateOne(
+                { _id: debtor._id },
+                { $push: { loans: savedLoan._id } }
+            );
+        }
+
         const response = await fetch('http://localhost:3000/api/calculate-and-save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ id_card_number: idCardNumber })
+            body: JSON.stringify({ id_card_number })
         });
 
         if (!response.ok) {
@@ -365,17 +480,15 @@ app.post('/AddLoanInformation/submit', upload.fields([
         }
 
         const data = await response.json();
-        console.log('Calculation and saving loan data successful:', data);
 
-        const redirectURL = `/สัญญา.html?id_card_number=${idCardNumber}&fname=${req.body.fname}&lname=${req.body.lname}&manager=${req.body.manager}&manager2=${req.body.manager2}`;
+        const redirectURL = `/สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}&manager2=${manager2}`;
         res.redirect(redirectURL);
 
     } catch (err) {
         console.error('Error occurred while saving loan information:', err);
-        res.status(500).json({ error: 'An error occurred while saving loan information' });
+        res.status(500).json({ error: 'An error occurred while saving loan information', details: err.message });
     }
 });
-
 
 
 
@@ -383,14 +496,19 @@ app.post('/AddLoanInformation/submit', upload.fields([
 async function calculateLoanData(loan, currentDate) {
     try {
         const returnDate = new Date(loan.returnDate);
+        const currentDateObj = new Date(currentDate); // แปลง currentDate เป็น Date object หากยังไม่ใช่
 
-        let totalRepayment = Math.round((returnDate - currentDate) / (1000 * 60 * 60 * 24));
+        // แปลงวันที่เป็นวันเดียวกัน (ไม่รวมเวลา) เพื่อเปรียบเทียบ
+        const returnDateOnly = new Date(returnDate.toDateString());
+        const currentDateOnly = new Date(currentDateObj.toDateString());
+
+        let totalRepayment = Math.round((returnDateOnly - currentDateOnly) / (1000 * 60 * 60 * 24));
         if (totalRepayment <= 0) totalRepayment = '-';
 
-        let daysUntilReturn = Math.round((currentDate - returnDate) / (1000 * 60 * 60 * 24));
+        let daysUntilReturn = Math.round((currentDateOnly - returnDateOnly) / (1000 * 60 * 60 * 24));
         if (daysUntilReturn <= 0) daysUntilReturn = '-';
 
-        let totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * loan.principal * loan.interestRate / 100) : 0;
+        let totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * Number(loan.principal) * Number(loan.interestRate) / 100) : 0;
         let originalTotalInterest2 = totalInterest2;
 
         const refunds = await Refund.find({ id_card_number: loan.id_card_number, bill_number: loan.bill_number, contract_number: loan.contract_number });
@@ -421,15 +539,22 @@ async function calculateLoanData(loan, currentDate) {
             }
         } else {
             if (status !== "<span style='color: red;'>เเบล็คลิช</span>") {
-                if (currentDate > returnDate) {
+                if (currentDateOnly.getTime() > returnDateOnly.getTime()) {
                     status = "<span style='color: orange;'>เลยสัญญา</span>";
-                } else if (currentDate < returnDate) {
+                } else if (currentDateOnly.getTime() < returnDateOnly.getTime()) {
                     status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
-                } else if (currentDate === returnDate) {
+                } else if (currentDateOnly.getTime() === returnDateOnly.getTime()) { // เปรียบเทียบวันที่ให้ถูกต้อง
                     status = "<span style='color: #FF00FF;'>ครบสัญญา</span>";
                 }
             }
             totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0));
+        }
+
+        if (status === "<span style='color: red;'>เเบล็คลิช</span>") {
+            totalRepayment = '-';
+            daysUntilReturn = '-';
+            totalInterest2 = originalTotalInterest2;
+            totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2));
         }
 
         const totalInterest4 = Math.round(Number(loan.totalInterest) + Number(totalInterest2) + Number(loan.totalInterest3 || 0));
@@ -441,7 +566,7 @@ async function calculateLoanData(loan, currentDate) {
             totalInterest3: loan.totalInterest3 ? Math.round(Number(loan.totalInterest3)) : 0,
             status,
             totalRefund,
-            principal: Math.round(loan.principal),
+            principal: Math.round(Number(loan.principal)),
             totalInterest4
         };
 
@@ -466,13 +591,12 @@ async function calculateLoanData(loan, currentDate) {
 
 
 
-
 // ปิดสัญญาผ่าน API
 app.put('/api/close-loan/:loanId', async (req, res) => {
     const loanId = req.params.loanId;
 
     try {
-        // อัปเดตสถานะของสัญญาเป็น 'เบล็คลิช'
+        // อัปเดตสถานะของสัญญาเป็น 'เเบล็คลิช'
         await LoanInformation.findByIdAndUpdate(
             loanId,
             { status: "<span style='color: red;'>เเบล็คลิช</span>" }
@@ -483,26 +607,19 @@ app.put('/api/close-loan/:loanId', async (req, res) => {
         const currentDate = new Date();
         const calculatedLoanData = await calculateLoanData(loan, currentDate);
 
-        // กำหนดค่า default สำหรับ totalRepayment, daysUntilReturn, และ totalInterest2
-        const updatedLoanData = {
-            ...calculatedLoanData,
-            totalRepayment: '-',
-            daysUntilReturn: '-',
-            totalInterest2: calculatedLoanData.totalInterest2 // ใช้ค่าเดิมที่คำนวณได้
-        };
-
         // อัปเดตข้อมูลในฐานข้อมูล
         await LoanInformation.updateOne(
             { _id: loanId },
-            { $set: updatedLoanData }
+            { $set: calculatedLoanData }
         );
 
-        res.json(updatedLoanData); // ส่งข้อมูลที่อัปเดตแล้วกลับไปยัง client
+        res.json(calculatedLoanData); // ส่งข้อมูลที่อัปเดตแล้วกลับไปยัง client
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการปิดสัญญา:', error.message);
         res.status(500).json({ error: 'เกิดข้อผิดพลาดในการปิดสัญญา' });
     }
 });
+
 
 
 
@@ -537,7 +654,7 @@ app.post('/api/calculate-and-save', async (req, res) => {
 });
 
 
-// รับข้อมูลสัญญาเพื่อคำนวณสัญญาก่อนส่งไปหน้าสัญา
+// ส่งข้อมูลสัญญาไปหน้าสัญา
 app.get('/api/loan-data', async (req, res) => {
     try {
         const idCardNumber = req.query.id_card_number;
@@ -559,14 +676,24 @@ app.get('/api/loan-data', async (req, res) => {
 // ส่งข้อมูลสัญญาล่าสุดไปหน้าข้อมูลลูกหนี้
 app.get('/api/loaninformations/:debtorId', async (req, res) => {
     const debtorId = req.params.debtorId;
+    const currentDate = new Date(); // วันที่ปัจจุบันสำหรับการคำนวณ
     try {
         const latestLoan = await LoanInformation.findOne({ debtor: debtorId }).sort({ contract_number: -1, bill_number: -1 });
-        res.json(latestLoan);
+
+        if (!latestLoan) {
+            return res.status(404).json({ error: 'Loan information not found' });
+        }
+
+        // คำนวณข้อมูลสัญญาล่าสุด
+        const updatedLoanData = await calculateLoanData(latestLoan, currentDate);
+
+        res.json(updatedLoanData);
     } catch (error) {
-        console.error('Error fetching loan information:', error);
+        console.error('Error fetching and calculating loan information:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 
 // ส่งข้อมูลเงินต้นสะสมไปยังหน้าลูกหนี้
@@ -603,79 +730,6 @@ app.get('/api/loan-principal-sum/:id_card_number', async (req, res) => {
 
 
 
-//ส่งข้อมูลลูกหนี้ทั้งหมดของเเต่ละเเอดมิน
-app.get('/api/loan/count', async (req, res) => {
-    const managerNickname = req.query.nickname;
-
-    try {
-        const result = await LoanInformation.aggregate([
-            { $match: { manager: managerNickname } },
-            { $group: { _id: "$id_card_number" } },
-            { $count: "uniqueIdCardNumbers" }
-        ]);
-
-        const loanCount = result.length > 0 ? result[0].uniqueIdCardNumbers : 0;
-        res.json({ loanCount });
-    } catch (err) {
-        res.status(500).json({ error: 'มีข้อผิดพลาดในการดึงข้อมูล' });
-    }
-});
-
-
-
-
-
-
-app.get('/api/loan/in-contract', async (req, res) => {
-    const managerNickname = req.query.nickname;
-    console.log('Manager Nickname (In Contract):', managerNickname);
-
-    try {
-        // หา manager จาก nickname
-        const manager = await Manager.findOne({ nickname: managerNickname });
-        if (!manager) {
-            return res.status(404).json({ error: 'ไม่พบผู้จัดการที่มี nickname นี้' });
-        }
-
-        const managerId = manager._id; // ใช้ managerId ถ้าต้องการแสดง แต่ไม่ได้ใช้ในที่นี้
-
-        const result = await LoanInformation.aggregate([
-            { 
-                $match: { 
-                    manager: managerNickname, // ใช้ managerNickname ตรงๆ
-                    status: {
-                        $in: [
-                            "<span style='color: blue;'>อยู่ในสัญญา</span>",
-                            "<span style='color: green;'>ต่อดอก</span>"
-                        ]
-                    }
-                }
-            },
-            {
-                $sort: {
-                    loanDate: -1,
-                    contract_number: -1,
-                    bill_number: -1
-                }
-            },
-            {
-                $group: {
-                    _id: "$id_card_number",
-                    latestLoan: { $first: "$$ROOT" }
-                }
-            },
-            { 
-                $count: "uniqueIdCardNumbers" 
-            }
-        ]);
-
-        const loanCount = result.length > 0 ? result[0].uniqueIdCardNumbers : 0;
-        res.json({ loanCount });
-    } catch (err) {
-        console.error('Error in /api/loan/in-contract:', err);
-        res.status(500).json({ error: 'มีข้อผิดพลาดในการดึงข้อมูล' });
-    }
-});
 
 
 
@@ -691,59 +745,17 @@ app.get('/api/loans/completed', async (req, res) => {
 });
   
   
-
-
-// เเก้ไขสัญญา
-app.put('/api/loan/:id', async (req, res) => {
+// ส่งจำนวนการแจ้งเตือนสถานะครบสัญญาไปทุกหน้า
+app.get('/api/notifications/count', async (req, res) => {
     try {
-        const id = req.params.id;
-        const id_card_number = req.body.id_card_number;
-
-        // ตรวจสอบว่ามี ID card number และ ID ที่ส่งมา
-        if (!id_card_number || !id) {
-            return res.status(400).json({ error: 'ID card number and loan ID are required' });
-        }
-
-        // ตรวจสอบว่ามีลูกหนี้ที่ตรงกับ ID card number หรือไม่
-        const debtor = await DebtorInformation.findOne({ id_card_number });
-        if (!debtor) {
-            return res.status(404).json({ error: 'Debtor not found' });
-        }
-
-        // ตรวจสอบว่ามีสัญญาที่ตรงกับ ID ที่ส่งมาหรือไม่
-        const existingLoan = await LoanInformation.findById(id);
-        if (!existingLoan) {
-            return res.status(404).json({ error: 'Loan not found' });
-        }
-
-        // ทำการอัปเดตข้อมูลสัญญา
-        const updateFields = {
-            id_card_number,
-            fname: req.body.fname,
-            lname: req.body.lname,
-            contract_number: req.body.contract_number,
-            bill_number: req.body.bill_number,
-            loanDate: req.body.loanDate,
-            loanPeriod: req.body.loanPeriod,   
-            returnDate: req.body.returnDate,
-            principal: req.body.principal,
-            interestRate: req.body.interestRate,
-            totalInterest: req.body.totalInterest,
-            totalRefund: req.body.totalRefund,
-            store_assets: req.body.store_assets,
-            icloud_assets: req.body.icloud_assets
-            
-        };
-
-        // ทำการอัปเดตในฐานข้อมูล
-        await LoanInformation.findByIdAndUpdate(id, updateFields);
-
-        res.status(200).json({ message: 'Loan information updated successfully.' });
+        const count = await LoanInformation.countDocuments({ status: "<span style='color: #FF00FF;'>ครบสัญญา</span>" });
+        res.json({ count });
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message: error.message });
     }
 });
+
+
 
 
 
@@ -760,17 +772,70 @@ app.delete('/api/delete-loan/:id', async (req, res) => {
 
 
 
+//เเสดงข้อมูลในสัญญาตามid
+app.get('/api/loanss/:loanId', async (req, res) => {
+    try {
+      const loanId = req.params.loanId;
+      const loan = await LoanInformation.findById(loanId);
+  
+      if (!loan) {
+        return res.status(404).json({ message: 'Loan not found' });
+      }
+  
+      res.json(loan);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 
+//เเสดงข้อมูลรูปภาพในสัญญาตามid
+app.get('/loan_id2/:id', async (req, res) => {
+    try {
+        const loan_id = req.params.id;
 
+        // ดึงข้อมูล LoanInformation โดยใช้ loan_id
+        const loan = await LoanInformation.findById(loan_id).lean();
 
+        if (!loan) {
+            return res.status(404).json({ error: 'Loan not found' });
+        }
 
+        // ฟังก์ชันดึงข้อมูลไฟล์จากคอลเล็กชัน `files`
+        const fetchFiles = async (fileIds) => {
+            if (!fileIds || fileIds.length === 0) return [];
+            const files = await File.find({ _id: { $in: fileIds } }).select('data mimetype').lean();
+            return files.map(file => {
+                if (file.data) {
+                    // ตรวจสอบและลบข้อมูล `data:image/png;base64` ที่ซ้ำ
+                    const base64Data = file.data.replace(/^data:image\/\w+;base64,/, '');
+                    return `data:${file.mimetype};base64,${base64Data}`;
+                }
+                return null;
+            }).filter(file => file !== null); // กรองค่า null ออก
+        };
 
+        // ดึงไฟล์จากฟิลด์ต่างๆ
+        const fileFields = {
+            asset_receipt_photo: 'asset_receipt_photo_base64',
+            icloud_asset_photo: 'icloud_asset_photo_base64',
+            refund_receipt_photo: 'refund_receipt_photo_base64',
+            Recommended_photo: 'Recommended_photo_base64',
+            contract: 'contract_base64'
+        };
 
+        for (const [field, base64Field] of Object.entries(fileFields)) {
+            loan[base64Field] = await fetchFiles(loan[field]);
+        }
 
-
-
+        // ส่งข้อมูลกลับไปยังฝั่งหน้าบ้าน
+        res.json(loan);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 
@@ -807,10 +872,12 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             loan
         } = req.body;
 
+        // ตรวจสอบข้อมูลที่จำเป็น
         if (!manager || !id_card_number || !fname || !lname || !contract_number || !bill_number || !principal || !totalInterest4 || !totalRefund || !return_date || !refund_principal || !refund_interest || !total_refund2 || !debtAmount) {
             return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
         }
 
+        // แปลงและปัดเศษข้อมูลที่เป็นตัวเลข
         const totalInterest4Rounded = Math.round(parseFloat(totalInterest4));
         const refundInterestRounded = Math.round(parseFloat(refund_interest));
         const totalRefundRounded = Math.round(parseFloat(totalRefund));
@@ -818,19 +885,21 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
         const totalRefund2Rounded = Math.round(parseFloat(total_refund2));
         const debtAmountRounded = Math.round(parseFloat(debtAmount));
 
+        // คำนวณ totalInterest5
         const totalInterest5 = calculateTotalInterest5({
             totalInterest4: totalInterest4Rounded,
             refund_interest: refundInterestRounded
         });
-        console.log(contract_number,bill_number)
-        const refund = new Refund({
+
+        // สร้างเอกสารการคืนเงิน
+        const refundData = {
             manager,
             id_card_number,
             fname,
             lname,
             contract_number,
             bill_number,
-            principal: Math.round(parseFloat(principal)),
+            principal: principal ? Math.round(parseFloat(principal)) : undefined,
             totalInterest4: totalInterest4Rounded,
             totalInterest5: Math.round(totalInterest5),
             totalRefund: totalRefundRounded,
@@ -839,33 +908,44 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             refund_interest: refundInterestRounded,
             total_refund2: totalRefund2Rounded,
             debtAmount: debtAmountRounded,
-            refund_receipt_photo: req.file ? req.file.path : '',
             loan
-        });
-        // console.log(refund)
+        };
 
+        if (req.file) {
+            // แปลงไฟล์ที่อัปโหลดเป็น Base64
+            const base64Data = req.file.buffer.toString('base64');
+            const mimeType = req.file.mimetype;
+
+            // สร้างเอกสาร File
+            const file = new File({
+                name: req.file.originalname,
+                data: base64Data,
+                mimetype: mimeType
+            });
+
+            const savedFile = await file.save();
+            refundData.refund_receipt_photo = [savedFile._id]; // ใช้ ObjectId ของไฟล์ที่บันทึกแล้ว
+        }
+
+        const refund = new Refund(refundData);
         const savedRefund = await refund.save();
 
+        // คำนวณ initial_profit
         const initial_profit = await calculateInitialProfitAfterSaving(id_card_number, savedRefund);
         savedRefund.initial_profit = initial_profit;
         await savedRefund.save();
 
+        // ตรวจสอบและคำนวณข้อมูลการกู้ยืมใหม่หากจำเป็น
         if (totalRefund2Rounded < totalRefundRounded) {
-            const loan = await LoanInformation.findOne({ id_card_number,contract_number }).sort({contract_number:-1, bill_number: -1 });
-            // console.log("🚀 ~ app.post ~ loan:", loan)
+            const loan = await LoanInformation.findOne({ id_card_number, contract_number }).sort({ contract_number: -1, bill_number: -1 });
 
             if (!loan) {
                 throw new Error('ไม่พบข้อมูลสัญญา');
             }
 
-            const newReturnDate = new Date(refund.return_date);
-            newReturnDate.setDate(newReturnDate.getDate() + parseInt(loan.loanPeriod));
-            const totalInterest5 = totalInterest4Rounded - refundInterestRounded;
-
-            const year = newReturnDate.getFullYear();
-            const month = String(newReturnDate.getMonth() + 1).padStart(2, '0');
-            const day = String(newReturnDate.getDate()).padStart(2, '0');
-            const newReturnDateString = `${year}-${month}-${day}`;
+            const newReturnDate = new Date(return_date);
+            newReturnDate.setDate(newReturnDate.getDate() + parseInt(loan.loanPeriod, 10));
+            const newReturnDateString = newReturnDate.toISOString().split('T')[0];
 
             const loanData = await calculateLoanData(loan, newReturnDate);
 
@@ -875,8 +955,8 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
                 fname: loan.fname,
                 lname: loan.lname,
                 contract_number: loan.contract_number,
-                bill_number: parseInt(loan.bill_number) + 1,
-                loanDate: refund.return_date,
+                bill_number: parseInt(loan.bill_number, 10) + 1,
+                loanDate: return_date,
                 loanPeriod: loan.loanPeriod,
                 returnDate: newReturnDateString,
                 principal: loan.principal - refundPrincipalRounded,
@@ -903,14 +983,15 @@ app.post('/refunds/submit_form', upload.single('refund_receipt_photo'), async (r
             console.log('New Loan Data Saved:', savedNewLoan);
         }
 
+        // เปลี่ยนเส้นทางไปยังหน้าที่เกี่ยวข้อง
         const redirectURL = `/คืนเงิน.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
         res.status(302).redirect(redirectURL);
+
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการบันทึก Refund:', error.message);
         res.status(500).send('เกิดข้อผิดพลาดในการบันทึก Refund');
     }
 });
-
 
 
 
@@ -1054,10 +1135,20 @@ app.delete('/api/refunds/:refundId', async (req, res) => {
 });
 
 
-
-
-
-
+app.get('/api/refundss/:id', async (req, res) => {
+    try {
+        const refundId = req.params.id;
+        const refund = await Refund.findById(refundId);
+        if (refund) {
+            res.json(refund);
+        } else {
+            res.status(404).json({ message: 'ไม่พบข้อมูลการคืนเงินที่ระบุ' });
+        }
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+});
 
 
 
@@ -1329,18 +1420,73 @@ app.post('/submit', async (req, res) => {
 
 
 
+//คำนวณลูกหนี้ทั้งหมดหรืออยู่ในสัญญาหรือเลยสัญญาไปหน้าเเอดมิน
+async function findDebtorStatus(manager){
+    const result = await LoanInformation.aggregate([
+        { 
+            $match: { 
+                manager: manager.nickname, // ใช้ managerNickname ตรงๆ
+            }
+        },
+        {
+            $sort: {
+                contract_number: -1,
+                bill_number: -1
+            }
+        },
+        {
+            $group: {
+                _id: "$id_card_number",
+                latestLoan: { $first: "$$ROOT" }
+            }
+        },
 
-// ส่งข้อมูลเเอดมินไปยังหน้าเเอดมิน
+    ]);
+    let inContractCount = 0
+    let lateContractCount = 0
+    const statusLoan = ["<span style='color: blue;'>อยู่ในสัญญา</span>","<span style='color: green;'>ต่อดอก</span>"]
+
+    for(let i of result){
+        if (statusLoan.includes(i.latestLoan.status)){
+            inContractCount += 1
+        }
+        else if (i.latestLoan.status=="<span style='color: orange;'>เลยสัญญา</span>") {
+            lateContractCount += 1
+        }
+    }
+
+    return {
+        inContractCount : inContractCount,
+        lateContractCount : lateContractCount,
+        loanCount: result.length,
+    }
+}
+
+
+
+// ส่งข้อมูลคำนวณลูกหนี้ทั้งหมดหรืออยู่ในสัญญาหรือเลยสัญญาไปหน้าเเอดมิน
 app.get('/api/managersList', async (req, res) => {
     try {
-        const managers = await Manager.find().sort({ lname: 1 }); // จัดเรียงตาม lname
-        console.log("🚀 ~ app.get ~ managers:", managers);
-        console.log('Managers:', managers); // ตรวจสอบข้อมูลที่ดึงมา
+        // ดึงข้อมูลผู้จัดการทั้งหมดและจัดเรียงตามวันที่ล่าสุด
+        let managers = await Manager.find().sort({ date: -1 }); // แก้ไข `date` ให้เป็นฟิลด์ที่คุณใช้สำหรับวันที่ในโมเดล
+
+        // กำหนดสถานะของลูกหนี้
+        const statusLoan = ["<span style='color: blue;'>อยู่ในสัญญา</span>", "<span style='color: green;'>ต่อดอก</span>"];
+
+        // ดึงสถานะของลูกหนี้พร้อมกับข้อมูลผู้จัดการ
+        managers = await Promise.all(managers.map(async (manager) => ({
+            ...manager._doc,
+            debtor: await findDebtorStatus(manager, statusLoan)
+        })));
+
+        // ส่งข้อมูลในรูปแบบ JSON
         res.json(managers);
     } catch (error) {
+        console.log("🚀 ~ app.get ~ error:", error);
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลแอดมิน' });
     }
 });
+
 
 
 
@@ -1409,16 +1555,18 @@ app.post('/api/seize-assets', upload.single('assetPhoto'), async (req, res) => {
 
 
 
+
 // ส่งข้อมูลไปหน้าคลังทรัพย์สิน
 app.get('/api/seize-assets', async (req, res) => {
     try {
         const seizures = await Seizure.find()
-            .sort({ contract_number: -1, bill_number: -1 }); // เพิ่มการจัดเรียงตาม contract_number และ bill_number
+            .sort({ seizureDate: -1 }); // จัดเรียงตามวันที่ (ล่าสุดไปเก่าสุด)
         res.json(seizures);
     } catch (err) {
         res.status(500).send(`Error: ${err.message}`);
     }
 });
+
 
 
 
@@ -1544,6 +1692,9 @@ app.delete('/sales/:saleId', async (req, res) => {
 
 
 
+
+
+
 // บันทึกไอคราว
 app.post('/save_record', async (req, res) => {
     try {
@@ -1602,16 +1753,80 @@ app.post('/save_record', async (req, res) => {
 // ส่งข้อมูลไอคราวไปหน้าไอคราว
 app.get('/get_records', async (req, res) => {
     try {
-        // ดึงข้อมูลไอคราวทั้งหมดจาก MongoDB และเรียงจากใหม่สุดไปเก่า
-        const records = await iCloudRecord.find().sort({ record_date: -1 });
+        const records = await iCloudRecord.find().sort({ record_date: -1 }).populate('loan');
 
-        // ส่งข้อมูลกลับเป็น JSON
-        res.json(records);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Failed to fetch iCloud Records');
+        const recordsWithLoanCount = await Promise.all(records.map(async (record) => {
+            const loanCount = await LoanInformation.countDocuments({
+                $or: [
+                    { phoneicloud: record.phone_number },
+                    { email_icloud: record.user_email }
+                ]
+            });
+            return { ...record.toObject(), loanCount };
+        }));
+
+        res.json(recordsWithLoanCount);
+    } catch (error) {
+        console.error('Failed to fetch iCloud Records:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+
+
+// ส่งข้อมูลสัญญาที่ใช้ไอคราวแต่ละไอคราว
+app.get('/loan_with_icloud', async (req, res) => {
+    try {
+        const { phone_number, user_email } = req.query; // อ่านพารามิเตอร์จาก query string
+        console.log('Received query parameters:', { phone_number, user_email }); // ตรวจสอบค่าพารามิเตอร์ที่รับ
+
+        const query = {};
+        if (phone_number) query['phoneicloud'] = phone_number;
+        if (user_email) query['email_icloud'] = user_email;
+
+        console.log('Query used for finding records:', query); // ตรวจสอบ query ที่ใช้ในการค้นหา
+
+        // ค้นหาข้อมูล LoanInformation โดยรวมข้อมูลที่เกี่ยวข้องใน icloud_records
+        const loans = await LoanInformation.find(query)
+            .populate({
+                path: 'icloud_records', // อ้างอิงถึงฟิลด์ที่อ้างอิง iCloudRecord
+                select: 'icloudField1 icloudField2' // เลือกฟิลด์ที่ต้องการจาก iCloudRecord
+            })
+            .exec();
+
+        res.json(loans);
+    } catch (error) {
+        console.error('Error fetching loan information:', error);
+        res.status(500).json({ error: 'Failed to fetch loan information' });
+    }
+});
+
+
+//ลบสัญญาเเต่ละไอคราว
+// ลบค่า phoneicloud และ email_icloud จากเอกสารใน LoanInformation
+app.delete('/delete_record2/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // อัปเดตเอกสารเพื่อทำการลบฟิลด์ phoneicloud และ email_icloud
+        const result = await LoanInformation.findByIdAndUpdate(
+            id,
+            { $unset: { phoneicloud: "", email_icloud: "" } },
+            { new: true } // ส่งคืนเอกสารที่อัปเดตแล้ว
+        );
+
+        if (result) {
+            res.status(200).json({ message: 'Fields removed successfully', updatedRecord: result });
+        } else {
+            res.status(404).json({ error: 'Record not found' });
+        }
+    } catch (error) {
+        console.error('Error updating record:', error);
+        res.status(500).json({ error: 'Failed to update record' });
+    }
+});
+
 
 
 
@@ -2030,3 +2245,9 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
+
+mongoose.connect('mongodb://localhost:27017/bank', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB', err));

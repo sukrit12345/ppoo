@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>บันทึกข้อมูลผู้จัดการ</title>
 
 <style>
@@ -125,6 +127,12 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
+    .error-message {
+        color: red;
+        font-size: 16px;
+        margin-top: 5px;
+    }    
+     
   
 
 </style>
@@ -135,6 +143,7 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ไอคราว.html">ไอคราว</a>
     <a class="active" href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
     <a href="กองทุน.html">กองทุน</a>
@@ -145,14 +154,23 @@ input[type=text] {
 
 <div class="container">
 
-  <form action="/submit" method="post" onsubmit="validateForm(event)">
+  <form id="adminForm" action="/submit" method="post" >
+    <fieldset>
+      <br>
+      <legend>ข้อมูลเเอดมิน</legend>
     <label for="record_date">วันที่บันทึก:</label>
     <input type="date" id="record_date" name="record_date" required><br><br>
 
-    <label for="id_card_number">เลขบัตรประชาชน:</label>
+    <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
     <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
-    
 
+    <label for="phone">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></label>
+    <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+
+  
+    <label for="authentication">รหัสยืนยันตัวตน:<span id="authenticationerror" class="error-message"></label>
+    <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
+    
     <label for="fname">ชื่อจริง:</label>
     <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
 
@@ -162,9 +180,6 @@ input[type=text] {
     <label for="nickname">ชื่อเล่น:</label>
     <input type="text" id="nickname" name="nickname" placeholder="กรอกชื่อเล่น" required>
 
-    <label for="phone">เบอร์โทรศัพท์:</label>
-    <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
-
     <label for="ig">ไอจี:</label>
     <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี" required>
 
@@ -173,13 +188,10 @@ input[type=text] {
 
     <label for="line">ไลน์:</label>
     <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
+    
+  </fieldset>
+  <br>
 
-    <label for="authentication">รหัสยืนยันตัวตน:</label>
-    <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
-
-   
-
-    <span id="idCardError" style="color: red;"></span>
 
     <input type="submit" value="บันทึกคืนเงิน" class="button">
 </form>
@@ -193,3 +205,6 @@ input[type=text] {
 
 </body>
 </html>
+
+
+

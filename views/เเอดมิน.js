@@ -7,33 +7,40 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         const managerData = document.getElementById('managerData');
 
+        // เรียงลำดับ managers จากมากไปน้อยตาม index
+        managers.sort((a, b) => (a.index < b.index) ? 1 : -1);
+
         for (let index = 0; index < managers.length; index++) {
             const manager = managers[index];
-
-            // ดึงข้อมูล loanCount โดยใช้ API
-            const loanCountResponse = await fetch(`/api/loan/count?nickname=${manager.nickname}`);
-            const loanCountData = await loanCountResponse.json();
-            const loanCount = loanCountData.loanCount || 0;
-
-            // ดึงข้อมูล inContractCount โดยใช้ API
-            const inContractCountResponse = await fetch(`/api/loan/in-contract?nickname=${manager.nickname}`);
-            const inContractCountData = await inContractCountResponse.json();
-            const inContractCount = inContractCountData.inContractCount || 0;
-
+            // api เดิมที่ใช้ ก่อนจะเเก้โค้ด
+            // /api/loan/count?nickname=${manager.nickname}
+            // `/api/loan/in-contract?nickname=${manager.nickname}`
             const row = document.createElement('tr');
 
+            // คำนวณสถานะของ manager โดยใช้ lateContractCount และ loanCount
+            const lateRatio = manager.debtor.lateContractCount / manager.debtor.loanCount;
+            let status;
+
+            if (lateRatio >= 0.3) {
+                status = "<span style='color: red;'>ปรับปรุง</span>";
+            } else if (lateRatio <= 0.1) {
+                status = "<span style='color: green;'>ดี</span>";
+            } else {
+                status = "<span style='color: orange;'>ปานกลาง</span>";
+            }
+
             row.innerHTML = `
-                <td>${index + 1}</td>
+                <td>${managers.length - index}</td>
                 <td>${manager.record_date || ''}</td>
                 <td>${manager.id_card_number || ''}</td>
                 <td>${manager.fname || ''}</td>
                 <td>${manager.lname || ''}</td>
                 <td>${manager.phone || ''}</td>
                 <td>${manager.nickname || ''}</td>
-                <td>${loanCount}</td>
-                <td>${inContractCount}</td>
-                <td></td>
-                <td></td>
+                <td>${manager.debtor.loanCount}</td>
+                <td>${manager.debtor.inContractCount}</td>
+                <td>${manager.debtor.lateContractCount}</td>
+                <td>${status}</td>
                 <td>
                     <button onclick="editManager('${manager._id}')">แก้ไข</button>
                     <button onclick="deleteManager('${manager._id}')">ลบ</button>

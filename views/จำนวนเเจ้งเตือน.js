@@ -1,3 +1,4 @@
+// ฟังก์ชันสำหรับดึงจำนวนการแจ้งเตือนจาก API
 async function fetchNotificationCount() {
     try {
         const response = await fetch('/api/notifications/count'); // URL ของ API ที่ดึงจำนวนแจ้งเตือน
@@ -5,20 +6,29 @@ async function fetchNotificationCount() {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        updateNotificationCount(data.count);
+        updateNotificationCount(data.count); // อัปเดตจำนวนการแจ้งเตือน
     } catch (error) {
         console.error('Error fetching notification count:', error);
     }
 }
 
+// ฟังก์ชันสำหรับอัปเดตจำนวนการแจ้งเตือนใน DOM
 function updateNotificationCount(count) {
     const notificationLink = document.querySelector('a[href="เเจ้งเตือน.html"]');
     if (notificationLink) {
-        notificationLink.setAttribute('data-count', count); // ใช้ data-count แทนการแก้ไข innerText
+        // ตั้งค่า data-count ให้เป็น 0 หรือจำนวนจริง
+        notificationLink.setAttribute('data-count', count);
+
+        // เพิ่มการตรวจสอบและอัปเดต CSS ตามจำนวน
+        if (parseInt(count, 10) === 0) {
+            notificationLink.classList.remove('active2'); // ลบคลาส active2 หากจำนวนเป็น 0
+        } else {
+            notificationLink.classList.add('active2'); // เพิ่มคลาส active2 หากมีการแจ้งเตือน
+        }
     }
 }
 
-// เรียกใช้งานฟังก์ชันเพื่อดึงข้อมูลเมื่อหน้าโหลด
-fetchNotificationCount();
-
-
+// เรียกใช้งานฟังก์ชันเพื่อดึงข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
+document.addEventListener('DOMContentLoaded', () => {
+    fetchNotificationCount(); // เรียกใช้ฟังก์ชันเมื่อหน้าโหลดเสร็จ
+});

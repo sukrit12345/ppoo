@@ -1,21 +1,4 @@
 
-//เลือกชื่อเเอดมิน
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('/api/managers')
-      .then(response => response.json())
-      .then(data => {
-        const managerSelect = document.getElementById('manager');
-        data.forEach(manager => {
-          const option = document.createElement('option');
-          option.value = manager.nickname;
-          option.textContent = manager.nickname;
-          managerSelect.appendChild(option);
-        });
-      })
-      .catch(error => console.error('Error:', error));
-});
-
-
 //สร้างวันที่ปัจจุบัน
 // เรียกฟังก์ชัน setDate เมื่อหน้าเว็บโหลด
 window.onload = setDate;
@@ -58,75 +41,141 @@ function validateForm(event) {
 
 
 
-// ดึงค่า debtorId จาก URL เเสดงข้อมูลลูกหนี้เมื่อกดปุ่มเเก้ไข
-const urlParams = new URLSearchParams(window.location.search);
-const debtorId = urlParams.get('id');
 
-if (debtorId) {
-    fetch(`/api/debtor/${debtorId}`)
+//เเสดงข้อมูลที่ถูกบันทึกเเล้ว
+document.addEventListener('DOMContentLoaded', function() {
+    // ดึงรายชื่อเเอดมินและเติมลงใน select field
+    fetch('/api/managers')
         .then(response => response.json())
-        .then(debtor => {
-            document.getElementById('manager').value = debtor.manager;
-            document.getElementById('date').value = debtor.date;
-            document.getElementById('id_card_number').value = debtor.id_card_number;
-            document.getElementById('fname').value = debtor.fname;
-            document.getElementById('lname').value = debtor.lname;
-            document.getElementById('occupation').value = debtor.occupation;
-            document.getElementById('monthly_income_amount').value = debtor.monthly_income_amount;
-            document.getElementById('seizable_assets_description').value = debtor.seizable_assets_description;
-            document.getElementById('ig').value = debtor.ig;
-            document.getElementById('facebook').value = debtor.facebook;
-            document.getElementById('line').value = debtor.line;
-            document.getElementById('phone').value = debtor.phone;
-            document.getElementById('province').value = debtor.province;
-            document.getElementById('currentAddress').value = debtor.currentAddress;
-            document.getElementById('workOrStudyAddress').value = debtor.workOrStudyAddress;
-            document.getElementById('grade').value = debtor.grade;
-            document.getElementById('course').value = debtor.course;
+        .then(data => {
+            const managerSelect = document.getElementById('manager');
+            data.forEach(manager => {
+                const option = document.createElement('option');
+                option.value = manager.nickname;
+                option.textContent = manager.nickname;
+                managerSelect.appendChild(option);
+            });
 
-            if (debtor.id_card_photo) {
-                const idCardPhotoLink = document.getElementById('id_card_photo_link');
-                idCardPhotoLink.href = `/${debtor.id_card_photo}`;
-            }
+            // หลังจากเติมตัวเลือกแล้ว ดึงข้อมูลลูกหนี้ถ้ามี debtorId
+            const urlParams = new URLSearchParams(window.location.search);
+            const debtorId = urlParams.get('id');
+            if (debtorId) {
+                fetch(`/api/debtor/${debtorId}`)
+                    .then(response => response.json())
+                    .then(debtor => {
+                        document.getElementById('date').value = debtor.date;
+                        document.getElementById('id_card_number').value = debtor.id_card_number;
+                        document.getElementById('fname').value = debtor.fname;
+                        document.getElementById('lname').value = debtor.lname;
+                        document.getElementById('occupation').value = debtor.occupation;
+                        document.getElementById('monthly_income_amount').value = debtor.monthly_income_amount;
+                        document.getElementById('seizable_assets_description').value = debtor.seizable_assets_description;
+                        document.getElementById('ig').value = debtor.ig;
+                        document.getElementById('facebook').value = debtor.facebook;
+                        document.getElementById('line').value = debtor.line;
+                        document.getElementById('phone').value = debtor.phone;
+                        document.getElementById('province').value = debtor.province;
+                        document.getElementById('currentAddress').value = debtor.currentAddress;
+                        document.getElementById('workOrStudyAddress').value = debtor.workOrStudyAddress;
+                        document.getElementById('workOrStudyAddress2').value = debtor.workOrStudyAddress2;
+                        document.getElementById('grade').value = debtor.grade;
+                        document.getElementById('course').value = debtor.course;
 
-            if (debtor.current_address_map) {
-                const currentAddressMapLink = document.getElementById('current_address_map_link');
-                currentAddressMapLink.href = `/${debtor.current_address_map}`;
+                        // ตั้งค่าตัวเลือกที่ตรงกับค่า debtor.manager
+                        const options = managerSelect.options;
+                        for (let i = 0; i < options.length; i++) {
+                            if (options[i].value === debtor.manager) {
+                                options[i].selected = true;
+                                break;
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error fetching debtor data:', error));
             }
-
-            if (debtor.work_address_map) {
-                const workAddressMapLink = document.getElementById('work_address_map_link');
-                workAddressMapLink.href = `/${debtor.work_address_map}`;
-            }
-            
         })
-        .catch(error => console.error('Error fetching debtor data:', error));
-}
+        .catch(error => console.error('Error:', error));
+});
 
-//กดปุ่มบันทึกจะทำการอัปเดตช้อมูล
-function updateDebtor(event) {
-    event.preventDefault();
-    const form = document.getElementById('debtorForm');
-    const formData = new FormData(form);
 
-    fetch(`/api/debtor/${debtorId}`, {
-        method: 'PUT',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
+
+
+//เเสดงไฟล์ภาพที่กำลังบันทึก
+    function handleFileSelect(event) {
+        const input = event.target;
+        const file = input.files[0];
+        const preview = document.getElementById(input.id + '_preview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block'; // แสดงภาพ
+            };
+            reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
         } else {
-            alert('อัปเดตข้อมูลลูกหนี้เรียบร้อยแล้ว');
+            preview.src = '';
+            preview.style.display = 'none'; // ซ่อนภาพ
         }
-    })
-    .catch(error => console.error('Error updating debtor data:', error));
-}
+    }
+
+    // เพิ่ม event listeners ให้กับ input file
+    document.getElementById('id_card_photo').addEventListener('change', handleFileSelect);
+    document.getElementById('id_card_photo2').addEventListener('change', handleFileSelect);
+    document.getElementById('student_record_photo').addEventListener('change', handleFileSelect);
+    document.getElementById('timetable_photo').addEventListener('change', handleFileSelect);
+    document.getElementById('current_address_map').addEventListener('change', handleFileSelect);
+    document.getElementById('work_address_map').addEventListener('change', handleFileSelect);
 
 
-  
+
+
+    
 
 
 
-  
+    
+//เเสดงข้อมูลไฟล์ภาพที่ถูกบันทึกเเล้ว
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const debtorId = urlParams.get('id');
+
+    if (debtorId) {
+        fetch(`/debtorinfo/${debtorId}`)
+            .then(response => response.json())
+            .then(data => {
+                // แสดงข้อมูลลูกหนี้
+                
+                if (data.id_card_photo_base64) {
+                    document.getElementById('id_card_photo_preview').src = data.id_card_photo_base64;
+                    document.getElementById('id_card_photo_preview').style.display = 'block';
+                }
+                if (data.id_card_photo2_base64) {
+                    document.getElementById('id_card_photo2_preview').src = data.id_card_photo2_base64;
+                    document.getElementById('id_card_photo2_preview').style.display = 'block';
+                }
+                if (data.student_record_photo_base64) {
+                    document.getElementById('student_record_photo_preview').src = data.student_record_photo_base64;
+                    document.getElementById('student_record_photo_preview').style.display = 'block';
+                }
+                if (data.timetable_photo_base64) {
+                    document.getElementById('timetable_photo_preview').src = data.timetable_photo_base64;
+                    document.getElementById('timetable_photo_preview').style.display = 'block';
+                }
+                if (data.current_address_map_base64) {
+                    document.getElementById('current_address_map_preview').src = data.current_address_map_base64;
+                    document.getElementById('current_address_map_preview').style.display = 'block';
+                }
+                if (data.work_address_map_base64) {
+                    document.getElementById('work_address_map_preview').src = data.work_address_map_base64;
+                    document.getElementById('work_address_map_preview').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching debtor data:', error);
+            });
+    }
+});
+
+
+    
+

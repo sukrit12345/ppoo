@@ -20,14 +20,48 @@ const debtorSchema = new mongoose.Schema({
     workOrStudyAddress2: String,
     grade: String,
     course: String,
-    id_card_photo: String,
-    id_card_photo2: String,
-    current_address_map: String,
-    work_address_map: String,
-    student_record_photo: String,
-    timetable_photo: String,
-    loans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation' }]
+    id_card_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    id_card_photo2: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    current_address_map: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    work_address_map: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    student_record_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    timetable_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    loans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation' }],
+    refund: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Refund' }],
+    profitSharing: [{ type: mongoose.Schema.Types.ObjectId, ref: 'profitsharing'}]
+    
 });
+// ตั้งค่า pre hook สำหรับ debtorSchema
+debtorSchema.pre('findOneAndDelete', async function(next) {
+    try {
+        const debtorId = this.getQuery()["_id"];
+        console.log(`Deleting debtor: ${debtorId}`);
+
+        // ค้นหา loans ที่เชื่อมโยงกับ debtor นี้
+        const loans = await LoanInformation.find({ debtor: debtorId });
+        const loanIds = loans.map(loan => loan._id);
+
+        // ลบ refund ที่เชื่อมโยงกับ loans เหล่านี้
+        console.log(`Deleting refunds for loans: ${loanIds}`);
+        const refunds = await Refund.find({ loan: { $in: loanIds } });
+        const refundIds = refunds.map(refund => refund._id);
+        await Refund.deleteMany({ loan: { $in: loanIds } });
+
+        // ลบ profit sharings ที่เชื่อมโยงกับ refunds
+        console.log(`Deleting profit sharings for refunds: ${refundIds}`);
+        await ProfitSharing.deleteMany({ refund: { $in: refundIds } });
+
+        // ลบ loans ที่เชื่อมโยงกับ debtor นี้
+        console.log(`Deleting loans for debtor: ${debtorId}`);
+        await LoanInformation.deleteMany({ debtor: debtorId });
+
+        // ลบ debtor
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
 
 //สัญญา
 const loanSchema = new mongoose.Schema({
@@ -59,13 +93,15 @@ const loanSchema = new mongoose.Schema({
     email_icloud: { type: String, required: false },
     code_icloud: { type: String, required: false },
     code_icloud2: { type: String, required: false },
-    assetReceiptPhoto: { type: String, required: false },
-    icloudAssetPhoto: { type: String, required: false },
-    refundReceiptPhoto: { type: String, required: false },
-    Recommended_photo: { type: String, required: false },
-    contract: { type: String, required: false },
+    asset_receipt_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    icloud_asset_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    refund_receipt_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    Recommended_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    contract: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
     debtor: { type: mongoose.Schema.Types.ObjectId, ref: 'DebtorInformation', required: true },
-    icloud_records: [{ type: mongoose.Schema.Types.ObjectId, ref: 'iCloudRecord' }]
+    icloud_records: [{ type: mongoose.Schema.Types.ObjectId, ref: 'iCloudRecord' }],
+    refund: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Refund' }],
+    profitSharing: [{ type: mongoose.Schema.Types.ObjectId, ref: 'profitsharing'}]
 });
 
 //คืนเงิน
@@ -86,9 +122,10 @@ const refundSchema = new mongoose.Schema({
     totalInterest5: { type: String, required: false },
     initial_profit: { type: String, required: false },// ส่วนเเบ่ง
     status: { type: String, required: false },
-    refund_receipt_photo: { type: String, required: false },
+    refund_receipt_photo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
     debtAmount: { type: String, required: false },
     loan: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanInformation', required: true }, // อ้างอิงถึง loanSchema
+    profitSharing: [{ type: mongoose.Schema.Types.ObjectId, ref: 'profitsharing'}]
     
 });
 
@@ -215,6 +252,13 @@ const capitalSchema = new mongoose.Schema({
 });
 
 
+//ไฟล์ภาพ
+const fileSchema = new mongoose.Schema({
+    name: String,
+    data: String, // Base64 data
+    mimetype: String
+});
+
 
 
 // กำหนดโมเดล Mongoose สำหรับแต่ละ Schema
@@ -229,6 +273,9 @@ const iCloudRecord = mongoose.model('iCloudRecord', iCloudRecordSchema);
 const Income = mongoose.model('Income', incomeSchema);
 const Expense = mongoose.model('expense', expenseSchema);
 const Capital = mongoose.model('Capital', capitalSchema);
+const File = mongoose.model('File', fileSchema);
+
+
 
 // ส่งออกโมเดล
-module.exports = { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale, iCloudRecord, Income, Expense, Capital };
+module.exports = { DebtorInformation, LoanInformation, Refund, ProfitSharing, Manager, Seizure, Sale, iCloudRecord, Income, Expense, Capital, File };

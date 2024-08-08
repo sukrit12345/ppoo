@@ -16,10 +16,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <td>${record.user_email}</td>
                 <td>${record.email_password}</td>
                 <td>${record.icloud_password}</td>
-                <td>${record.number_of_users}</td>
-                <td>${record.status}</td>
+                <td>${record.loanCount}</td>
                 <td>
-                    <button onclick="showeRecord('${record._id}')">ดู</button>
+                    <button onclick="showeRecord('${record._id}', '${record.phone_number}', '${record.user_email}')">ดู</button>
                     <button onclick="editrecords('${record._id}')">แก้ไข</button>
                     <button onclick="deleteRecord('${record._id}')">ลบ</button>
                 </td>
@@ -30,6 +29,28 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Failed to fetch iCloud Records:', error);
     }
 });
+
+
+
+
+
+//ไปหน้าจำนวนสัญญาเเต่ละไอคราว
+async function showeRecord(recordId, phoneNumber, userEmail) {
+    try {
+        if (!recordId || !phoneNumber || !userEmail) {
+            throw new Error('Invalid parameters');
+        }
+        // ตรวจสอบ URL ที่จะไป
+        const url = `จำนวนสัญญาไอคราว.html?recordId=${encodeURIComponent(recordId)}&phone_number=${encodeURIComponent(phoneNumber)}&user_email=${encodeURIComponent(userEmail)}`;
+        console.log('Navigating to:', url);
+        window.location.href = url;
+    } catch (error) {
+        console.error('Failed to navigate to record details page:', error);
+    }
+}
+
+
+
 
 
 

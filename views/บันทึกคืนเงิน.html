@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>บันทึกคืนเงิน</title>
 
 <style>
@@ -207,13 +209,16 @@ input[type=text] {
 
     <label for="refund_receipt_photo">รูปสลิปเงินคืน:</label>
     <input type="file" id="refund_receipt_photo" name="refund_receipt_photo">
+    <br>
+    <img  id="refund_receipt_photo_preview" alt="refund" style="display: none; max-width: 500px; max-height: 500px;">
+    <br>
 
   </fieldset> 
   <br> 
 
     <input type="hidden" id="loan" name="loan">
 
-    <span id="interest_exceed_message"></span>
+
 
 
     <input type="submit" value="บันทึกคืนเงิน" class="button" id="save_button">

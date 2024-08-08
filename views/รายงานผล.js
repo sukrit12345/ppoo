@@ -273,7 +273,7 @@ $(function() {
 function customSearch2() {
     var dateRange = $('#dateRange').val();
     if (dateRange === '') {
-        alert("เลือกช่วงเวลาที่ต้องคืน");
+        alert("เลือกช่วงเวลาสรุปผล");
         return;
     }
     var dates = dateRange.split(" - ");

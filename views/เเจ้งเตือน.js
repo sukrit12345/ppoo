@@ -25,7 +25,7 @@ function populateTable(data) {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.colSpan = 10; // จำนวนคอลัมน์ทั้งหมด
-        cell.textContent = 'ไม่มีข้อมูล';
+        cell.textContent = 'ไม่มีครบกำหนดชำระวันนี้';
         row.appendChild(cell);
         tbody.appendChild(row);
         return;
