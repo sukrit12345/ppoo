@@ -87,6 +87,37 @@ app.post('/Adddebtorinformation/submit', upload.fields([
             return newFile._id;
         };
 
+        // ฟังก์ชันเพื่อลบไฟล์จากฐานข้อมูล
+        const deleteFile = async (fileId) => {
+            if (fileId) {
+                await File.findByIdAndDelete(fileId);
+            }
+        };
+
+        // ตรวจสอบว่ามีข้อมูลลูกหนี้อยู่แล้วหรือไม่
+        let debtor = await DebtorInformation.findOne({ id_card_number: req.body.id_card_number });
+
+        // เก็บ _id ของไฟล์เก่าที่จะต้องลบ
+        let oldFileRecords = {
+            id_card_photo: [],
+            id_card_photo2: [],
+            current_address_map: [],
+            work_address_map: [],
+            student_record_photo: [],
+            timetable_photo: []
+        };
+
+        if (debtor) {
+            oldFileRecords = {
+                id_card_photo: debtor.id_card_photo || [],
+                id_card_photo2: debtor.id_card_photo2 || [],
+                current_address_map: debtor.current_address_map || [],
+                work_address_map: debtor.work_address_map || [],
+                student_record_photo: debtor.student_record_photo || [],
+                timetable_photo: debtor.timetable_photo || []
+            };
+        }
+
         // บันทึกไฟล์และเก็บ _id ไว้ใน fileRecords
         if (req.files.id_card_photo) {
             fileRecords.id_card_photo = await saveFile(req.files.id_card_photo[0]);
@@ -107,43 +138,58 @@ app.post('/Adddebtorinformation/submit', upload.fields([
             fileRecords.timetable_photo = await saveFile(req.files.timetable_photo[0]);
         }
 
-        // ตรวจสอบว่ามีข้อมูลลูกหนี้อยู่แล้วหรือไม่
-        let debtor = await DebtorInformation.findOne({ id_card_number: req.body.id_card_number });
+        // ลบไฟล์เก่าที่ถูกแทนที่
+        const deleteOldFiles = async () => {
+            for (const key in fileRecords) {
+                const newFileId = fileRecords[key];
+                const oldFileIds = oldFileRecords[key] || [];
 
+                // ถ้ามีไฟล์ใหม่แทนที่ไฟล์เก่า
+                if (newFileId) {
+                    for (const oldFileId of oldFileIds) {
+                        if (oldFileId !== newFileId) {
+                            await deleteFile(oldFileId);
+                        }
+                    }
+                }
+            }
+        };
+
+        // อัปเดตข้อมูลลูกหนี้หรือสร้างใหม่
         if (debtor) {
-            // หากมีข้อมูลลูกหนี้อยู่แล้ว, อัปเดตเฉพาะข้อมูลที่มีการเปลี่ยนแปลง
-            debtor = {
-                ...debtor.toObject(),
-                manager: req.body.manager || debtor.manager,
-                date: req.body.date || debtor.date,
-                fname: req.body.fname || debtor.fname,
-                lname: req.body.lname || debtor.lname,
-                occupation: req.body.occupation || debtor.occupation,
-                monthly_income_amount: req.body.monthly_income_amount || debtor.monthly_income_amount,
-                seizable_assets_description: req.body.seizable_assets_description || debtor.seizable_assets_description,
-                ig: req.body.ig || debtor.ig,
-                facebook: req.body.facebook || debtor.facebook,
-                line: req.body.line || debtor.line,
-                phone: req.body.phone || debtor.phone,
-                province: req.body.province || debtor.province,
-                currentAddress: req.body.currentAddress || debtor.currentAddress,
-                workOrStudyAddress: req.body.workOrStudyAddress || debtor.workOrStudyAddress,
-                workOrStudyAddress2: req.body.workOrStudyAddress2 || debtor.workOrStudyAddress2,
-                grade: req.body.grade || debtor.grade,
-                course: req.body.course || debtor.course,
-                id_card_photo: fileRecords.id_card_photo ? [fileRecords.id_card_photo] : debtor.id_card_photo,
-                id_card_photo2: fileRecords.id_card_photo2 ? [fileRecords.id_card_photo2] : debtor.id_card_photo2,
-                current_address_map: fileRecords.current_address_map ? [fileRecords.current_address_map] : debtor.current_address_map,
-                work_address_map: fileRecords.work_address_map ? [fileRecords.work_address_map] : debtor.work_address_map,
-                student_record_photo: fileRecords.student_record_photo ? [fileRecords.student_record_photo] : debtor.student_record_photo,
-                timetable_photo: fileRecords.timetable_photo ? [fileRecords.timetable_photo] : debtor.timetable_photo,
-            };
+            // อัปเดตข้อมูลลูกหนี้
+            debtor.manager = req.body.manager || debtor.manager;
+            debtor.date = req.body.date || debtor.date;
+            debtor.fname = req.body.fname || debtor.fname;
+            debtor.lname = req.body.lname || debtor.lname;
+            debtor.occupation = req.body.occupation || debtor.occupation;
+            debtor.monthly_income_amount = req.body.monthly_income_amount || debtor.monthly_income_amount;
+            debtor.seizable_assets_description = req.body.seizable_assets_description || debtor.seizable_assets_description;
+            debtor.ig = req.body.ig || debtor.ig;
+            debtor.facebook = req.body.facebook || debtor.facebook;
+            debtor.line = req.body.line || debtor.line;
+            debtor.phone = req.body.phone || debtor.phone;
+            debtor.province = req.body.province || debtor.province;
+            debtor.currentAddress = req.body.currentAddress || debtor.currentAddress;
+            debtor.workOrStudyAddress = req.body.workOrStudyAddress || debtor.workOrStudyAddress;
+            debtor.workOrStudyAddress2 = req.body.workOrStudyAddress2 || debtor.workOrStudyAddress2;
+            debtor.grade = req.body.grade || debtor.grade;
+            debtor.course = req.body.course || debtor.course;
+            debtor.id_card_photo = fileRecords.id_card_photo ? [fileRecords.id_card_photo] : debtor.id_card_photo;
+            debtor.id_card_photo2 = fileRecords.id_card_photo2 ? [fileRecords.id_card_photo2] : debtor.id_card_photo2;
+            debtor.current_address_map = fileRecords.current_address_map ? [fileRecords.current_address_map] : debtor.current_address_map;
+            debtor.work_address_map = fileRecords.work_address_map ? [fileRecords.work_address_map] : debtor.work_address_map;
+            debtor.student_record_photo = fileRecords.student_record_photo ? [fileRecords.student_record_photo] : debtor.student_record_photo;
+            debtor.timetable_photo = fileRecords.timetable_photo ? [fileRecords.timetable_photo] : debtor.timetable_photo;
 
             await DebtorInformation.findOneAndUpdate(
                 { id_card_number: req.body.id_card_number },
                 debtor,
                 { new: true }
             );
+
+            // ลบไฟล์เก่าที่ถูกแทนที่หลังจากอัปเดตข้อมูล
+            await deleteOldFiles();
         } else {
             // หากไม่มี, สร้างข้อมูลใหม่
             debtor = new DebtorInformation({
@@ -175,6 +221,9 @@ app.post('/Adddebtorinformation/submit', upload.fields([
             });
 
             await debtor.save();
+
+            // ลบไฟล์เก่าที่ถูกแทนที่หลังจากบันทึกข้อมูลใหม่
+            await deleteOldFiles();
         }
 
         // รีไดเร็กไปที่หน้าแสดงข้อมูลลูกหนี้
@@ -189,15 +238,24 @@ app.post('/Adddebtorinformation/submit', upload.fields([
 
 
 
+
 //ส่งข้อมูลไปตารางลูกหนี้
 app.get('/api/debtor-data', async (req, res) => {
     try {
-        const data = await DebtorInformation.find();
+        // จัดเรียงข้อมูลตามวันที่ (จากใหม่ไปเก่า) และถ้าวันที่เท่ากันให้เรียงตามไอดี (จากใหม่ไปเก่า)
+        const data = await DebtorInformation.find()
+            .sort({ date: -1, _id: -1 }); // date: -1 (ใหม่ไปเก่า), _id: -1 (ใหม่ไปเก่า)
+        
         res.json(data);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
+
+
+
+
+
 
 //ส่งค่าชื่อเเอดมิน
 app.get('/api/managers', async (req, res) => {
@@ -380,13 +438,29 @@ app.post('/AddLoanInformation/submit', upload.fields([
         const files = req.files;
         const savedFiles = {};
 
-        for (let key in files) {
-            if (files[key] && files[key].length > 0) {
-                savedFiles[key] = await saveFile(files[key][0]);
-            }
+        // Save new files
+        if (files['asset_receipt_photo']) {
+            const savedFile = await saveFile(files['asset_receipt_photo'][0]);
+            savedFiles['asset_receipt_photo'] = savedFile;
+        }
+        if (files['icloud_asset_photo']) {
+            const savedFile = await saveFile(files['icloud_asset_photo'][0]);
+            savedFiles['icloud_asset_photo'] = savedFile;
+        }
+        if (files['refund_receipt_photo']) {
+            const savedFile = await saveFile(files['refund_receipt_photo'][0]);
+            savedFiles['refund_receipt_photo'] = savedFile;
+        }
+        if (files['Recommended_photo']) {
+            const savedFile = await saveFile(files['Recommended_photo'][0]);
+            savedFiles['Recommended_photo'] = savedFile;
+        }
+        if (files['contract']) {
+            const savedFile = await saveFile(files['contract'][0]);
+            savedFiles['contract'] = savedFile;
         }
 
-        // ตรวจสอบว่ามีข้อมูลเดิมที่ตรงกับ id_card_number, contract_number, และ bill_number หรือไม่
+        // Check if the loan information already exists
         let loanInfo = await LoanInformation.findOne({
             id_card_number,
             contract_number,
@@ -394,7 +468,7 @@ app.post('/AddLoanInformation/submit', upload.fields([
         });
 
         if (loanInfo) {
-            // อัปเดตข้อมูลเดิมหรือใช้งานข้อมูลเดิมถ้าไม่มีการส่งข้อมูลใหม่มา
+            // Update existing loanInfo
             loanInfo.manager = manager || loanInfo.manager;
             loanInfo.fname = fname || loanInfo.fname;
             loanInfo.lname = lname || loanInfo.lname;
@@ -415,17 +489,29 @@ app.post('/AddLoanInformation/submit', upload.fields([
             loanInfo.code_icloud = code_icloud || loanInfo.code_icloud;
             loanInfo.code_icloud2 = code_icloud2 || loanInfo.code_icloud2;
 
-            loanInfo.asset_receipt_photo = savedFiles['asset_receipt_photo'] ? [savedFiles['asset_receipt_photo']._id] : loanInfo.asset_receipt_photo;
-            loanInfo.icloud_asset_photo = savedFiles['icloud_asset_photo'] ? [savedFiles['icloud_asset_photo']._id] : loanInfo.icloud_asset_photo;
-            loanInfo.refund_receipt_photo = savedFiles['refund_receipt_photo'] ? [savedFiles['refund_receipt_photo']._id] : loanInfo.refund_receipt_photo;
-            loanInfo.Recommended_photo = savedFiles['Recommended_photo'] ? [savedFiles['Recommended_photo']._id] : loanInfo.Recommended_photo;
-            loanInfo.contract = savedFiles['contract'] ? [savedFiles['contract']._id] : loanInfo.contract;
+            // Update file references
+            if (savedFiles['asset_receipt_photo']) {
+                loanInfo.asset_receipt_photo = [savedFiles['asset_receipt_photo']._id];
+            }
+            if (savedFiles['icloud_asset_photo']) {
+                loanInfo.icloud_asset_photo = [savedFiles['icloud_asset_photo']._id];
+            }
+            if (savedFiles['refund_receipt_photo']) {
+                loanInfo.refund_receipt_photo = [savedFiles['refund_receipt_photo']._id];
+            }
+            if (savedFiles['Recommended_photo']) {
+                loanInfo.Recommended_photo = [savedFiles['Recommended_photo']._id];
+            }
+            if (savedFiles['contract']) {
+                loanInfo.contract = [savedFiles['contract']._id];
+            }
+
             loanInfo.debtor = debtor._id;
             loanInfo.icloud_records = icloudRecords.map(record => record._id);
 
             await loanInfo.save();
         } else {
-            // สร้างข้อมูลใหม่
+            // Create new loanInfo
             loanInfo = new LoanInformation({
                 manager,
                 id_card_number,
@@ -449,11 +535,11 @@ app.post('/AddLoanInformation/submit', upload.fields([
                 email_icloud,
                 code_icloud,
                 code_icloud2,
-                asset_receipt_photo: savedFiles['asset_receipt_photo'] ? [savedFiles['asset_receipt_photo']._id] : [],
-                icloud_asset_photo: savedFiles['icloud_asset_photo'] ? [savedFiles['icloud_asset_photo']._id] : [],
-                refund_receipt_photo: savedFiles['refund_receipt_photo'] ? [savedFiles['refund_receipt_photo']._id] : [],
-                Recommended_photo: savedFiles['Recommended_photo'] ? [savedFiles['Recommended_photo']._id] : [],
-                contract: savedFiles['contract'] ? [savedFiles['contract']._id] : [],
+                asset_receipt_photo: files['asset_receipt_photo'] ? [savedFiles['asset_receipt_photo']._id] : [],
+                icloud_asset_photo: files['icloud_asset_photo'] ? [savedFiles['icloud_asset_photo']._id] : [],
+                refund_receipt_photo: files['refund_receipt_photo'] ? [savedFiles['refund_receipt_photo']._id] : [],
+                Recommended_photo: files['Recommended_photo'] ? [savedFiles['Recommended_photo']._id] : [],
+                contract: files['contract'] ? [savedFiles['contract']._id] : [],
                 debtor: debtor._id,
                 icloud_records: icloudRecords.map(record => record._id)
             });
@@ -466,6 +552,7 @@ app.post('/AddLoanInformation/submit', upload.fields([
             );
         }
 
+        // Redirect to another page after successful save
         const response = await fetch('http://localhost:3000/api/calculate-and-save', {
             method: 'POST',
             headers: {
@@ -480,15 +567,16 @@ app.post('/AddLoanInformation/submit', upload.fields([
         }
 
         const data = await response.json();
+        const redirectURL = `/สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`;
 
-        const redirectURL = `/สัญญา.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}&manager2=${manager2}`;
         res.redirect(redirectURL);
 
-    } catch (err) {
-        console.error('Error occurred while saving loan information:', err);
-        res.status(500).json({ error: 'An error occurred while saving loan information', details: err.message });
+    } catch (error) {
+        console.error('Error during form submission:', error);
+        res.status(500).json({ error: 'Error processing the form submission' });
     }
 });
+
 
 
 
@@ -496,9 +584,8 @@ app.post('/AddLoanInformation/submit', upload.fields([
 async function calculateLoanData(loan, currentDate) {
     try {
         const returnDate = new Date(loan.returnDate);
-        const currentDateObj = new Date(currentDate); // แปลง currentDate เป็น Date object หากยังไม่ใช่
+        const currentDateObj = new Date(currentDate);
 
-        // แปลงวันที่เป็นวันเดียวกัน (ไม่รวมเวลา) เพื่อเปรียบเทียบ
         const returnDateOnly = new Date(returnDate.toDateString());
         const currentDateOnly = new Date(currentDateObj.toDateString());
 
@@ -508,19 +595,29 @@ async function calculateLoanData(loan, currentDate) {
         let daysUntilReturn = Math.round((currentDateOnly - returnDateOnly) / (1000 * 60 * 60 * 24));
         if (daysUntilReturn <= 0) daysUntilReturn = '-';
 
+        const originalTotalRepayment = totalRepayment;
+        const originalDaysUntilReturn = daysUntilReturn;
+
         let totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * Number(loan.principal) * Number(loan.interestRate) / 100) : 0;
         let originalTotalInterest2 = totalInterest2;
 
         const refunds = await Refund.find({ id_card_number: loan.id_card_number, bill_number: loan.bill_number, contract_number: loan.contract_number });
-        let status = loan.status; // ใช้สถานะเดิมก่อนการคำนวณ
+        let status = loan.status;
 
         const seizure = await Seizure.findOne({ loan: loan._id });
 
         if (seizure) {
             status = "<span style='color: red;'>ยึดทรัพย์</span>";
-            totalRepayment = '-';
-            daysUntilReturn = '-';
-            totalInterest2 = originalTotalInterest2;
+            const seizureDate = new Date(seizure.seizureDate); // ใช้ seizureDate แทน returnRefundDate
+            totalRepayment = Math.round((returnDateOnly - seizureDate) / (1000 * 60 * 60 * 24));
+            if (totalRepayment <= 0) totalRepayment = '-';
+        
+            // คำนวณ daysUntilReturn ใหม่
+            daysUntilReturn = Math.round((seizureDate - returnDateOnly) / (1000 * 60 * 60 * 24));
+            if (daysUntilReturn <= 0) daysUntilReturn = '-';
+        
+            // คำนวณ totalInterest2 ใหม่
+            totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * Number(loan.principal) * Number(loan.interestRate) / 100) : 0;
             totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2));
         } else if (refunds.length > 0) {
             const refund = refunds[0];
@@ -528,14 +625,30 @@ async function calculateLoanData(loan, currentDate) {
 
             if (refund.total_refund2 >= totalRefund) {
                 status = "<span style='color: green;'>ชำระครบ</span>";
-                totalRepayment = '-';
-                daysUntilReturn = '-';
-                totalInterest2 = originalTotalInterest2;
+                const returnRefundDate = new Date(refund.return_date);
+                totalRepayment = Math.round((returnDateOnly - returnRefundDate) / (1000 * 60 * 60 * 24));
+                if (totalRepayment <= 0) totalRepayment = '-';
+        
+                // คำนวณ daysUntilReturn ใหม่
+                daysUntilReturn = Math.round((returnRefundDate - returnDateOnly) / (1000 * 60 * 60 * 24));
+                if (daysUntilReturn <= 0) daysUntilReturn = '-';
+        
+                // คำนวณ totalInterest2 ใหม่
+                totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * Number(loan.principal) * Number(loan.interestRate) / 100) : 0;
+                originalTotalInterest2 = totalInterest2; // บันทึกค่า originalTotalInterest2 ไว้
             } else {
                 status = "<span style='color: green;'>ต่อดอก</span>";
-                totalRepayment = '-';
-                daysUntilReturn = '-';
-                totalInterest2 = originalTotalInterest2;
+                const returnRefundDate = new Date(refund.return_date);
+                totalRepayment = Math.round((returnDateOnly - returnRefundDate) / (1000 * 60 * 60 * 24));
+                if (totalRepayment <= 0) totalRepayment = '-';
+        
+                // คำนวณ daysUntilReturn ใหม่
+                daysUntilReturn = Math.round((returnRefundDate - returnDateOnly) / (1000 * 60 * 60 * 24));
+                if (daysUntilReturn <= 0) daysUntilReturn = '-';
+        
+                // คำนวณ totalInterest2 ใหม่
+                totalInterest2 = daysUntilReturn !== '-' ? Math.round(daysUntilReturn * Number(loan.principal) * Number(loan.interestRate) / 100) : 0;
+                originalTotalInterest2 = totalInterest2; // บันทึกค่า originalTotalInterest2 ไว้
             }
         } else {
             if (status !== "<span style='color: red;'>เเบล็คลิช</span>") {
@@ -543,7 +656,7 @@ async function calculateLoanData(loan, currentDate) {
                     status = "<span style='color: orange;'>เลยสัญญา</span>";
                 } else if (currentDateOnly.getTime() < returnDateOnly.getTime()) {
                     status = "<span style='color: blue;'>อยู่ในสัญญา</span>";
-                } else if (currentDateOnly.getTime() === returnDateOnly.getTime()) { // เปรียบเทียบวันที่ให้ถูกต้อง
+                } else if (currentDateOnly.getTime() === returnDateOnly.getTime()) {
                     status = "<span style='color: #FF00FF;'>ครบสัญญา</span>";
                 }
             }
@@ -551,8 +664,8 @@ async function calculateLoanData(loan, currentDate) {
         }
 
         if (status === "<span style='color: red;'>เเบล็คลิช</span>") {
-            totalRepayment = '-';
-            daysUntilReturn = '-';
+            totalRepayment = "-";
+            daysUntilReturn = "-";
             totalInterest2 = originalTotalInterest2;
             totalRefund = Math.round(Number(loan.principal) + Number(loan.totalInterest) + Number(loan.totalInterest3 || 0) + Number(totalInterest2));
         }
@@ -562,7 +675,7 @@ async function calculateLoanData(loan, currentDate) {
         const updatedLoanData = {
             totalRepayment,
             daysUntilReturn,
-            totalInterest2,
+            totalInterest2: status === "<span style='color: green;'>ชำระครบ</span>" || status === "<span style='color: green;'>ต่อดอก</span>" ? originalTotalInterest2 : totalInterest2,
             totalInterest3: loan.totalInterest3 ? Math.round(Number(loan.totalInterest3)) : 0,
             status,
             totalRefund,
@@ -763,10 +876,18 @@ app.get('/api/notifications/count', async (req, res) => {
 app.delete('/api/delete-loan/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await LoanInformation.findByIdAndDelete(id);
+        const loan = await LoanInformation.findById(id);
+
+        if (!loan) {
+            return res.status(404).json({ message: 'Loan not found' });
+        }
+
+        // เรียกใช้ deleteOne เพื่อดำเนินการลบ loan และ trigger pre hook
+        await loan.deleteOne();
+
         res.json({ message: 'Loan deleted successfully' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: `Error while deleting loan: ${err.message}` });
     }
 });
 
@@ -1082,19 +1203,41 @@ app.get('/new-contracts', async (req, res) => {
 });
 
 
-//ส่งข้อมูลคินเงินไปหน้าคืนเงิน
+//ส่งข้อมูลไปหน้าคืนเงิน
 app.get('/api/refunds/:id_card_number', async (req, res) => {
     try {
         const idCardNumber = req.params.id_card_number;
-        const refunds = await Refund.find({ id_card_number: idCardNumber })
-            .populate('loan')
-            .sort({ contract_number: -1, bill_number: -1 });
+        const refunds = await Refund.aggregate([
+            { $match: { id_card_number: idCardNumber } },
+            { $addFields: {
+                contract_number_num: { $toDouble: "$contract_number" },
+                bill_number_num: { $toDouble: "$bill_number" }
+            }},
+            { $sort: { contract_number_num: -1, bill_number_num: -1 }},
+            { $lookup: {
+                from: 'loaninformations', // ตรวจสอบว่าชื่อ collection นี้ถูกต้อง
+                localField: 'loan',
+                foreignField: '_id',
+                as: 'loan'
+            }},
+            { $unwind: {
+                path: '$loan',
+                preserveNullAndEmptyArrays: true  // เพื่อให้แน่ใจว่ามีการจัดการกับกรณีที่ไม่มีข้อมูล loan
+            }},
+            { $addFields: {
+                contract_number: '$loan.contract_number', // ดึงค่า contract_number จาก loan เพื่อให้แน่ใจว่าส่งไปในผลลัพธ์
+                bill_number: '$loan.bill_number', // ดึงค่า bill_number จาก loan เพื่อให้แน่ใจว่าส่งไปในผลลัพธ์
+            }}
+        ]);
+        
         res.json(refunds);
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล Refund:', error);
         res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล Refund');
     }
 });
+
+
 
 
 
@@ -1120,13 +1263,44 @@ app.get('/api/refund-interest-sum/:id_card_number', async (req, res) => {
 app.delete('/api/refunds/:refundId', async (req, res) => {
     try {
         const refundId = req.params.refundId;
+
+        // ค้นหาและลบ ProfitSharing ที่อ้างอิงถึง Refund
+        const profitSharings = await ProfitSharing.find({ refund: refundId });
+
+        if (profitSharings.length > 0) {
+            // ลบไฟล์ที่เกี่ยวข้องกับ ProfitSharing
+            for (const profitSharing of profitSharings) {
+                const filesToDelete = [];
+                if (profitSharing.collectorReceiptPhoto && profitSharing.collectorReceiptPhoto.length > 0) {
+                    filesToDelete.push(...profitSharing.collectorReceiptPhoto);
+                }
+                if (profitSharing.managerReceiptPhoto && profitSharing.managerReceiptPhoto.length > 0) {
+                    filesToDelete.push(...profitSharing.managerReceiptPhoto);
+                }
+                if (profitSharing.receiverReceiptPhoto && profitSharing.receiverReceiptPhoto.length > 0) {
+                    filesToDelete.push(...profitSharing.receiverReceiptPhoto);
+                }
+
+                if (filesToDelete.length > 0) {
+                    await File.deleteMany({ _id: { $in: filesToDelete } });
+                }
+            }
+
+            // ลบ ProfitSharing ที่อ้างอิงถึง Refund
+            await ProfitSharing.deleteMany({ refund: refundId });
+        }
+
         // ค้นหาและลบ Refund โดยใช้ ID
         const deletedRefund = await Refund.findByIdAndDelete(refundId);
         if (!deletedRefund) {
-            // ถ้าไม่พบ Refund ที่ต้องการลบ
             return res.status(404).json({ error: 'ไม่พบข้อมูลการคืนเงิน' });
         }
-        // ส่งข้อความยืนยันการลบกลับไป
+
+        // ลบไฟล์ที่เกี่ยวข้องกับ Refund
+        if (deletedRefund.refund_receipt_photo && deletedRefund.refund_receipt_photo.length > 0) {
+            await File.deleteMany({ _id: { $in: deletedRefund.refund_receipt_photo } });
+        }
+
         res.json({ message: 'ลบข้อมูลการคืนเงินเรียบร้อยแล้ว' });
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการลบข้อมูล:', error.message);
@@ -1135,10 +1309,12 @@ app.delete('/api/refunds/:refundId', async (req, res) => {
 });
 
 
+//เเสดงข้อมูลคืนเงินตามid
 app.get('/api/refundss/:id', async (req, res) => {
     try {
         const refundId = req.params.id;
-        const refund = await Refund.findById(refundId);
+        const refund = await Refund.findById(refundId).populate('refund_receipt_photo');
+
         if (refund) {
             res.json(refund);
         } else {
@@ -1173,6 +1349,8 @@ app.post('/profit-sharing', upload.fields([
     { name: 'manager_receipt_photo', maxCount: 1 },
     { name: 'receiver_receipt_photo', maxCount: 1 }
 ]), async (req, res) => {
+    let refundDoc; // ประกาศตัวแปร refundDoc ที่นี่
+
     try {
         const {
             manager,
@@ -1202,27 +1380,49 @@ app.post('/profit-sharing', upload.fields([
         console.log('req.body:', req.body);
         console.log('req.files:', req.files);
 
-        const collectorReceiptPhoto = req.files['collector_receipt_photo'] ? req.files['collector_receipt_photo'][0].path : null;
-        const managerReceiptPhoto = req.files['manager_receipt_photo'] ? req.files['manager_receipt_photo'][0].path : null;
-        const receiverReceiptPhoto = req.files['receiver_receipt_photo'] ? req.files['receiver_receipt_photo'][0].path : null;
+        function encodeFileToBase64(file) {
+            return file.buffer.toString('base64');
+        }
+
+        async function saveFileToDatabase(file) {
+            const base64Data = encodeFileToBase64(file);
+
+            const newFile = new File({
+                name: file.originalname,
+                data: base64Data,
+                mimetype: file.mimetype
+            });
+
+            await newFile.save();
+            return newFile._id;
+        }
+
+        const collectorReceiptPhotoId = req.files['collector_receipt_photo']
+            ? await saveFileToDatabase(req.files['collector_receipt_photo'][0])
+            : null;
+
+        const managerReceiptPhotoId = req.files['manager_receipt_photo']
+            ? await saveFileToDatabase(req.files['manager_receipt_photo'][0])
+            : null;
+
+        const receiverReceiptPhotoId = req.files['receiver_receipt_photo']
+            ? await saveFileToDatabase(req.files['receiver_receipt_photo'][0])
+            : null;
 
         const ObjectId = require('mongoose').Types.ObjectId;
         const refundObjectId = new ObjectId(refundId);
 
-        const refundDoc = await Refund.findById(refundObjectId);
+        refundDoc = await Refund.findById(refundObjectId);
         if (!refundDoc) {
             console.log("Refund not found!");
             return res.status(404).json({ message: 'Refund not found' });
         }
 
-        // สำรองค่าของ status ก่อนที่จะเปลี่ยนแปลง
         const previousStatus = refundDoc.status;
 
-        // แปลง return_date_input เป็นปี เดือน วัน
         const [year, month, day] = return_date_input.split('-').map(Number);
-        const returnDate = new Date(year, month - 1, day); // month - 1 เพราะเดือนใน JavaScript เริ่มที่ 0
+        const returnDate = new Date(year, month - 1, day);
 
-        // แสดงผลวันที่ในรูปแบบ "YYYY-MM-DD"
         console.log("Formatted returnDate:", formatDate(returnDate));
 
         const profitSharing = new ProfitSharing({
@@ -1232,26 +1432,26 @@ app.post('/profit-sharing', upload.fields([
             lname,
             contract_number,
             bill_number,
-            returnDate: formatDate(returnDate), // ใช้ฟังก์ชัน formatDate ในการจัดรูปแบบวันที่
+            returnDate: formatDate(returnDate),
             initialProfit: parseFloat(initial_profit),
             collectorName: collector_name,
             collectorSharePercent: parseFloat(collector_share_percent),
             collectorShare: parseFloat(collector_share),
-            collectorReceiptPhoto,
+            collectorReceiptPhoto: collectorReceiptPhotoId,
             initialProfit2: parseFloat(initial_profit2),
             managerName: manager_name,
             managerSharePercent: parseFloat(manager_share2),
             managerShare: parseFloat(manager_share),
-            managerReceiptPhoto,
+            managerReceiptPhoto: managerReceiptPhotoId,
             receiverProfit: parseFloat(receiver_profit),
             receiverName: receiver_name,
             receiverSharePercent: parseFloat(receiver_share_percent),
             receiverShare: parseFloat(receiver_share),
-            receiverReceiptPhoto,
+            receiverReceiptPhoto: receiverReceiptPhotoId,
             totalShare: parseFloat(total_share),
             netProfit: parseFloat(net_profit),
             refund: refundObjectId,
-            originalStatus: previousStatus // เก็บสถานะเดิมไว้ใน ProfitSharing
+            originalStatus: previousStatus
         });
 
         console.log('profitSharing:', profitSharing);
@@ -1264,8 +1464,7 @@ app.post('/profit-sharing', upload.fields([
         res.redirect(`/ส่วนเเบ่ง.html?id_card_number=${id_card_number}&fname=${fname}&lname=${lname}&manager=${manager}`);
     } catch (error) {
         console.error(error);
-        
-        // คืนค่า status กลับไปยังค่าก่อนหน้าหากมีข้อผิดพลาด
+
         if (refundDoc) {
             refundDoc.status = previousStatus;
             await refundDoc.save();
@@ -1284,11 +1483,22 @@ app.get('/get-profit-sharing-data/:id_card_number', async (req, res) => {
     try {
         const idCardNumber = req.params.id_card_number;
 
-        // Find profit sharing data based on id_card_number from the database and sort it
-        const profitSharingData = await ProfitSharing.find({ id_card_number: idCardNumber })
-            .sort({ contract_number: -1, bill_number: -1 });
+        // Find profit sharing data based on id_card_number from the database
+        let profitSharingData = await ProfitSharing.find({ id_card_number: idCardNumber });
 
-        // Send the profit sharing data as JSON response
+        // Convert contract_number and bill_number to numbers for sorting
+        profitSharingData = profitSharingData.map(item => ({
+            ...item._doc, // Preserve the existing document properties
+            contract_number_num: parseInt(item.contract_number, 10),
+            bill_number_num: parseInt(item.bill_number, 10)
+        }));
+
+        // Sort by contract_number and bill_number as numbers in descending order
+        profitSharingData.sort((a, b) => 
+            b.contract_number_num - a.contract_number_num || b.bill_number_num - a.bill_number_num
+        );
+
+        // Send the sorted profit sharing data as JSON response
         res.json(profitSharingData);
     } catch (error) {
         // If there is an error, send a 500 status code with an error message
@@ -1329,13 +1539,12 @@ app.get('/api/receiver_name', async (req, res) => {
 app.delete('/api/delete-profit-sharing/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_card_number } = req.query;
 
         // ค้นหาเอกสาร ProfitSharing ที่ต้องการลบ
-        const profitSharingDoc = await ProfitSharing.findById(id);
+        const profitSharingDoc = await ProfitSharing.findById(id).populate('collectorReceiptPhoto managerReceiptPhoto receiverReceiptPhoto');
         
         if (!profitSharingDoc) {
-            return res.status(404).json({ message: 'Data not found' });
+            return res.status(404).json({ message: 'Profit Sharing data not found' });
         }
 
         // ค้นหาเอกสาร Refund ที่เกี่ยวข้อง
@@ -1345,11 +1554,26 @@ app.delete('/api/delete-profit-sharing/:id', async (req, res) => {
             return res.status(404).json({ message: 'Refund not found' });
         }
 
+        // ตรวจสอบและรวบรวมรายการ ID ของไฟล์
+        const fileIds = [
+            ...(Array.isArray(profitSharingDoc.collectorReceiptPhoto) ? profitSharingDoc.collectorReceiptPhoto : []),
+            ...(Array.isArray(profitSharingDoc.managerReceiptPhoto) ? profitSharingDoc.managerReceiptPhoto : []),
+            ...(Array.isArray(profitSharingDoc.receiverReceiptPhoto) ? profitSharingDoc.receiverReceiptPhoto : [])
+        ];
+
+        // ลบไฟล์ภาพที่เกี่ยวข้องหากมี
+        if (fileIds.length > 0) {
+            const deleteFilesResult = await File.deleteMany({ _id: { $in: fileIds } });
+            console.log('Files deleted:', deleteFilesResult);
+        } else {
+            console.log('No files associated with Profit Sharing.');
+        }
+
         // ลบข้อมูลส่วนแบ่งจากฐานข้อมูล
         const deletedProfitSharing = await ProfitSharing.findByIdAndDelete(id);
 
         if (!deletedProfitSharing) {
-            return res.status(404).json({ message: 'Data not found' });
+            return res.status(404).json({ message: 'Profit Sharing data not found for deletion' });
         }
 
         // คืนค่า status กลับไปยังค่าก่อนหน้า
@@ -1358,8 +1582,35 @@ app.delete('/api/delete-profit-sharing/:id', async (req, res) => {
 
         res.status(200).json({ message: 'Profit sharing data deleted successfully' });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting Profit Sharing data:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+
+
+
+
+
+
+//เเสดงข้อมูลส่วนเเบ่งตามid
+app.get('/api/profitsharingss/:id', async (req, res) => {
+    try {
+        const id = req.params.id; // ใช้ _id ในการค้นหา
+        const profitSharing = await ProfitSharing.findById(id)
+            .populate('collectorReceiptPhoto')
+            .populate('managerReceiptPhoto')
+            .populate('receiverReceiptPhoto');
+
+        if (!profitSharing) {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลการแบ่งกำไรนี้' });
+        }
+
+        res.json(profitSharing);
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
     }
 });
 
@@ -1384,36 +1635,57 @@ app.delete('/api/delete-profit-sharing/:id', async (req, res) => {
 
 
 
-
-
-
-
-
-
-
 // บันทึกข้อมูลเเอดมิน
 app.post('/submit', async (req, res) => {
-    const managerInstance = new Manager({
-      record_date: req.body.record_date,
-      id_card_number: req.body.id_card_number,
-      bankName: req.body.bankName,
-      accountNumber: req.body.accountNumber,
-      fname: req.body.fname,
-      lname: req.body.lname,
-      nickname: req.body.nickname,
-      phone: req.body.phone,
-      ig: req.body.ig,
-      facebook: req.body.facebook,
-      line: req.body.line,
-      authentication: req.body.authentication
-      
-    });
-  
-    try {
-      await managerInstance.save();
-      res.redirect('/เเอดมิน.html');
-    } catch (error) {
-      res.status(500).send('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    const managerId = req.body._id; // รับ ID จากพารามิเตอร์
+
+    if (managerId) {
+        // อัปเดตข้อมูล
+        try {
+            const updatedManager = await Manager.findByIdAndUpdate(managerId, {
+                record_date: req.body.record_date,
+                id_card_number: req.body.id_card_number,
+                fname: req.body.fname,
+                lname: req.body.lname,
+                nickname: req.body.nickname,
+                phone: req.body.phone,
+                ig: req.body.ig,
+                facebook: req.body.facebook,
+                line: req.body.line,
+                authentication: req.body.authentication
+            }, { new: true }); // new: true จะคืนค่าเอกสารที่อัปเดตแล้ว
+            
+            if (updatedManager) {
+                res.redirect('/เเอดมิน.html');
+            } else {
+                res.status(404).send('ไม่พบข้อมูลผู้จัดการที่ต้องการอัปเดต');
+            }
+        } catch (error) {
+            console.error('Error updating manager:', error);
+            res.status(500).send('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+        }
+    } else {
+        // บันทึกข้อมูลใหม่
+        try {
+            const managerInstance = new Manager({
+                record_date: req.body.record_date,
+                id_card_number: req.body.id_card_number,
+                fname: req.body.fname,
+                lname: req.body.lname,
+                nickname: req.body.nickname,
+                phone: req.body.phone,
+                ig: req.body.ig,
+                facebook: req.body.facebook,
+                line: req.body.line,
+                authentication: req.body.authentication
+            });
+
+            await managerInstance.save();
+            res.redirect('/เเอดมิน.html');
+        } catch (error) {
+            console.error('Error saving manager:', error);
+            res.status(500).send('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+        }
     }
 });
 
@@ -1507,26 +1779,28 @@ app.delete('/api/managers/:id', async (req, res) => {
 
 
 
-
-
+//เเสดงข้อมูลตามไอดี
+app.get('/api/managersss/:id', async (req, res) => {
+    try {
+        const manager = await Manager.findById(req.params.id).exec();
+        if (manager) {
+            res.json(manager);
+        } else {
+            res.status(404).json({ message: 'Manager not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching manager:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 
 
 // บันทึกยึดทรัพย์
-app.post('/api/seize-assets', upload.single('assetPhoto'), async (req, res) => {
+app.post('/api/seize-assets', upload.fields([{ name: 'assetPhoto' }, { name: 'seizureCost2' }]), async (req, res) => {
     try {
-        const { id_card_number, contract_number, bill_number, seizureDate, principal, seizureCost, totalproperty, assetName, assetDetails } = req.body;
-        const assetPhoto = req.file ? req.file.path : '';
-
-        // ค้นหา LoanInformation ที่ตรงกับ id_card_number, contract_number, และ bill_number
-        const loan = await LoanInformation.findOne({ id_card_number, contract_number, bill_number });
-
-        if (!loan) {
-            return res.status(400).send('Error: Loan not found.');
-        }
-
-        const newSeizure = new Seizure({
+        const {
             id_card_number,
             contract_number,
             bill_number,
@@ -1536,18 +1810,52 @@ app.post('/api/seize-assets', upload.single('assetPhoto'), async (req, res) => {
             totalproperty,
             assetName,
             assetDetails,
-            assetPhoto,
-            status: "<span style='color: red;'>ยังไม่ขาย</span>", // กำหนดค่าของ status ให้ถูกต้อง
-            loan: loan._id // อ้างอิงถึง ObjectId ของ LoanInformation
+            loan // ใช้ loan ค่าที่ส่งมาจะต้องเป็น ObjectId
+        } = req.body;
+
+        // ตรวจสอบข้อมูลที่สำคัญ
+        if (!loan) {
+            return res.status(400).send('Error: Loan ID is required.');
+        }
+
+        // บันทึกไฟล์ในฐานข้อมูล
+        const fileIds = {};
+        if (req.files['assetPhoto']) {
+            fileIds['assetPhoto'] = [];
+            for (const file of req.files['assetPhoto']) {
+                const savedFile = await saveFile(file);
+                fileIds['assetPhoto'].push(savedFile._id);
+            }
+        }
+
+        if (req.files['seizureCost2']) {
+            fileIds['seizureCost2'] = [];
+            for (const file of req.files['seizureCost2']) {
+                const savedFile = await saveFile(file);
+                fileIds['seizureCost2'].push(savedFile._id);
+            }
+        }
+
+        // สร้างเอกสารยึดทรัพย์
+        const newSeizure = new Seizure({
+            id_card_number,
+            contract_number,
+            bill_number,
+            seizureDate,
+            principal,
+            collector_name: req.body.collector_name,
+            seizureCost: req.body.seizureCost,
+            totalproperty: req.body.totalproperty,
+            assetName,
+            assetDetails,
+            assetPhoto: fileIds['assetPhoto'] || [],
+            seizureCost2: fileIds['seizureCost2'] || [],
+            status: "<span style='color: red;'>ยังไม่ขาย</span>", // หรือสถานะอื่น ๆ ที่เหมาะสม
+            loan // ค่าของ `loan` ต้องเป็น ObjectId ที่อ้างอิงถึงเอกสารใน `LoanInformation`
         });
 
         await newSeizure.save();
-
-        // อัปเดตสถานะใน LoanInformation เป็น "ยึดทรัพย์"
-        loan.status = "<span style='color: red;'>ยึดทรัพย์</span>";
-        await loan.save();
-
-        res.redirect('/คลังทรัพย์สิน.html');
+        res.redirect('/คลังทรัพย์สิน.html'); // เปลี่ยนเส้นทางไปยังหน้า คลังทรัพย์สิน.html
     } catch (err) {
         res.status(400).send(`Error: ${err.message}`);
     }
@@ -1556,11 +1864,12 @@ app.post('/api/seize-assets', upload.single('assetPhoto'), async (req, res) => {
 
 
 
+
 // ส่งข้อมูลไปหน้าคลังทรัพย์สิน
 app.get('/api/seize-assets', async (req, res) => {
     try {
         const seizures = await Seizure.find()
-            .sort({ seizureDate: -1 }); // จัดเรียงตามวันที่ (ล่าสุดไปเก่าสุด)
+            .sort({ seizureDate: -1, _id: -1 }); // จัดเรียงตามวันที่ล่าสุดไปเก่าสุด และตาม _id เป็นการสำรอง
         res.json(seizures);
     } catch (err) {
         res.status(500).send(`Error: ${err.message}`);
@@ -1573,10 +1882,35 @@ app.get('/api/seize-assets', async (req, res) => {
 // ลบข้อมูลทรัพย์สิน
 app.delete('/api/seize-assets/:seizureId', async (req, res) => {
     try {
-        const seizure = await Seizure.findByIdAndDelete(req.params.seizureId);
+        const seizureId = req.params.seizureId;
+
+        // Find and delete related sales
+        const sales = await Sale.find({ seizure_id: seizureId }).populate('sell_slip');
+        if (sales.length > 0) {
+            // Delete files associated with each sale
+            const fileIds = sales.flatMap(sale => sale.sell_slip);
+            if (fileIds.length > 0) {
+                await File.deleteMany({ _id: { $in: fileIds } });
+            }
+
+            // Delete the sales
+            await Sale.deleteMany({ seizure_id: seizureId });
+        }
+
+        // Find and delete the seizure
+        const seizure = await Seizure.findByIdAndDelete(seizureId).populate('assetPhoto seizureCost2');
         if (!seizure) {
             return res.status(404).send("ไม่พบทรัพย์สินที่ต้องการลบ");
         }
+
+        // Delete associated files from Seizure
+        if (seizure.assetPhoto.length > 0) {
+            await File.deleteMany({ _id: { $in: seizure.assetPhoto } });
+        }
+        if (seizure.seizureCost2.length > 0) {
+            await File.deleteMany({ _id: { $in: seizure.seizureCost2 } });
+        }
+
         res.send(seizure);
     } catch (error) {
         res.status(500).send(`Error: ${error.message}`);
@@ -1585,16 +1919,60 @@ app.delete('/api/seize-assets/:seizureId', async (req, res) => {
 
 
 
+// เส้นทางสำหรับดึงข้อมูลยึดทรัพย์ตาม ID
+app.get('/api/seize-assetss/:id', async (req, res) => {
+    try {
+        const seizureId = req.params.id;
+
+        // ค้นหาข้อมูลยึดทรัพย์ในฐานข้อมูล
+        const seizure = await Seizure.findById(seizureId)
+            .populate('assetPhoto') // ตรวจสอบว่า populate ทำงานได้อย่างถูกต้อง
+            .populate('seizureCost2'); // ตรวจสอบว่า populate ทำงานได้อย่างถูกต้อง
+
+        if (!seizure) {
+            return res.status(404).send('Seizure not found');
+        }
+
+        // ส่งข้อมูลกลับไปยังไคลเอนต์
+        res.json(seizure);
+    } catch (err) {
+        res.status(500).send(`Error: ${err.message}`);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // บันทึกการขายทรัพย์
 app.post('/submit-sale', upload.single('sell_slip'), async (req, res) => {
     const { id_card_number, contract_number, bill_number, totalproperty, sell_date, assetName, assetDetails, sellamount, netprofit, seizure_id } = req.body;
-    const sell_slip = req.file ? req.file.filename : null;
+    const sell_slip_file = req.file; // ไฟล์ที่อัพโหลด
     
     try {
         // ตรวจสอบว่า seizure_id เป็น ObjectId ที่ถูกต้อง
         if (!mongoose.Types.ObjectId.isValid(seizure_id)) {
             throw new Error('Invalid seizure ObjectId');
+        }
+
+        // แปลงไฟล์ที่อัพโหลดเป็น Base64 data
+        let sell_slip = null;
+        if (sell_slip_file) {
+            sell_slip = {
+                name: sell_slip_file.originalname,
+                data: `data:${sell_slip_file.mimetype};base64,${sell_slip_file.buffer.toString('base64')}`,
+                mimetype: sell_slip_file.mimetype
+            };
         }
     
         // สร้างข้อมูลการขายใหม่
@@ -1608,7 +1986,7 @@ app.post('/submit-sale', upload.single('sell_slip'), async (req, res) => {
             assetDetails,
             sellamount,
             netprofit,
-            sell_slip,
+            sell_slip: sell_slip ? await new File(sell_slip).save() : null, // บันทึกไฟล์เป็น Base64 data
             seizure_id: seizure_id // เชื่อมต่อกับ ID ของการยึดทรัพย์
         });
     
@@ -1629,7 +2007,7 @@ app.post('/submit-sale', upload.single('sell_slip'), async (req, res) => {
         // บันทึกการเปลี่ยนแปลงลงใน MongoDB
         await seizure.save();
     
-        // บันทึกสำเร็จ ให้ redirect ไปยังหน้า "ขายทรัพย์.html"
+        // บันทึกสำเร็จ ให้ redirect ไปยังหน้า "ขายทรัพย์สิน.html"
         res.redirect('/ขายทรัพย์สิน.html');
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล:', err);
@@ -1644,8 +2022,8 @@ app.get('/sales', async (req, res) => {
     try {
         // หาข้อมูลการขายทั้งหมดจากฐานข้อมูล
         const sales = await Sale.find()
-            .populate('seizure_id')
-            .sort({ contract_number: -1, bill_number: -1 }); // เพิ่มการจัดเรียงตาม contract_number และ bill_number
+            .populate('seizure_id')  // อ้างอิงถึง seizure_id ซึ่งเชื่อมโยงกับ Seizure schema
+            .sort({ sell_date: -1, _id: -1 }); // จัดเรียงตามวันที่ (ล่าสุดไปเก่าสุด) และสำรองด้วย _id
 
         // ส่งข้อมูลการขายในรูปแบบ JSON
         res.json(sales);
@@ -1654,6 +2032,8 @@ app.get('/sales', async (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลการขาย');
     }
 });
+
+
 
 
 
@@ -1668,6 +2048,15 @@ app.delete('/sales/:saleId', async (req, res) => {
         }
 
         console.log('Deleted Sale:', deletedSale);
+
+        // ตรวจสอบว่ามีไฟล์ที่เกี่ยวข้องกับ Sale หรือไม่
+        if (deletedSale.sell_slip && deletedSale.sell_slip.length > 0) {
+            // ลบไฟล์จากฐานข้อมูล
+            await File.deleteMany({ _id: { $in: deletedSale.sell_slip } });
+            console.log('Deleted related files');
+        } else {
+            console.log('ไม่มีไฟล์ที่เกี่ยวข้องกับ Sale นี้');
+        }
 
         // ค้นหา Seizure ที่เกี่ยวข้องกับ sale ที่ถูกลบ
         const seizure = await Seizure.findById(deletedSale.seizure_id);
@@ -1690,15 +2079,33 @@ app.delete('/sales/:saleId', async (req, res) => {
 });
 
 
+//เเสดงข้อมูลขายทรัพย์ตามไอดี
+app.get('/saless/:id', async (req, res) => {
+    try {
+        // ค้นหาข้อมูลการขายทรัพย์และเชื่อมโยงกับข้อมูลไฟล์ภาพ
+        const sale = await Sale.findById(req.params.id).populate('sell_slip');
+
+        if (!sale) {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลการขายทรัพย์' });
+        }
+
+        res.json(sale);
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาด:', err);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+});
 
 
 
 
 
 // บันทึกไอคราว
+// อัปเดตข้อมูล iCloudRecord หรือสร้างใหม่ถ้าไม่มี _id
 app.post('/save_record', async (req, res) => {
     try {
         const {
+            _id, // รับ _id หากมี
             record_date,
             device_id,
             phone_number,
@@ -1720,28 +2127,49 @@ app.post('/save_record', async (req, res) => {
 
         console.log(`Found ${countIcloudRecords} iCloudRecords with matching email_icloud: ${user_email}`);
 
-        // สร้าง iCloudRecord ใหม่
-        const newRecord = new iCloudRecord({
-            record_date,
-            device_id,
-            phone_number,
-            user_email,
-            email_password,
-            icloud_password,
-            number_of_users: countIcloudRecords, // กำหนดจำนวน iCloudRecord จาก LoanInformation
-            status: "active" // ตั้งค่าสถานะ
-        });
+        let savedRecord;
 
-        // บันทึก iCloudRecord
-        const savedRecord = await newRecord.save();
-        console.log("iCloud record saved successfully");
+        if (_id) {
+            // อัปเดตข้อมูล iCloudRecord ที่มี _id
+            savedRecord = await iCloudRecord.findByIdAndUpdate(
+                _id,
+                {
+                    record_date,
+                    device_id,
+                    phone_number,
+                    user_email,
+                    email_password,
+                    icloud_password,
+                    number_of_users: countIcloudRecords, // อัปเดตจำนวน iCloudRecord จาก LoanInformation
+                    status: "active" // ตั้งค่าสถานะ
+                },
+                { new: true } // คืนค่าข้อมูลใหม่หลังจากอัปเดต
+            );
+            console.log("iCloud record updated successfully");
+        } else {
+            // สร้าง iCloudRecord ใหม่
+            const newRecord = new iCloudRecord({
+                record_date,
+                device_id,
+                phone_number,
+                user_email,
+                email_password,
+                icloud_password,
+                number_of_users: countIcloudRecords, // กำหนดจำนวน iCloudRecord จาก LoanInformation
+                status: "active" // ตั้งค่าสถานะ
+            });
+
+            savedRecord = await newRecord.save();
+            console.log("iCloud record saved successfully");
+        }
 
         res.status(201).redirect('/ไอคราว.html');
     } catch (err) {
-        console.error("Error saving iCloud record:", err);
-        res.status(500).send('Failed to save iCloud Record');
+        console.error("Error saving or updating iCloud record:", err);
+        res.status(500).send('Failed to save or update iCloud Record');
     }
 });
+
 
 
 
@@ -1753,8 +2181,12 @@ app.post('/save_record', async (req, res) => {
 // ส่งข้อมูลไอคราวไปหน้าไอคราว
 app.get('/get_records', async (req, res) => {
     try {
-        const records = await iCloudRecord.find().sort({ record_date: -1 }).populate('loan');
+        // เรียงข้อมูลตาม record_date และ _id จากใหม่ไปเก่า
+        const records = await iCloudRecord.find()
+            .sort({ record_date: -1, _id: -1 })  // เรียงตาม record_date และ _id
+            .populate('loan');
 
+        // คำนวณจำนวนเอกสารใน LoanInformation ที่ตรงกับ phoneicloud หรือ email_icloud
         const recordsWithLoanCount = await Promise.all(records.map(async (record) => {
             const loanCount = await LoanInformation.countDocuments({
                 $or: [
@@ -1771,6 +2203,7 @@ app.get('/get_records', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 
 
@@ -1846,6 +2279,24 @@ app.delete('/delete_record/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Failed to delete iCloud Record');
+    }
+});
+
+
+// เเสดงข้อมูลไอคราวตามid
+app.get('/api/icloudRecordd/:id', async (req, res) => {
+    try {
+        const recordId = req.params.id;
+        const record = await iCloudRecord.findById(recordId);
+
+        if (!record) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+
+        res.json(record);
+    } catch (error) {
+        console.error('Failed to fetch record:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
@@ -2026,21 +2477,35 @@ app.post('/save-income', upload.single('income_receipt'), async (req, res) => {
     try {
         // ดึงข้อมูลจากแบบฟอร์ม
         const { record_date, income_amount, details } = req.body;
-        const incomeReceiptPath = req.file ? req.file.path : '';
+
+        // ถ้ามีไฟล์ที่อัปโหลด
+        let incomeReceiptFile = null;
+        if (req.file) {
+            // อ่านไฟล์และแปลงเป็น Base64
+            const fileData = req.file.buffer.toString('base64');
+            incomeReceiptFile = new File({
+                name: req.file.originalname,
+                data: fileData,
+                mimetype: req.file.mimetype
+            });
+
+            // บันทึกไฟล์ลงในฐานข้อมูล
+            await incomeReceiptFile.save();
+        }
 
         // สร้าง instance ใหม่ของ Income
         const newIncome = new Income({
             record_date: record_date, // แปลงวันที่เป็น Date object
             income_amount: parseFloat(income_amount), // แปลงยอดรายได้เป็น Number
             details: details, // รายละเอียด
-            income_receipt_path: incomeReceiptPath // บันทึกพาธของไฟล์สลิปรายได้
+            income_receipt_path: incomeReceiptFile ? [incomeReceiptFile._id] : [] // เก็บ ObjectId ของไฟล์ที่บันทึก
         });
 
         // บันทึกข้อมูลลงฐานข้อมูล
         await newIncome.save();
 
         // ส่งข้อมูลกลับเป็น JSON response
-        res.redirect('/รายงานผล.html');
+        res.redirect('/ตารางรายได้ค่าใช้จ่ายเงินทุน.html');
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ', err);
         res.status(500).json({ error: 'พบข้อผิดพลาดในการบันทึกข้อมูล' });
@@ -2053,21 +2518,35 @@ app.post('/save-expense', upload.single('expense_receipt'), async (req, res) => 
     try {
         // ดึงข้อมูลจากแบบฟอร์ม
         const { expense_date, expense_amount, details } = req.body;
-        const expenseReceiptPath = req.file ? req.file.path : '';
 
-        // สร้าง instance ใหม่ของ Expense (หรือตามชื่อ model ที่ใช้)
+        // ถ้ามีไฟล์ที่อัปโหลด
+        let expenseReceiptFile = null;
+        if (req.file) {
+            // แปลงไฟล์เป็น Base64
+            const fileData = req.file.buffer.toString('base64');
+            expenseReceiptFile = new File({
+                name: req.file.originalname,
+                data: fileData,
+                mimetype: req.file.mimetype
+            });
+
+            // บันทึกไฟล์ลงในฐานข้อมูล
+            await expenseReceiptFile.save();
+        }
+
+        // สร้าง instance ใหม่ของ Expense
         const newExpense = new Expense({
-            expense_date: expense_date, // แปลงวันที่เป็น Date object
+            expense_date: expense_date, // แปลงวันที่เป็น Date object (หากจำเป็น)
             expense_amount: parseFloat(expense_amount), // แปลงยอดค่าใช้จ่ายเป็น Number
             details: details, // รายละเอียด
-            expense_receipt_path: expenseReceiptPath // บันทึกพาธของไฟล์สลิปรายได้
+            expense_receipt_path: expenseReceiptFile ? [expenseReceiptFile._id] : [] // เก็บ ObjectId ของไฟล์ที่บันทึก
         });
 
         // บันทึกข้อมูลลงฐานข้อมูล
         await newExpense.save();
 
         // ส่งข้อมูลกลับเป็น JSON response
-        res.redirect('/รายงานผล.html');
+        res.redirect('/ตารางรายได้ค่าใช้จ่ายเงินทุน.html');
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูลค่าใช้จ่าย: ', err);
         res.status(500).json({ error: 'พบข้อผิดพลาดในการบันทึกข้อมูล' });
@@ -2081,21 +2560,34 @@ app.post('/save-capital', upload.single('capital_receipt'), async (req, res) => 
     try {
         // ดึงข้อมูลจากแบบฟอร์ม
         const { capital_date, capital_amount, details } = req.body;
-        const capitalReceiptPath = req.file ? req.file.path : '';
+
+        let capitalReceiptFile = null;
+        if (req.file) {
+            // อ่านไฟล์และแปลงเป็น Base64
+            const fileData = req.file.buffer.toString('base64');
+            capitalReceiptFile = new File({
+                name: req.file.originalname,
+                data: fileData,
+                mimetype: req.file.mimetype
+            });
+
+            // บันทึกไฟล์ลงในฐานข้อมูล
+            await capitalReceiptFile.save();
+        }
 
         // สร้าง instance ใหม่ของ Capital
         const newCapital = new Capital({
             capital_date: capital_date, // แปลงวันที่เป็น Date object
             capital_amount: parseFloat(capital_amount), // แปลงยอดเงินทุนเป็น Number
             details: details, // รายละเอียด
-            capital_receipt_path: capitalReceiptPath // บันทึกพาธของไฟล์สลิปเงินทุน
+            capital_receipt_path: capitalReceiptFile ? [capitalReceiptFile._id] : [] // เก็บ ObjectId ของไฟล์ที่บันทึก
         });
 
         // บันทึกข้อมูลลงฐานข้อมูล
         await newCapital.save();
 
         // ส่งข้อมูลกลับเป็น JSON response
-        res.redirect('/รายงานผล.html');
+        res.redirect('/ตารางรายได้ค่าใช้จ่ายเงินทุน.html');
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูลเงินทุน: ', err);
         res.status(500).json({ error: 'พบข้อผิดพลาดในการบันทึกข้อมูล' });
@@ -2235,6 +2727,146 @@ app.get('/getCapitals', async (req, res) => {
         res.status(500).json({ error: 'Error fetching capitals' });
     }
 });
+
+
+// เส้นทางเเสดงข้อมูลรายได้ค่าใช้จ่ายเงินทุน
+app.get('/api/get-all-data', async (req, res) => {
+    try {
+        // ดึงข้อมูลจากคอลเลกชันต่างๆ
+        const incomes = await Income.find().populate('income_receipt_path').exec();
+        const expenses = await Expense.find().populate('expense_receipt_path').exec();
+        const capitals = await Capital.find().populate('capital_receipt_path').exec();
+
+        // รวมข้อมูลทั้งหมดใน array เดียว
+        const allData = [
+            ...incomes.map(item => ({ ...item.toObject(), type: 'income' })),
+            ...expenses.map(item => ({ ...item.toObject(), type: 'expense' })),
+            ...capitals.map(item => ({ ...item.toObject(), type: 'capital' }))
+        ];
+
+        // เรียงลำดับข้อมูลทั้งหมดตาม _id ใหม่ไปเก่า
+        allData.sort((a, b) => b._id.getTimestamp() - a._id.getTimestamp());
+
+        // ส่งข้อมูลกลับเป็น JSON response
+        res.json(allData);
+    } catch (err) {
+        console.error('Error fetching data: ', err);
+        res.status(500).json({ error: 'Error fetching data' });
+    }
+});
+
+//ลบข้อมูลรายได้ค่าใช้จ่ายเงินทุน
+app.delete('/api/delete-item/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        let result;
+
+        // ลองลบในทุกคอลเล็กชัน (income, expense, capital)
+        result = await Income.findByIdAndDelete(id) ||
+                 await Expense.findByIdAndDelete(id) ||
+                 await Capital.findByIdAndDelete(id);
+
+        if (result) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, error: 'Item not found' });
+        }
+    } catch (err) {
+        console.error('Error deleting item:', err);
+        res.status(500).json({ success: false, error: 'Error deleting item' });
+    }
+});
+
+// ดูข้อมูลรายได้
+app.get('/api/get-income5/:id', async (req, res) => {
+    try {
+        const incomeId = req.params.id;
+        const income = await Income.findById(incomeId).populate('income_receipt_path');
+        
+        console.log('Income:', income); // Debugging line
+        
+        if (income) {
+            if (income.income_receipt_path.length > 0) {
+                const file = income.income_receipt_path[0];
+                const imageData = `data:${file.mimetype};base64,${file.data.toString('base64')}`;
+                income.income_receipt_url = imageData;
+            }
+            
+            res.json(income);
+        } else {
+            res.status(404).json({ message: 'ไม่พบข้อมูล' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'เกิดข้อผิดพลาด', error });
+    }
+});
+
+
+//ดูข้อมูลค่าใช้จ่าย
+// ดูข้อมูลค่าใช้จ่าย
+app.get('/api/get-expense5/:id', async (req, res) => {
+    try {
+        const expenseId = req.params.id;
+        const expense = await Expense.findById(expenseId).populate('expense_receipt_path');
+
+        if (!expense) {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลค่าใช้จ่าย' });
+        }
+
+        // สร้าง URL สำหรับไฟล์ภาพ
+        const expenseReceiptUrls = expense.expense_receipt_path.map(file => ({
+            mimetype: file.mimetype,
+            url: `data:${file.mimetype};base64,${file.data.toString('base64')}`
+        }));
+
+        res.json({
+            expense_date: expense.expense_date,
+            expense_amount: expense.expense_amount,
+            details: expense.details,
+            expense_receipt_path: expenseReceiptUrls
+        });
+    } catch (error) {
+        console.error('Error fetching expense:', error);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาด', error });
+    }
+});
+
+
+
+
+
+
+// ดูข้อมูลเงินทุน
+app.get('/api/get-capital/:id', async (req, res) => {
+    try {
+        const capitalId = req.params.id;
+        const capital = await Capital.findById(capitalId).populate('capital_receipt_path');
+
+        if (!capital) {
+            return res.status(404).json({ message: 'Capital not found' });
+        }
+
+        // สร้างตัวแปรสำหรับไฟล์ภาพ
+        const capitalReceiptPath = capital.capital_receipt_path.map(file => ({
+            mimetype: file.mimetype,
+            data: file.data.toString('base64') // แปลงข้อมูลเป็น base64
+        }));
+
+        res.json({
+            capital_date: capital.capital_date,
+            capital_amount: capital.capital_amount,
+            details: capital.details,
+            capital_receipt_path: capitalReceiptPath
+        });
+    } catch (error) {
+        console.error('Error fetching capital:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+
+
 
 
 
