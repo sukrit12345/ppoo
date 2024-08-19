@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 89%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -204,15 +204,24 @@ input[type=text] {
 
     <label for="assetPhoto">รูปทรัพย์ที่ยึด:</label>
     <input type="file" id="assetPhoto" name="assetPhoto">
+    <br>
+    <img  id="assetPhoto_preview" alt="assetPhoto" style="display: none; max-width: 500px; max-height: 500px;">
+    <br>
 
     <label for="seizureCost2">รูปสลิปค่ายึดทรัพย์:</label>
     <input type="file" id="seizureCost2" name="seizureCost2">
+    <br>
+    <img  id="seizureCost2_preview" alt="seizureCost2" style="display: none; max-width: 500px; max-height: 500px;">
+    <br>
     
   </fieldset>
   <br>
   <input type="hidden" id="loan" name="loan">
+  <input type="hidden" id="assetPhotoBase64" name="assetPhotoBase64">
+  <input type="hidden" id="seizureCost2Base64" name="seizureCost2Base64">
+
   
-    <input type="submit" value="บันทึกยึดทรัพย์" class="button">
+    <input id="save_button" type="submit" value="บันทึกยึดทรัพย์" class="button">
  </form>
 
   <script src="บันทึกยึดทรัพย์.js"></script>

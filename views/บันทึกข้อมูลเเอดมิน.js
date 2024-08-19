@@ -15,7 +15,11 @@ function setDate() {
 
 
 
+  
 
+
+
+//ตรวจ บัตร เบอร รหัสยืนยัน
 document.addEventListener("DOMContentLoaded", function() {
     var phoneInput = document.getElementById("phone");
     var phoneErrorMessage = document.getElementById("error_message");
@@ -29,12 +33,18 @@ document.addEventListener("DOMContentLoaded", function() {
     // ฟังก์ชันตรวจสอบข้อมูลเบอร์โทรศัพท์
     function validatePhoneInput() {
         var value = phoneInput.value;
-
+    
         // ตรวจสอบและแก้ไขค่าที่ป้อนในช่อง input
         if (/[^0-9]/.test(value) || value.length > 10) {
             phoneInput.value = value.replace(/[^0-9]/g, "").slice(0, 10);
         }
-
+    
+        // ตรวจสอบกรณีที่ฟิลด์ว่าง (ไม่ได้กรอกใหม่)
+        if (value.length === 0) {
+            phoneErrorMessage.textContent = ""; // ไม่มีข้อผิดพลาดถ้าไม่กรอกใหม่
+            return true; // ถือว่าผ่านการตรวจสอบ
+        }
+    
         // แสดงข้อความ "เบอร์โทรศัพท์ไม่ถูกต้อง" หากข้อมูลไม่ถูกต้อง
         if (phoneInput.value.length === 10) {
             phoneErrorMessage.textContent = "";
@@ -47,16 +57,23 @@ document.addEventListener("DOMContentLoaded", function() {
             return false;
         }
     }
+    
 
     // ฟังก์ชันตรวจสอบข้อมูลเลขบัตรประชาชน
     function validateIdCardInput() {
         var value = idCardInput.value;
-
+    
         // ตรวจสอบและแก้ไขค่าที่ป้อนในช่อง input
         if (/[^0-9]/.test(value) || value.length > 13) {
             idCardInput.value = value.replace(/[^0-9]/g, "").slice(0, 13);
         }
-
+    
+        // ตรวจสอบกรณีที่ฟิลด์ว่าง (ไม่ได้กรอกใหม่)
+        if (value.length === 0) {
+            idCardErrorMessage.textContent = ""; // ไม่มีข้อผิดพลาดถ้าไม่กรอกใหม่
+            return true; // ถือว่าผ่านการตรวจสอบ
+        }
+    
         // แสดงข้อความ "เลขบัตรประชาชนไม่ถูกต้อง" หากข้อมูลไม่ถูกต้อง
         if (idCardInput.value.length === 13) {
             idCardErrorMessage.textContent = "";
@@ -69,16 +86,23 @@ document.addEventListener("DOMContentLoaded", function() {
             return false;
         }
     }
+    
 
     // ฟังก์ชันตรวจสอบข้อมูลรหัสยืนยันตัวตน
     function validateAuthenticationInput() {
         var value = authenticationInput.value;
-
+    
         // ตรวจสอบและแก้ไขค่าที่ป้อนในช่อง input
         if (/[^0-9]/.test(value) || value.length > 6) {
             authenticationInput.value = value.replace(/[^0-9]/g, "").slice(0, 6);
         }
-
+    
+        // ตรวจสอบกรณีที่ฟิลด์ว่าง (ไม่ได้กรอกใหม่)
+        if (value.length === 0) {
+            authenticationErrorMessage.textContent = ""; // ไม่มีข้อผิดพลาดถ้าไม่กรอกใหม่
+            return true; // ถือว่าผ่านการตรวจสอบ
+        }
+    
         // แสดงข้อความ "รหัสยืนยันตัวตนไม่ถูกต้อง" หากข้อมูลไม่ถูกต้อง
         if (authenticationInput.value.length === 6) {
             authenticationErrorMessage.textContent = "";
@@ -91,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return false;
         }
     }
+    
 
     // ฟังก์ชันตรวจสอบฟอร์มทั้งหมด
     function validateForm() {
@@ -123,3 +148,39 @@ document.addEventListener("DOMContentLoaded", function() {
     // เรียกใช้งาน validateForm เมื่อเริ่มต้นเพื่อให้แน่ใจว่าปุ่ม submit ถูกตั้งค่าอย่างถูกต้อง
     validateForm();
 });
+
+
+
+
+
+
+
+
+//เเสดงข้อมูลตามไอดี
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const managerId = urlParams.get('_id');
+
+    if (managerId) {
+        // ตั้งค่าฟิลด์ hidden ด้วย ID ที่ดึงมาจาก URL
+        document.getElementById('manager_id').value = managerId;
+
+        // ดึงข้อมูลผู้จัดการและแสดงในฟอร์ม
+        fetch(`/api/managersss/${managerId}`)
+            .then(response => response.json())
+            .then(manager => {
+                document.getElementById('record_date').value = manager.record_date || '';
+                document.getElementById('id_card_number').value = manager.id_card_number || '';
+                document.getElementById('fname').value = manager.fname || '';
+                document.getElementById('lname').value = manager.lname || '';
+                document.getElementById('phone').value = manager.phone || '';
+                document.getElementById('nickname').value = manager.nickname || '';
+                document.getElementById('ig').value = manager.ig || '';
+                document.getElementById('facebook').value = manager.facebook || '';
+                document.getElementById('line').value = manager.line || '';
+                document.getElementById('authentication').value = manager.authentication || '';
+            })
+            .catch(error => console.error('เกิดข้อผิดพลาดในการดึงข้อมูลผู้จัดการ:', error));
+    }
+});
+

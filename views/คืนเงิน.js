@@ -114,16 +114,36 @@ function redirectToContractPage5() {
 
 document.addEventListener("DOMContentLoaded", async function() {
     try {
+        // ดึงค่าพารามิเตอร์จาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const idCardNumber = urlParams.get('id_card_number');
+
+        // ดึงข้อมูลคืนเงินจาก API
         const response = await fetch(`/api/refunds/${idCardNumber}`);
         const refunds = await response.json();
 
+        // ตรวจสอบข้อมูลที่ได้รับ
+        console.log('Refunds data:', refunds);
 
         const refundData = document.getElementById('refundData');
 
         refunds.forEach(refund => {
             const row = document.createElement('tr');
+
+            // ตรวจสอบสถานะ ถ้าเป็น "<span style=\"color: green;\">เเบ่งเเล้ว</span>" ให้ทำการ disable ปุ่มส่วนแบ่ง
+            const isDivided = refund.status === "<span style=\"color: green;\">เเบ่งเเล้ว</span>";
+            const dividedButton = isDivided
+                ? '<button disabled>แบ่งแล้ว</button>'
+                : `<button onclick="divided(
+                     '${refund._id}',
+                     '${refund.id_card_number}',
+                     '${refund.lname}',
+                     '${refund.fname}',
+                     '${refund.manager}',
+                     '${refund.contract_number}',
+                     '${refund.bill_number}',
+                     '${refund.initial_profit}'
+                   )">ส่วนแบ่ง</button>`;
 
             row.innerHTML = `
                 <td>${refund.contract_number}</td>
@@ -140,20 +160,11 @@ document.addEventListener("DOMContentLoaded", async function() {
                 <td>${refund.initial_profit}</td>
                 <td>${refund.status}</td> 
                 <td>
-                    <button onclick="redirectToEdit('${refund._id}')">แก้ไข</button>
-                    <button onclick="deleteRefund('${refund._id}')">ลบ</button>
+                   <button onclick="viewRefund('${refund._id}', '${refund.loan ? refund.loan._id : ''}')">ดู</button>
+                   <button onclick="deleteRefund('${refund._id}')">ลบ</button>
                 </td>
                 <td>
-                   <button onclick="divided(
-                     '${refund._id}',
-                     '${refund.id_card_number}',
-                     '${refund.lname}',
-                     '${refund.fname}',
-                     '${refund.manager}',
-                     '${refund.contract_number}',
-                     '${refund.bill_number}',
-                     '${refund.initial_profit}'
-                   )">ส่วนแบ่ง</button>
+                   ${dividedButton}
                 </td>
             `;
 
@@ -166,10 +177,28 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
-function redirectToEdit(_id) {
-    // เปลี่ยนเส้นทางไปยังหน้า "บันทึกคืนเงิน" และส่ง _id เป็นพารามิเตอร์ใน URL
-    window.location.href = `/บันทึกคืนเงิน.html?_id=${encodeURIComponent(_id)}`;
+
+
+
+
+//ดู
+function viewRefund(refundId, loanId) {
+    console.log('Viewing with refundId:', refundId, 'and loanId:', loanId);
+    // ตรวจสอบให้แน่ใจว่า loanId เป็น string และไม่ใช่ออบเจ็กต์
+    if (typeof loanId === 'object') {
+        loanId = loanId._id;
+    }
+    window.location.href = `/บันทึกคืนเงิน.html?_id=${encodeURIComponent(refundId)}&loan_id=${encodeURIComponent(loanId)}`;
 }
+
+
+
+
+
+
+
+
+
 
 // ลบข้อมูลคืนเงิน
 function deleteRefund(refundId) {

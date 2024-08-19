@@ -145,15 +145,24 @@ async function displayLoanData() {
 
         const response = await fetch(`/api/loan-data?id_card_number=${idCardNumber}`);
         const data = await response.json();
-        console.log(data)
+        console.log(data);
         const tableBody = document.getElementById("loanData");
         tableBody.innerHTML = ''; // Clear table before adding new data
-
-
 
         data.forEach(loan => {
             const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody
             row.id = `row-${loan._id}`; // Set id for the row
+
+            // ตรวจสอบสถานะของ loan.status
+            const isRefundDisabled = loan.status === "<span style='color: green;'>ต่อดอก</span>" || 
+                                      loan.status === "<span style='color: green;'>ชำระครบ</span>";
+            const isSeizeDisabled = loan.status === "<span style='color: red;'>ยึดทรัพย์</span>";
+
+            const refundButtonText = isRefundDisabled ? "คืนแล้ว" : "คืนเงิน";
+            const refundButtonState = isRefundDisabled || isSeizeDisabled ? 'disabled' : '';
+
+            const seizeButtonText = isSeizeDisabled ? "ยึดแล้ว" : "ยึดทรัพย์";
+            const seizeButtonState = isSeizeDisabled || isRefundDisabled ? 'disabled' : ''; // ปิดปุ่ม seizeAssets หากสถานะเป็น isRefundDisabled
 
             row.innerHTML = `
                 <td>${loan.contract_number}</td>
@@ -176,8 +185,8 @@ async function displayLoanData() {
                     <button onclick="redirectToDelete('${loan._id}', '${loan.id_card_number}')">ลบ</button>
                     <button onclick="redirectToclose('${loan._id}', '${loan.id_card_number}')">ปิด</button>
                 </td>
-                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}')">ยึดทรัพย์</button></td>
-                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}', '${loan.totalInterest4}', '${loan.totalRefund}')">คืนเงิน</button></td>
+                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}')" ${seizeButtonState}>${seizeButtonText}</button></td>
+                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}', '${loan.totalInterest4}', '${loan.totalRefund}')" ${refundButtonState}>${refundButtonText}</button></td>
             `;
         });
     } catch (error) {
@@ -185,11 +194,14 @@ async function displayLoanData() {
     }
 }
 
-
-
 window.onload = function () {
     displayLoanData();
 };
+
+
+
+
+
 
 
 

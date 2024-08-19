@@ -17,11 +17,16 @@ async function displaySeizureData() {
         const tableBody = document.getElementById("seizureData").querySelector('tbody');
         tableBody.innerHTML = ''; // Clear the table before adding new data
 
-
         // For each seizure, create a new row
         data.forEach((seizure, index) => {
             const row = tableBody.insertRow();
             row.id = `row-${seizure._id}`; // Set the ID for the row
+
+            // ตรวจสอบสถานะ ถ้าเป็น "ขายเเล้ว" ให้ทำการ disable ปุ่มขาย
+            const isSold = seizure.status === "<span style='color: green;'>ขายเเล้ว</span>";
+            const sellButton = isSold 
+                ? '<button disabled>ขายเเล้ว</button>' 
+                : `<button onclick="handleSell('${seizure._id}', '${seizure.contract_number}','${seizure.bill_number}','${seizure.id_card_number}', '${seizure.totalproperty}', '${encodeURIComponent(seizure.assetName)}', '${encodeURIComponent(seizure.assetDetails)}')">ขาย</button>`;
 
             row.innerHTML = `
                 <td>${data.length - index}</td> <!-- Reverse index order -->
@@ -36,16 +41,17 @@ async function displaySeizureData() {
                 <td>${seizure.assetDetails}</td>
                 <td>${seizure.status}</td>
                 <td>
-                    <button onclick="redirectToEdit('${seizure._id}')">แก้ไข</button>
+                    <button onclick="redirectToView('${seizure._id}')">ดู</button>
                     <button onclick="deleteSeizure('${seizure._id}')">ลบ</button>
                 </td>
-                <td><button onclick="handleSell('${seizure._id}', '${seizure.contract_number}','${seizure.bill_number}','${seizure.id_card_number}', '${seizure.totalproperty}', '${encodeURIComponent(seizure.assetName)}', '${encodeURIComponent(seizure.assetDetails)}')">ขาย</button></td>
+                <td>${sellButton}</td>
             `;
         });
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
     }
 }
+
 
 
 
@@ -64,7 +70,11 @@ function handleSell(seizure_id, contract_number, bill_number, id_card_number, to
     }
 }
 
-
+//ดู
+function redirectToView(seizureId) {
+    // เปลี่ยนเส้นทางไปยังหน้า 'ดูรายละเอียด' โดยส่ง ID ของยึดทรัพย์
+    window.location.href = `/บันทึกยึดทรัพย์.html?seizure_id=${seizureId}`;
+}
 
 
 //ลบข้อมูลทรัย์

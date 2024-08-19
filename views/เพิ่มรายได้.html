@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 91.25%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -127,7 +127,17 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
-  
+/* ปรับสไตล์ฟิลด์ทั้งหมดในฟอร์ม */
+form textarea,
+form input[type="file"] {
+    border: 1px solid #ccc; /* สีกรอบ */
+    padding: 8px; /* ระยะห่างภายในฟิลด์ */
+    border-radius: 4px; /* มุมโค้งของกรอบ */
+    box-sizing: border-box; /* รวม border และ padding ในขนาดฟิลด์ */
+    width: 100%; /* ขนาดของฟิลด์เต็มความกว้างของฟอร์ม */
+    margin-bottom: 10px; /* ระยะห่างระหว่างฟิลด์ */
+}
+
 
 </style>
 </head>
@@ -149,31 +159,33 @@ input[type=text] {
 <div class="container">
 
 
-<form action="/save-income" method="post" enctype="multipart/form-data">
-
+  <form action="/save-income" method="post" enctype="multipart/form-data">
     <fieldset>
         <legend>ข้อมูลเพิ่มรายได้</legend>
         <br> 
         <label for="record_date">วันที่บันทึก (เดือน-วัน-ปี):</label>
-        <input type="date" id="record_date" name="record_date" placeholder="เลือกวันที่" required >
+        <input type="date" id="record_date" name="record_date" placeholder="เลือกวันที่" required>
         <br> 
         <br> 
         
         <label for="income_amount">ยอดรายได้:</label>
-        <input type="number" id="income_amount" name="income_amount" placeholder="กรอกยอดรายได้" required >
+        <input type="number" id="income_amount" name="income_amount" placeholder="กรอกยอดรายได้" required>
 
         <label for="details">รายละเอียด:</label>
-        <input type="text" id="details" name="details" placeholder="กรอกรายละเอียด" required >
+        <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea>
 
         <label for="income_receipt">รูปสลิปรายได้:</label>
-        <input type="file" id="income_receipt" name="income_receipt">
-
+        <input type="file" id="income_receipt" name="income_receipt" required>
+        <br>
+        <img id="income_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
+        <br>
     </fieldset> 
     <br> 
-
     <input type="submit" value="เพิ่มรายได้" class="button" id="save_button">
-
 </form>
+
+
+
 
 
 

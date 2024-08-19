@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 86.5%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -154,47 +154,45 @@ input[type=text] {
 
 <div class="container">
 
-  <form id="adminForm" action="/submit" method="post" >
+  <form id="adminForm" action="/submit" method="post">
     <fieldset>
-      <br>
-      <legend>ข้อมูลเเอดมิน</legend>
-    <label for="record_date">วันที่บันทึก:</label>
-    <input type="date" id="record_date" name="record_date" required><br><br>
+        <legend>ข้อมูลเเอดมิน</legend>
+        <label for="record_date">วันที่บันทึก:</label>
+        <input type="date" id="record_date" name="record_date" required><br><br>
 
-    <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+        <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
+        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+        
+        <label for="phone">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></label>
+        <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+        
+        <label for="authentication">รหัสยืนยันตัวตน:<span id="authenticationerror" class="error-message"></label>
+        <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
 
-    <label for="phone">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></label>
-    <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+        <label for="fname">ชื่อจริง:</label>
+        <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
 
-  
-    <label for="authentication">รหัสยืนยันตัวตน:<span id="authenticationerror" class="error-message"></label>
-    <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
-    
-    <label for="fname">ชื่อจริง:</label>
-    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+        <label for="lname">นามสกุล:</label>
+        <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
 
-    <label for="lname">นามสกุล:</label>
-    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
+        <label for="nickname">ชื่อเล่น:</label>
+        <input type="text" id="nickname" name="nickname" placeholder="กรอกชื่อเล่น" required>
 
-    <label for="nickname">ชื่อเล่น:</label>
-    <input type="text" id="nickname" name="nickname" placeholder="กรอกชื่อเล่น" required>
+        <label for="ig">ไอจี:</label>
+        <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี" required>
 
-    <label for="ig">ไอจี:</label>
-    <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี" required>
+        <label for="facebook">เฟสบุ๊ค:</label>
+        <input type="text" id="facebook" name="facebook" placeholder="กรอกชื่อเฟสบุ๊ค" required>
 
-    <label for="facebook">เฟสบุ๊ค:</label>
-    <input type="text" id="facebook" name="facebook" placeholder="กรอกชื่อเฟสบุ๊ค" required>
+        <label for="line">ไลน์:</label>
+        <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
+    </fieldset>
+    <br>
+    <input type="hidden" id="manager_id" name="_id">
 
-    <label for="line">ไลน์:</label>
-    <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
-    
-  </fieldset>
-  <br>
-
-
-    <input type="submit" value="บันทึกคืนเงิน" class="button">
+    <input type="submit" value="บันทึกข้อมูลเเอดมิน" class="button">
 </form>
+
 
 </div> 
 

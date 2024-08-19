@@ -86,8 +86,7 @@ function calculateTotalRefund() {
 
 
 
-
-
+//ตรวจสอบดอกเบี้ย
 document.addEventListener('DOMContentLoaded', function() {
     const refundInterestInput = document.getElementById('refund_interest');
     const totalInterest4Input = document.getElementById('totalInterest4');
@@ -155,34 +154,50 @@ document.getElementById('refund_receipt_photo').addEventListener('change', handl
 document.addEventListener('DOMContentLoaded', async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const refundId = urlParams.get('_id');
-    
+
     if (refundId) {
         try {
             const response = await fetch(`/api/refundss/${refundId}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
             const refund = await response.json();
 
             // เติมข้อมูลในฟอร์ม
-            document.getElementById('manager').value = refund.manager;
-            document.getElementById('id_card_number').value = refund.id_card_number;
-            document.getElementById('fname').value = refund.fname;
-            document.getElementById('lname').value = refund.lname;
-            document.getElementById('contract_number').value = refund.contract_number;
-            document.getElementById('bill_number').value = refund.bill_number;
-            document.getElementById('principal').value = refund.principal;
-            document.getElementById('totalInterest4').value = refund.totalInterest4;
-            document.getElementById('totalRefund').value = refund.totalRefund;
-            document.getElementById('refund_interest').value = refund.refund_interest;
-            document.getElementById('refund_principal').value = refund.refund_principal;
-            document.getElementById('debtAmount').value = refund.debtAmount;
-            document.getElementById('total_refund2').value = refund.total_refund2;
-            
+            document.getElementById('manager').value = refund.manager || '';
+            document.getElementById('id_card_number').value = refund.id_card_number || '';
+            document.getElementById('fname').value = refund.fname || '';
+            document.getElementById('lname').value = refund.lname || '';
+            document.getElementById('return_date_input').value = refund.return_date || '';
+            document.getElementById('contract_number').value = refund.contract_number || '';
+            document.getElementById('bill_number').value = refund.bill_number || '';
+            document.getElementById('principal').value = refund.principal || '';
+            document.getElementById('totalInterest4').value = refund.totalInterest4 || '';
+            document.getElementById('totalRefund').value = refund.totalRefund || '';
+            document.getElementById('refund_interest').value = refund.refund_interest || '';
+            document.getElementById('refund_principal').value = refund.refund_principal || '';
+            document.getElementById('debtAmount').value = refund.debtAmount || '';
+            document.getElementById('total_refund2').value = refund.total_refund2 || '';
 
             // แสดงภาพถ่ายสลิปเงินคืนถ้ามี
-            const receiptPhotoInput = document.getElementById('refund_receipt_photo');
-            if (refund.refund_receipt_photo) {
-                document.getElementById('refund_receipt_photo_preview').style.display = 'block';
-                document.getElementById('refund_receipt_photo_preview').src = `/path/to/uploads/${refund.refund_receipt_photo}`;
+            const receiptPreview = document.getElementById('refund_receipt_photo_preview');
+            if (refund.refund_receipt_photo && refund.refund_receipt_photo.length > 0) {
+                const file = refund.refund_receipt_photo[0]; // ใช้ไฟล์แรกที่พบในอาร์เรย์
+                const imageUrl = `data:${file.mimetype};base64,${file.data}`;
+                receiptPreview.style.display = 'block';
+                receiptPreview.src = imageUrl;
+            } else {
+                receiptPreview.style.display = 'none'; // ซ่อนรูปถ้าข้อมูลไม่มี
             }
+
+            // ทำให้ฟิลด์ทั้งหมดเป็น readonly
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                element.setAttribute('readonly', 'readonly');
+            });
+
+            // ปิดการทำงานของปุ่มบันทึก
+            document.getElementById('save_button').setAttribute('disabled', 'disabled');
 
         } catch (error) {
             console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);

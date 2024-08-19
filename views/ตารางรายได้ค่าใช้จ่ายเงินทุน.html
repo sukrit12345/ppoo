@@ -4,13 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
-<title>สรุปผล</title>
+<title>ตารางรายได้/ค่าใช้จ่าย/เงินทุน</title>
 
 <style>
 .navbar {
@@ -216,8 +212,59 @@ tr:nth-child(even) {
             max-width: 220px;
             margin: 0 auto;
         }
+.search-container2 {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
+  margin-bottom: 20px;
+}
+
+.search-container2 input[type=text] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  margin-right: 5px; /* เพิ่มระยะห่างของ input กับปุ่มค้นหา */
+}
+
+.search-container2 button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-container2 button:hover {
+  background-color: #45a049;
+}
+
+.search-container2 select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  margin-left: 5px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+}
 
 
+    #accountingTable td:nth-child(4), /* สำหรับ td */
+    #accountingTable th:nth-child(4)  /* สำหรับ th */
+    {
+        width: 1000px; /* กำหนดความกว้างของคอลัมน์ */
+        max-width: 1000px; /* กำหนดความกว้างสูงสุดของคอลัมน์ */
+        overflow: hidden; /* ซ่อนข้อความที่เกินความกว้างของคอลัมน์ */
+        text-overflow: ellipsis; /* แสดง "..." เมื่อตัดข้อความ */
+        white-space: nowrap; /* ป้องกันการแสดงข้อความในหลายบรรทัด */
+    }
+
+    /* ถ้าคุณต้องการให้ข้อความมีหลายบรรทัด แต่ไม่แสดง "..." */
+    #accountingTable td:nth-child(4) {
+        white-space: normal; /* ให้ข้อความแสดงในหลายบรรทัด */
+        overflow: hidden; /* ซ่อนข้อความที่เกิน */
+        text-overflow: ellipsis; /* ใช้ "..." เมื่อข้อความเกิน */
+    }
 </style>
 </head>
 
@@ -239,38 +286,22 @@ tr:nth-child(even) {
         <a href="ตั้งค่า.html">ตั้งค่า</a>
     </div>
 
-<h2 style="text-align:center;">สรุปผล</h2>
+<h2 style="text-align:center;">ตารางรายได้/ค่าใช้จ่าย/เงินทุน</h2>
 
 
 
-
-
-<div class="button-container">
-    <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มรายได้.html';">เพิ่มรายได้</button>
-    </div>
-    <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มค่าใช้จ่าย.html';">เพิ่มค่าใช้จ่าย</button>
-    </div>
-    <div class="column">
-        <button class="custom-button2" onclick="window.location.href='เพิ่มเงินทุน.html';">เพิ่มเงินทุน</button>
-    </div>
-</div>
-<br>
-
-
-<div class="search-container">
-    <button class="custom-button3" onclick="window.location.href='ตารางรายได้ค่าใช้จ่ายเงินทุน.html';">ตารางรายได้/ค่าใช้จ่าย/เงินทุน</button>
+<div class="search-container2">
+    <select id="statusFilter">
+      <option value="" selected>ทั้งหมด</option>
+      <option value="รายได้">รายได้</option>
+      <option value="ค่าใช้จ่าย">ค่าใช้จ่าย</option>
+      <option value="เงินทุน">เงินทุน</option>
+      
+    </select>
+    <button type="button" onclick="searchIdCard()">ค้นหาสถานะ</button>
 </div>
 
 
-<div class="search-container">
-    <input type="text" id="dateRange" placeholder="เลือกช่วงเวลาสรุปผล">
-    <button onclick="customSearch2()">ค้นหาวันที่สรุปผล</button>
-</div>
-
-
-<canvas id="summaryChart" width="500" height="50"></canvas>
 
 
 
@@ -285,11 +316,10 @@ tr:nth-child(even) {
         <tr>
             <th>ลำดับ</th>
             <th>วันที่</th>
+            <th>ประเภท</th>
             <th>รายละเอียด</th>
-            <th>รายได้</th>
-            <th>ค่าใช้จ่าย</th>
-            <th>เงินที่ลูกหนี้</th>
-            <th>เงินสด</th>
+            <th>จำนวนเงิน</th>
+            <th>จัดการ</th>
         </tr>
     </thead>
     <tbody id="accountingTableBody">
@@ -300,7 +330,7 @@ tr:nth-child(even) {
 
 
 
-<script src="รายงานผล.js"></script>
+<script src="ตารางรายได้ค่าใช้จ่ายเงินทุน.js"></script>
 
 
 </body>

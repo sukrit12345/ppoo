@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 89.75%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -128,7 +128,16 @@ input[type=text] {
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
   
-
+/* ปรับสไตล์ฟิลด์ทั้งหมดในฟอร์ม */
+form textarea,
+form input[type="file"] {
+    border: 1px solid #ccc; /* สีกรอบ */
+    padding: 8px; /* ระยะห่างภายในฟิลด์ */
+    border-radius: 4px; /* มุมโค้งของกรอบ */
+    box-sizing: border-box; /* รวม border และ padding ในขนาดฟิลด์ */
+    width: 100%; /* ขนาดของฟิลด์เต็มความกว้างของฟอร์ม */
+    margin-bottom: 10px; /* ระยะห่างระหว่างฟิลด์ */
+}
 </style>
 </head>
 <body>
@@ -163,10 +172,13 @@ input[type=text] {
         <input type="number" id="expense_amount" name="expense_amount" placeholder="กรอกค่าใช้จ่าย" required >
 
         <label for="details">รายละเอียด:</label>
-        <input type="text" id="details" name="details" placeholder="กรอกรายละเอียด" required >
+        <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea required>
 
         <label for="expense_receipt">รูปสลิปค่าใช้จ่าย:</label>
         <input type="file" id="expense_receipt" name="expense_receipt">
+        <br>
+        <img id="expense_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
+        <br>
     </fieldset> 
     <br> 
 

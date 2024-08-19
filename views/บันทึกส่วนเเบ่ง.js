@@ -149,3 +149,130 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => console.error('Error:', error));
 });
+
+
+
+
+
+//เเสดงไฟล์ภาพที่กำลังบันทึก
+function handleFileSelect(event) {
+    const input = event.target;
+    const file = input.files[0];
+    const preview = document.getElementById(input.id + '_preview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block'; // แสดงภาพ
+        };
+        reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
+    } else {
+        preview.src = '';
+        preview.style.display = 'none'; // ซ่อนภาพ
+    }
+}
+
+// เพิ่ม event listeners ให้กับ input file
+document.getElementById('receiver_receipt_photo').addEventListener('change', handleFileSelect);
+document.getElementById('manager_receipt_photo').addEventListener('change', handleFileSelect);
+document.getElementById('collector_receipt_photo').addEventListener('change', handleFileSelect);
+
+
+
+
+
+
+//เเสดงข้อมูลส่วนเเบ่งตามid
+document.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('_id'); // เปลี่ยนเป็น _id
+
+    if (id) {
+        try {
+            const response = await fetch(`/api/profitsharingss/${id}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const profitSharing = await response.json();
+
+            // เติมข้อมูลในฟอร์ม
+            document.getElementById('manager').value = profitSharing.manager || '';
+            document.getElementById('id_card_number').value = profitSharing.id_card_number || '';
+            document.getElementById('fname').value = profitSharing.fname || '';
+            document.getElementById('lname').value = profitSharing.lname || '';
+            document.getElementById('contract_number').value = profitSharing.contract_number || '';
+            document.getElementById('bill_number').value = profitSharing.bill_number || '';
+
+            // ข้อมูลการแบ่งเงินคนทวง
+            document.getElementById('return_date_input').value = profitSharing.returnDate;
+            document.getElementById('initial_profit').value = profitSharing.initialProfit || '';
+            document.getElementById('collector_name').value = profitSharing.collectorName || '';
+            document.getElementById('collector_share_percent').value = profitSharing.collectorSharePercent || '';
+            document.getElementById('collector_share').value = profitSharing.collectorShare || '';
+
+            // แสดงภาพถ่ายสลิปคนทวงถ้ามี
+            const collectorReceiptPreview = document.getElementById('collector_receipt_photo_preview');
+            if (profitSharing.collectorReceiptPhoto && profitSharing.collectorReceiptPhoto.length > 0) {
+                const file = profitSharing.collectorReceiptPhoto[0];
+                const imageUrl = `data:${file.mimetype};base64,${file.data}`;
+                collectorReceiptPreview.style.display = 'block';
+                collectorReceiptPreview.src = imageUrl;
+            } else {
+                collectorReceiptPreview.style.display = 'none';
+            }
+
+            // ข้อมูลการแบ่งเงินแอดมินดูแล
+            document.getElementById('initial_profit2').value = profitSharing.initialProfit2 || '';
+            document.getElementById('manager_name').value = profitSharing.managerName || '';
+            document.getElementById('manager_share2').value = profitSharing.managerShare2 || '';
+            document.getElementById('manager_share').value = profitSharing.managerShare || '';
+
+            // แสดงภาพถ่ายสลิปแอดมินดูแลถ้ามี
+            const managerReceiptPreview = document.getElementById('manager_receipt_photo_preview');
+            if (profitSharing.managerReceiptPhoto && profitSharing.managerReceiptPhoto.length > 0) {
+                const file = profitSharing.managerReceiptPhoto[0];
+                const imageUrl = `data:${file.mimetype};base64,${file.data}`;
+                managerReceiptPreview.style.display = 'block';
+                managerReceiptPreview.src = imageUrl;
+            } else {
+                managerReceiptPreview.style.display = 'none';
+            }
+
+            // ข้อมูลการแบ่งเงินแอดมินรับเงิน
+            document.getElementById('receiver_profit').value = profitSharing.receiverProfit || '';
+            document.getElementById('receiver_name').value = profitSharing.receiverName || '';
+            document.getElementById('receiver_share_percent').value = profitSharing.receiverSharePercent || '';
+            document.getElementById('receiver_share').value = profitSharing.receiverShare || '';
+
+            // แสดงภาพถ่ายสลิปแอดมินรับเงินถ้ามี
+            const receiverReceiptPreview = document.getElementById('receiver_receipt_photo_preview');
+            if (profitSharing.receiverReceiptPhoto && profitSharing.receiverReceiptPhoto.length > 0) {
+                const file = profitSharing.receiverReceiptPhoto[0];
+                const imageUrl = `data:${file.mimetype};base64,${file.data}`;
+                receiverReceiptPreview.style.display = 'block';
+                receiverReceiptPreview.src = imageUrl;
+            } else {
+                receiverReceiptPreview.style.display = 'none';
+            }
+
+            // ข้อมูลกำไรสุทธิ
+            document.getElementById('total_share').value = profitSharing.totalShare || '';
+            document.getElementById('net_profit').value = profitSharing.netProfit || '';
+
+            // ทำให้ฟิลด์ทั้งหมดเป็น readonly
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                element.setAttribute('readonly', 'readonly');
+            });
+
+            // ปิดการทำงานของปุ่มบันทึก
+            document.querySelector('input[type="submit"]').setAttribute('disabled', 'disabled');
+
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        }
+    }
+});
+
+

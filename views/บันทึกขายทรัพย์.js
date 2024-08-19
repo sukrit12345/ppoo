@@ -51,8 +51,13 @@ function calculateNetProfit() {
     document.getElementById("netprofit").value = netprofit;
 }
 
-// เรียกฟังก์ชัน setReturnDateInput เมื่อหน้าเว็บโหลด
-window.onload = setReturnDateInput;
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    setReturnDateInput();
+});
 
 function setReturnDateInput() {
     // สร้างวันที่ปัจจุบัน
@@ -65,3 +70,124 @@ function setReturnDateInput() {
     // กำหนดค่าวันที่ให้กับ input element "sell_date"
     document.getElementById('sell_date').value = today.getFullYear() + '-' + month + '-' + day;
 }
+
+//เเสดงไฟล์ภาพที่กำลังบันทึก
+function handleFileSelect(event) {
+    const input = event.target;
+    const file = input.files[0];
+    const preview = document.getElementById(input.id + '_preview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block'; // แสดงภาพ
+        };
+        reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
+    } else {
+        preview.src = '';
+        preview.style.display = 'none'; // ซ่อนภาพ
+    }
+}
+
+// เพิ่ม event listener ให้กับ input file
+document.getElementById('sell_slip').addEventListener('change', handleFileSelect);
+
+
+
+
+
+//เเสดงข้อมูลการขาย
+window.onload = async function() {
+    // ดึง id จาก URL พารามิเตอร์
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('_id');
+
+    // รับปุ่ม submit
+    const submitButton = document.getElementById('submit_button');
+
+    // รับฟิลด์ทั้งหมดที่ต้องการทำให้เป็น readonly
+    const fields = [
+        'id_card_number',
+        'contract_number',
+        'bill_number',
+        'totalproperty',
+        'assetName',
+        'assetDetails',
+        'sell_date',
+        'sellamount',
+        'netprofit',
+        'sell_slip_preview',
+        'seizure_id'
+    ];
+
+    if (id) {
+        try {
+            // เรียก API เพื่อดึงข้อมูลการขายทรัพย์ตาม ID
+            const response = await fetch(`/saless/${id}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const sale = await response.json();
+
+            // แสดงข้อมูลในฟอร์ม
+            document.getElementById('id_card_number').value = sale.id_card_number || '';
+            document.getElementById('contract_number').value = sale.contract_number || '';
+            document.getElementById('bill_number').value = sale.bill_number || '';
+            document.getElementById('totalproperty').value = sale.totalproperty || '';
+            document.getElementById('assetName').value = sale.assetName || '';
+            document.getElementById('assetDetails').value = sale.assetDetails || '';
+            document.getElementById('sell_date').value = sale.sell_date || '';
+            document.getElementById('sellamount').value = sale.sellamount || '';
+            document.getElementById('netprofit').value = sale.netprofit || '';
+
+            // แสดงรูปภาพสลิป
+            const sellSlipPreview = document.getElementById('sell_slip_preview');
+            if (sale.sell_slip && sale.sell_slip.length > 0) {
+                const slip = sale.sell_slip[0];
+                if (slip.data && slip.mimetype) {
+                    sellSlipPreview.src = slip.data;
+                    sellSlipPreview.style.display = 'block'; // แสดงรูปภาพ
+                } else {
+                    sellSlipPreview.style.display = 'none'; // ซ่อนรูปภาพถ้าไม่มีข้อมูล
+                }
+            } else {
+                sellSlipPreview.style.display = 'none'; // ซ่อนรูปภาพถ้าไม่มีข้อมูล
+            }
+
+            document.getElementById('seizure_id').value = sale._id || ''; // เก็บ ID ของการยึดทรัพย์
+
+            // ทำให้ฟิลด์ทั้งหมดเป็น readonly
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.setAttribute('readonly', 'readonly');
+                }
+            });
+
+            // ปิดการทำงานของปุ่มบันทึก
+            if (submitButton) {
+                submitButton.setAttribute('disabled', 'disabled');
+            }
+
+        } catch (err) {
+            console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', err);
+        }
+    } else {
+        // ถ้าไม่มี _id, ฟิลด์สามารถใช้งานได้และปุ่มก็สามารถทำงานได้
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.removeAttribute('readonly');
+            }
+        });
+
+        if (submitButton) {
+            submitButton.removeAttribute('disabled');
+        }
+    }
+};
+
+
+
+

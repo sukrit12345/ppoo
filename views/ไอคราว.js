@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 
+//เเก้ไข
+function editrecords(recordId) {
+    // เปลี่ยนเส้นทางไปยังหน้าบันทึกไอคราว.html พร้อมกับพารามิเตอร์ _id
+    window.location.href = `บันทึกข้อมูลไอคราว.html?_id=${encodeURIComponent(recordId)}`;
+}
 
 
 
@@ -147,3 +152,37 @@ function customSearch1() {
         }
     }
 }
+
+
+
+
+
+//ค้นหาจำนวนผู้ใช้ไอคราว
+function searchIdCard2() {
+    // รับค่าจาก input field
+    const userCount = parseInt(document.getElementById('userCountRange').value, 10);
+
+    // ตรวจสอบว่าค่าที่ป้อนเป็นตัวเลข
+    if (isNaN(userCount)) {
+        alert("กรุณากรอกจำนวนผู้ใช้ที่เป็นตัวเลข");
+        return;
+    }
+
+    // รับตารางและแถว
+    const table = document.getElementById('f');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    // วนลูปผ่านแถวทั้งหมด
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        const cellUserCount = parseInt(cells[7].innerText, 10); // สมมติว่า cell7 คือคอลัมน์ที่ 8 (index 7)
+
+        // ตรวจสอบว่าค่าตัวเลขใน cell นั้นตรงหรือมีค่าน้อยกว่าที่ป้อน
+        if (cellUserCount <= userCount) {
+            rows[i].style.display = ""; // แสดงแถว
+        } else {
+            rows[i].style.display = "none"; // ซ่อนแถว
+        }
+    }
+}
+

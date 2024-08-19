@@ -15,14 +15,14 @@ document.addEventListener('DOMContentLoaded', setReturnDateInput);
 
 
 
-
+//ตรวจเบอร์โทรศัพท์
 document.addEventListener("DOMContentLoaded", function() {
     var input = document.getElementById("phone_number");
     var errorMessage = document.getElementById("error_message");
     var form = document.getElementById("icloudForm");
     var submitButton = form.querySelector('input[type="submit"]');
 
-    input.addEventListener("input", function(event) {
+    function validatePhoneNumber() {
         var value = input.value;
 
         // ตรวจสอบและแก้ไขค่าที่ป้อนในช่อง input
@@ -32,22 +32,65 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // แสดงข้อความ "เบอร์โทรศัพท์ไม่ถูกต้อง" หากความยาวไม่ครบ 10 ตัวอักษร
-        if (input.value.length === 10) {
+        if (input.value.length === 10 || input.value.length === 0) {
             errorMessage.textContent = "";
             submitButton.disabled = false; // เปิดใช้งานปุ่ม submit
         } else {
             errorMessage.textContent = "เบอร์โทรศัพท์ไม่ถูกต้อง";
             submitButton.disabled = true; // ปิดการใช้งานปุ่ม submit
         }
-    });
+    }
 
-    // ปิดการใช้งานปุ่ม submit เริ่มต้นเมื่อโหลดหน้าเว็บ
-    submitButton.disabled = true;
+    // ตรวจสอบเบอร์โทรศัพท์เมื่อมีการป้อนค่า
+    input.addEventListener("input", validatePhoneNumber);
 
+    // ตรวจสอบเบอร์โทรศัพท์เมื่อฟอร์มถูกส่ง
     form.addEventListener("submit", function(event) {
-        if (input.value.length !== 10) {
+        if (input.value.length !== 10 && input.value.length !== 0) {
             event.preventDefault(); // ป้องกันการส่งฟอร์มถ้าเบอร์โทรศัพท์ไม่ถูกต้อง
             errorMessage.textContent = "เบอร์โทรศัพท์ไม่ถูกต้อง";
         }
     });
+
+    // ตรวจสอบเบอร์โทรศัพท์เมื่อโหลดหน้าเว็บ
+    validatePhoneNumber();
+});
+
+
+
+
+
+
+
+
+
+
+//เเสดงข้อมูลไอคราวตามไอดี
+document.addEventListener('DOMContentLoaded', async function() {
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    const recordId = getQueryParam('_id');
+    if (recordId) {
+        try {
+            const response = await fetch(`/api/icloudRecordd/${recordId}`);
+            const record = await response.json();
+
+            if (response.ok) {
+                document.getElementById('record_id').value = record._id || ''; // กำหนด _id ในฟอร์ม
+                document.getElementById('device_id').value = record.device_id || '';
+                document.getElementById('phone_number').value = record.phone_number || '';
+                document.getElementById('user_email').value = record.user_email || '';
+                document.getElementById('email_password').value = record.email_password || '';
+                document.getElementById('icloud_password').value = record.icloud_password || '';
+                document.getElementById('loanCount').value = record.loanCount || '';
+            } else {
+                console.error('Failed to fetch record:', record.message);
+            }
+        } catch (error) {
+            console.error('Failed to fetch record:', error);
+        }
+    }
 });

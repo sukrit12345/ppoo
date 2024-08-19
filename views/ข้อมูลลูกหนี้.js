@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-
 // ฟังก์ชัน fetchDataAndPopulateTable สำหรับดึงข้อมูลและเติมค่าลงในตาราง
 async function fetchDataAndPopulateTable() {
     try {
@@ -19,28 +18,27 @@ async function fetchDataAndPopulateTable() {
         const data = await response.json();
         
         const tableBody = document.getElementById('debtor-table-body');
-        tableBody.innerHTML = ''; // Clear any existing rows
-
-        // Reverse the data array
-        data.reverse();
+        tableBody.innerHTML = ''; // ล้างแถวที่มีอยู่
 
         for (const [index, row] of data.entries()) {
             const tr = document.createElement('tr');
-            tr.id = `row-${row._id}`; // Set ID for the row
+            tr.id = `row-${row._id}`; // กำหนด ID ให้กับแถว
+
+            // เติมข้อมูลในตาราง
             tr.innerHTML = `
-                <td>${data.length - index}</td> <!-- Reverse the index -->
+                <td>${data.length - index}</td> <!-- ลำดับที่จากใหม่ไปเก่า -->
                 <td>${row.date}</td>
-                <td>${row.id_card_number}</td> <!-- Cell ที่ 2 -->
+                <td>${row.id_card_number}</td>
                 <td>${row.fname}</td>
                 <td>${row.lname}</td>
-                <td>-</td> <!-- Placeholder for loan.returnDate -->
-                <td>-</td> <!-- Placeholder for loan.principal -->
-                <td>-</td> <!-- Placeholder for loan.totalInterest4 -->
-                <td>-</td> <!-- Placeholder for loan.totalRefund -->
-                <td>-</td> <!-- Placeholder for loan.status -->
-                <td>-</td> <!-- Placeholder for Principal Sum -->
-                <td>-</td> <!-- Placeholder for Refund Interest Sum -->
-                <td>-</td> <!-- Placeholder for Principal Difference -->
+                <td>${row.loanReturnDate || '-'}</td> <!-- Placeholder สำหรับ loan.returnDate -->
+                <td>${row.loanPrincipal || '-'}</td> <!-- Placeholder สำหรับ loan.principal -->
+                <td>${row.loanTotalInterest4 || '-'}</td> <!-- Placeholder สำหรับ loan.totalInterest4 -->
+                <td>${row.loanTotalRefund || '-'}</td> <!-- Placeholder สำหรับ loan.totalRefund -->
+                <td>${row.loanStatus || '-'}</td> <!-- Placeholder สำหรับ loan.status -->
+                <td>${row.principalSum || '-'}</td> <!-- Placeholder สำหรับ Principal Sum -->
+                <td>${row.refundInterestSum || '-'}</td> <!-- Placeholder สำหรับ Refund Interest Sum -->
+                <td>${row.principalDifference || '-'}</td> <!-- Placeholder สำหรับ Principal Difference -->
                 <td>${row.province}</td>
                 <td>${row.manager}</td>
                 <td> 
@@ -87,7 +85,10 @@ async function fetchDataAndPopulateTable() {
                 const principalDifference = refundInterestSum - principalSum ;
 
                 // Display principal difference with negative sign if less than zero
-                loanRow.cells[12].innerText = principalDifference < 0 ? `-${Math.abs(principalDifference).toFixed(0)}` : principalDifference.toFixed(0);
+                loanRow.cells[12].innerText = (principalDifference === 0 || principalDifference === undefined || principalDifference === null) 
+                ? '-' 
+                : (principalDifference < 0 ? `-${Math.abs(principalDifference).toFixed(0)}` : principalDifference.toFixed(0));
+
 
             } catch (error) {
                 console.error('Error fetching data:', error);

@@ -146,7 +146,7 @@ async function displayProfitSharingData() {
                 <td>${profit.totalShare ? profit.totalShare : 0}</td>
                 <td>${profit.netProfit}</td>
                 <td> 
-                    <button onclick="redirectToEdit('${profit._id}', '${profit.id_card_number}', '${profit.fname}', '${profit.lname}', '${profit.manager}', '${profit.contract_number}', '${profit.bill_number}')">แก้ไข</button>
+                    <button onclick="redirectToEdit('${profit._id}')">ดู</button>
                     <button onclick="redirectToDelete('${profit._id}', '${profit.id_card_number}')">ลบ</button>
                 </td>
             `;
@@ -155,6 +155,23 @@ async function displayProfitSharingData() {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
     }
 }
+
+
+
+
+function redirectToEdit(id) {
+    // เปลี่ยนเส้นทางไปยังหน้าบันทึกส่วนเเบ่ง พร้อมกับส่ง id เป็นพารามิเตอร์ใน URL
+    window.location.href = `บันทึกส่วนเเบ่ง.html?_id=${id}`;
+}
+
+
+
+
+
+
+
+
+
 
 
 // ลบข้อมูลส่วนแบ่ง

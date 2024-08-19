@@ -36,7 +36,7 @@ async function fetchSales() {
                 <td>${sale.sellamount}</td>
                 <td>${sale.netprofit}</td>
                 <td>
-                    <button onclick="redirectToEdit('${sale._id}')">แก้ไข</button>
+                    <button onclick="showe('${sale._id}')">ดู</button>
                     <button onclick="deleteSale('${sale._id}')">ลบ</button>
                 </td>
             `;
@@ -46,10 +46,13 @@ async function fetchSales() {
     }
 }
 
-//เเก้ไข
-function redirectToEdit(saleId) {
-    // Implement redirection logic here
-    console.log('Redirect to edit:', saleId);
+
+function showe(saleId) {
+    // สร้าง URL ใหม่ที่มีพารามิเตอร์ _id
+    const url = `บันทึกขายทรัพย์.html?_id=${saleId}`;
+    
+    // เปลี่ยนหน้าไปยัง URL ที่สร้างขึ้น
+    window.location.href = url;
 }
 
 

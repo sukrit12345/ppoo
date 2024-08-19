@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 87%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -127,7 +127,7 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
-  
+ 
 
 </style>
 </head>
@@ -198,6 +198,10 @@ input[type=text] {
         
         <label for="sell_slip">รูปสลิปเงินขายทรัพย์:</label>
         <input type="file" id="sell_slip" name="sell_slip">
+        <br>
+        <img  id="sell_slip_preview" alt="sell_slip" style="display: none; max-width: 500px; max-height: 500px;">
+        <br>
+    
       </fieldset>
       <br>
         
@@ -205,7 +209,8 @@ input[type=text] {
         <!-- Input hidden สำหรับเก็บ ID ของการยึดทรัพย์ -->
         <input type="hidden" id="seizure_id" name="seizure_id"> 
         
-        <input type="submit" value="บันทึกขายทรัพย์สิน" class="button">
+        <input type="submit" id="submit_button" value="บันทึกขายทรัพย์สิน" class="button" disabled>
+
     </form>
     
     

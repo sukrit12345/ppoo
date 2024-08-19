@@ -55,7 +55,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 });
 
 
-
+//เเก้ไข
+function editManager(managerId) {
+    // นำผู้ใช้ไปยังหน้า "บันทึกข้อมูลเเอดมิน.html" พร้อมพารามิเตอร์ที่มี ID ของผู้จัดการ
+    window.location.href = `บันทึกข้อมูลเเอดมิน.html?_id=${managerId}`;
+}
 
 
 
@@ -77,7 +81,7 @@ async function deleteManager(managerId) {
             throw new Error('Failed to delete manager');
         }
 
-        console.log('ลบข้อมูลผู้จัดการสำเร็จ');
+        console.log('ลบข้อมูลเเอดมินสำเร็จ');
         // ลบแถวที่เกี่ยวข้องในตาราง
         const row = document.getElementById(`manager-${managerId}`);
         if (row) {
@@ -167,4 +171,43 @@ function customSearch1() {
             }
         }
     }
-} 
+}
+
+
+//ค้นหาสถานะ
+document.addEventListener("DOMContentLoaded", function() {
+    // เพิ่ม EventListener ให้กับ select element
+    const statusFilterSelect = document.getElementById('statusFilter');
+    statusFilterSelect.addEventListener('change', searchIdCard2);
+
+    // ฟังก์ชันค้นหาสถานะ
+    function searchIdCard2() {
+        // รับค่าจาก select box
+        const statusFilter = statusFilterSelect.value;
+
+        // รับตารางและแถว
+        const table = document.getElementById('f');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        // ฟังก์ชันลบ HTML tags ออกจากสตริง
+        function stripHTML(html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            return doc.body.textContent || "";
+        }
+
+        // วนลูปผ่านแถวทั้งหมด
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            const statusCell = cells[10].innerHTML; // ใช้ innerHTML แทน innerText
+            const status = stripHTML(statusCell).trim(); // ลบ HTML และตัดช่องว่าง
+
+            // ตรวจสอบว่าค่าสถานะตรงกับค่าที่เลือกหรือไม่
+            if (statusFilter === "" || status === statusFilter) {
+                rows[i].style.display = ""; // แสดงแถว
+            } else {
+                rows[i].style.display = "none"; // ซ่อนแถว
+            }
+        }
+    }
+});
+
