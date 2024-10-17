@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>สมัครสมาชิกลูกหนี้</title>
     <style>
         body {
             margin: 0;
@@ -12,7 +12,10 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(to right, #007bff, #28a745);
+            background-image: url('images/รูปเงิน.png'); /* เปลี่ยนเป็น URL ของภาพพื้นหลังที่คุณต้องการ */
+            background-size: cover; /* ให้ภาพขยายครอบคลุมพื้นที่ทั้งหมด */
+            background-position: center; /* จัดตำแหน่งภาพให้ตรงกลาง */
+            background-repeat: no-repeat; /* ป้องกันไม่ให้ภาพซ้ำ */
             font-family: 'Arial', sans-serif;
         }
 
@@ -42,7 +45,7 @@
         }
 
         .input-group input {
-            width: 100%;
+            width: 95%;
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 5px;
@@ -86,32 +89,41 @@
         .extra-options a:hover {
             color: #0056b3;
         }
+.error-message {
+    color: red;
+    font-size: 16px;
+} 
     </style>
 </head>
 <body>
 
     <div class="signup-container">
-        <form class="signup-form" action="/signup" method="POST">
+        <form class="signup-form" action="/signup2" method="POST">
             <h2>สมัครสมาชิกลูกหนี้</h2>
             <div class="input-group">
-                <label for="id_card_number">เลขบัตรประชาชน</label>
-                <input type="text" id="id_card_number" name="id_card_number" required>
+                <label for="id_card_number">เลขบัตรประชาชน  <span id="id_card_number-error" class="error-message"></span></label>
+                <input type="text" id="id_card_number" name="id_card_number" maxlength="13"required>
             </div>
             <div class="input-group">
-                <label for="email">อีเมล</label>
+                <label for="email">อีเมล  <span id="email-error" class="error-message"></span></label>
                 <input type="email" id="email" name="email" required>
             </div>
             <div class="input-group">
-                <label for="password">รหัสผ่าน</label>
+                <label for="number">เบอร์โทรศัพท์  <span id="phone-error" class="error-message"></span></label>
+                <input type="text" id="phone" name="phone" maxlength="10" required>
+            </div>
+            <div class="input-group">
+                <label for="password">รหัสเข้าสู่ระบบ</label>
                 <input type="password" id="password" name="password" required>
             </div>
             <div class="input-group">
-                <label for="confirm-password">ยืนยันรหัสผ่าน</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
+                <label for="password2">ยืนยันรหัสเข้าสู่ระบบ  <span id="password-error" class="error-message"></span></label>
+                <input type="password" id="password2" name="password2" required>
             </div>
             <button type="submit">สมัครสมาชิก</button>
         </form>
     </div>
 
+    <script src = "สมัครสมาชิกลูกหนี้.js"></script>
 </body>
 </html>

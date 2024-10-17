@@ -123,10 +123,25 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 90.25%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
-  
+.error-message {
+        color: red;
+        font-size: 16px;
+        margin-top: 5px;
+}    
+
+
+select:disabled {
+    background-color: #f0f0f0; /* สีพื้นหลังที่ต้องการ */
+    color: #666; /* สีตัวอักษรที่ต้องการ */
+    border: 1px solid #ccc; /* กำหนดสีของขอบ */
+    cursor: not-allowed; /* แสดงเคอร์เซอร์เมื่อพ้อยเตอร์อยู่เหนือ <select> */
+    position: relative;
+    z-index: -100; 
+}
+
 
 </style>
 
@@ -142,11 +157,12 @@ input[type=text] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
 </div> 
+
+
 
 
 
@@ -158,17 +174,18 @@ input[type=text] {
       <legend>ข้อมูลรหัสลูกหนี้</legend>
       <br> 
   
-      <label for="manager">เอดมินดูแล:</label>
+      <label for="manager">เเอดมินดูแล:</label>
       <select id="manager" name="manager" required>
-        <option value="">เลือกชื่อเอดมิน</option>
+          <option value="">เลือกชื่อเเอดมิน</option>
       </select>
+      <input type="hidden" id="managerValue" name="managerValue"> <!-- Hidden input สำหรับเก็บค่า manager -->
       <br><br>
   
       <label for="date">วันที่บันทึก (เดือน-วัน-ปี):</label>
       <input type="date" id="date" name="date" placeholder="YYYY-MM-DD">
       <br><br>
   
-      <label for="id_card_number">เลขบัตรประชาชน:</label>
+      <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
       <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
       
       <label for="fname">ชื่อจริง:</label>
@@ -207,7 +224,7 @@ input[type=text] {
       <label for="line">ไลน์:</label>
       <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
   
-      <label for="phone">เบอร์โทรศัพท์:</label>
+      <label for="phone">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></label>
       <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
     </fieldset>
     <br>  
@@ -236,7 +253,7 @@ input[type=text] {
     <br>  
   
     <fieldset>
-      <legend>ข้อมูลรูปภาพ</legend>
+      <legend>ข้อมูลหลักฐาน</legend>
       <br> 
       <div>
         <label for="id_card_photo">รูปบัตรประชาชน (ข้อมูลล่าสุด):</label>
@@ -285,15 +302,24 @@ input[type=text] {
         <img id="work_address_map_preview" src="" alt="Image Preview" style="display: none; max-width: 500px; max-height: 500px;">
         <br>
     </div>
+
+    <div>
+      <label for="otherImages">รูปอื่นๆ (ข้อมูลล่าสุด):</label>
+      <input type="file" id="otherImages" name="otherImages" accept="image/*" >
+      <br>
+      <img id="otherImages_preview" src="" alt="Image Preview" style="display: none; max-width: 500px; max-height: 500px;">
+      <br>
+    </div>
+
     </fieldset>
     <br>  
-  
-    <span id="idCardError" style="color: red;"></span>
-    
+    <input type="hidden" id="creditorId" name="creditorId">
+
     <input type="submit" value="บันทึกลูกหนี้" class="button">
   </form>
  
 </div>
+
 
 
 <img id="id_card_photo_preview" src="" alt="ID Card Photo" style="display: none; max-width: 500px; max-height: 500px;">

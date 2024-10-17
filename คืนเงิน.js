@@ -1,3 +1,17 @@
+//ไอดีร้าน
+document.addEventListener('DOMContentLoaded', () => {
+    const id = localStorage.getItem('id_shop'); // รับค่า id_shop จาก localStorage
+    const shopName = localStorage.getItem('shop_name'); // รับค่า shop_name จาก localStorage
+    const nickname = localStorage.getItem('nickname');
+
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('nickname:', nickname);
+
+    // เรียกใช้ฟังก์ชัน fetchLoanData โดยส่ง id เป็นพารามิเตอร์
+    fetchLoanData(id);
+});
+
 //รับข้อมูล เลขบปชช ชื่อ นามสกุล
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -117,15 +131,25 @@ document.addEventListener("DOMContentLoaded", async function() {
         // ดึงค่าพารามิเตอร์จาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const idCardNumber = urlParams.get('id_card_number');
+        const creditorId = localStorage.getItem('id_shop'); // ดึง creditorId จาก localStorage
 
-        // ดึงข้อมูลคืนเงินจาก API
-        const response = await fetch(`/api/refunds/${idCardNumber}`);
+        if (!idCardNumber || !creditorId) {
+            throw new Error('id_card_number or creditorId is missing');
+        }
+
+        // ดึงข้อมูลคืนเงินจาก API โดยส่ง idCardNumber และ creditorId
+        const response = await fetch(`/api/refunds?id_card_number=${idCardNumber}&creditorId=${creditorId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const refunds = await response.json();
 
         // ตรวจสอบข้อมูลที่ได้รับ
         console.log('Refunds data:', refunds);
 
         const refundData = document.getElementById('refundData');
+        refundData.innerHTML = ''; // ล้างข้อมูลเก่า
 
         refunds.forEach(refund => {
             const row = document.createElement('tr');
@@ -143,7 +167,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                      '${refund.contract_number}',
                      '${refund.bill_number}',
                      '${refund.initial_profit}'
-                   )">ส่วนแบ่ง</button>`;
+                   )"><i class="fas fa-plus"></i>ส่วนแบ่ง</button>`;
 
             row.innerHTML = `
                 <td>${refund.contract_number}</td>
@@ -160,8 +184,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                 <td>${refund.initial_profit}</td>
                 <td>${refund.status}</td> 
                 <td>
-                   <button onclick="viewRefund('${refund._id}', '${refund.loan ? refund.loan._id : ''}')">ดู</button>
-                   <button onclick="deleteRefund('${refund._id}')">ลบ</button>
+                   <button onclick="viewRefund('${refund._id}', '${refund.loan ? refund.loan._id : ''}')"><i class="fas fa-eye"></i>ดู</button>
+                   <button onclick="deleteRefund('${refund._id}')"><i class="fas fa-trash-alt"></i>ลบ</button>
                 </td>
                 <td>
                    ${dividedButton}
@@ -174,6 +198,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
     }
 });
+
 
 
 

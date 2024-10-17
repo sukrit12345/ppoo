@@ -6,7 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
-<title>บันทึกข้อมูลผู้จัดการ</title>
+<title>บันทึกข้อมูลพนักงาน</title>
 
 <style>
 .navbar {
@@ -109,24 +109,7 @@ input[type=text] {
     margin-left: 86.5%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
-.popup {
-      background-color: #4caf50; /* สีพื้นหลัง */
-      border-radius: 10px; /* รูปร่าง */
-      padding: 20px; /* ขอบเขตของเนื้อหา */
-      position: fixed; /* ตำแหน่งที่แน่นอน */
-      top: 50%; /* ตำแหน่งของป๊อปอัพด้านบน */
-      left: 50%; /* ตำแหน่งของป๊อปอัพด้านซ้าย */
-      transform: translate(-50%, -50%); /* การย้ายป๊อปอัพไปตรงกลางของหน้าจอ */
-      z-index: 1000; /* ลำดับการแสดงผล */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เงา */
-    }
-  
-    /* สไตล์สำหรับข้อความในป๊อปอัพ */
-    .popup-text {
-      font-size: 18px; /* ขนาดตัวอักษร */
-      color: white; /* สีข้อความ */
-      text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
-    }
+
     .error-message {
         color: red;
         font-size: 16px;
@@ -134,6 +117,10 @@ input[type=text] {
     }    
      
   
+
+
+
+
 
 </style>
 </head>
@@ -146,7 +133,6 @@ input[type=text] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a class="active" href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -154,11 +140,20 @@ input[type=text] {
 
 <div class="container">
 
-  <form id="adminForm" action="/submit" method="post">
+  <form id="adminForm" action="/submitadmin" method="post">
     <fieldset>
-        <legend>ข้อมูลเเอดมิน</legend>
+        <legend>ข้อมูลพนักงาน</legend>
+        <br>
         <label for="record_date">วันที่บันทึก:</label>
         <input type="date" id="record_date" name="record_date" required><br><br>
+
+        <label for="job_position">ตำแหน่งงาน:</label>
+        <select id="job_position" name="job_position" required>
+            <option value="" disabled selected>เลือกตำแหน่งงาน</option>
+            <option value="manager">ผู้จัดการ</option>
+            <option value="assistant_manager">รองผู้จัดการ</option>
+            <option value="admin">แอดมิน</option>
+        </select><br><br>
 
         <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
         <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
@@ -168,6 +163,7 @@ input[type=text] {
         
         <label for="authentication">รหัสยืนยันตัวตน:<span id="authenticationerror" class="error-message"></label>
         <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
+
 
         <label for="fname">ชื่อจริง:</label>
         <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
@@ -189,9 +185,15 @@ input[type=text] {
     </fieldset>
     <br>
     <input type="hidden" id="manager_id" name="_id">
+    <input type="hidden" id="creditorId" name="creditorId">
 
     <input type="submit" value="บันทึกข้อมูลเเอดมิน" class="button">
 </form>
+
+
+</div>
+
+
 
 
 </div> 

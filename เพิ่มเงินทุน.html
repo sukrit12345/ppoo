@@ -138,11 +138,20 @@ form input[type="file"] {
     width: 100%; /* ขนาดของฟิลด์เต็มความกว้างของฟอร์ม */
     margin-bottom: 10px; /* ระยะห่างระหว่างฟิลด์ */
 }
+
+    /* ทำให้ฟิลด์ readonly ดูคล้ายกับ disabled */
+    input[readonly], textarea[readonly], select:disabled  {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
 </style>
 </head>
 <body>
   <div class="navbar">
-    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้เงินกู้</a>
+    <a href="ข้อมูลลูกหนี้ผ่อนทรัพย์.html">ข้อมูลลูกหนี้ผ่อนทรัพย์</a>
     <a class="active" href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
@@ -158,33 +167,45 @@ form input[type="file"] {
 <div class="container">
 
 
-    <form action="/save-capital" method="post" enctype="multipart/form-data">
+  <form id="capital_form" action="/save-capital" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
 
-        <fieldset>
-            <legend>ข้อมูลเพิ่มเงินทุน</legend>
-            <br> 
-            <label for="capital_date">วันที่บันทึก (เดือน-วัน-ปี):</label>
-            <input type="date" id="capital_date" name="capital_date" placeholder="เลือกวันที่" required >
-            <br> 
-            <br> 
-            
-            <label for="capital_amount">ยอดเงินทุน:</label>
-            <input type="number" id="capital_amount" name="capital_amount" placeholder="กรอกยอดเงินทุน" required >
-    
-            <label for="details">รายละเอียด:</label>
-            <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea required>
-    
-            <label for="capital_receipt">รูปสลิปเงินทุน:</label>
-            <input type="file" id="capital_receipt" name="capital_receipt">
-            <br>
-            <img id="capital_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
-            <br>
-        </fieldset> 
+    <fieldset>
+        <legend>ข้อมูลเพิ่มเงินทุน</legend>
         <br> 
-    
-        <input type="submit" value="เพิ่มเงินทุน" class="button" id="save_button">
-    
-    </form>
+        <label for="capital_date">วันที่บันทึก (เดือน-วัน-ปี):</label>
+        <input type="date" id="capital_date" name="capital_date" placeholder="เลือกวันที่" required>
+        <br> 
+        <br> 
+
+        <label for="admin">เเอดมินเพิ่มเงินทุน:</label>
+        <select id="admin" name="admin" required>
+            <option value="admin">เลือกชื่อเอดมิน</option>
+        </select>
+        <input type="hidden" id="managerValue" name="managerValue">
+        <br><br>
+        
+        <label for="capital_amount">ยอดเงินทุน:</label>
+        <input type="number" id="capital_amount" name="capital_amount" placeholder="กรอกยอดเงินทุน" required>
+
+        <label for="details">รายละเอียด:</label>
+        <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea>
+
+        <label for="capital_receipt">รูปสลิปเงินทุน:</label>
+        <input type="file" id="capital_receipt" name="capital_receipt" required>
+        <br>
+        <img id="capital_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
+        <br>
+    </fieldset> 
+    <br> 
+
+
+
+    <input type="hidden" id="creditorId" name="creditorId">
+
+    <input type="submit" value="เพิ่มเงินทุน" class="button" id="save_button">
+
+</form>
+
     
 
 

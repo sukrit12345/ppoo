@@ -138,6 +138,14 @@ form input[type="file"] {
     width: 100%; /* ขนาดของฟิลด์เต็มความกว้างของฟอร์ม */
     margin-bottom: 10px; /* ระยะห่างระหว่างฟิลด์ */
 }
+
+    /* ทำให้ฟิลด์ readonly ดูคล้ายกับ disabled */
+    input[readonly], textarea[readonly], select:disabled  {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
 </style>
 </head>
 <body>
@@ -149,7 +157,6 @@ form input[type="file"] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -158,8 +165,7 @@ form input[type="file"] {
 <div class="container">
 
 
-<form action="/save-expense" method="post" enctype="multipart/form-data">
-
+  <form action="/save-expense" method="post" enctype="multipart/form-data" id="expense_form" onsubmit="validateForm(event)">
     <fieldset>
         <legend>ข้อมูลเพิ่มค่าใช้จ่าย</legend>
         <br> 
@@ -167,23 +173,31 @@ form input[type="file"] {
         <input type="date" id="expense_date" name="expense_date" placeholder="เลือกวันที่" required >
         <br> 
         <br> 
+
+        <label for="admin">เเอดมินเพิ่มค่าใช้จ่าย:</label>
+        <select id="admin" name="admin" required>
+            <option value="admin">เลือกชื่อเอดมิน</option>
+        </select>
+        <input type="hidden" id="managerValue" name="managerValue">
+        <br><br>
         
         <label for="expense_amount">ยอดค่าใช้จ่าย:</label>
         <input type="number" id="expense_amount" name="expense_amount" placeholder="กรอกค่าใช้จ่าย" required >
 
         <label for="details">รายละเอียด:</label>
-        <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea required>
+        <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea>
 
         <label for="expense_receipt">รูปสลิปค่าใช้จ่าย:</label>
-        <input type="file" id="expense_receipt" name="expense_receipt">
+        <input type="file" id="expense_receipt" name="expense_receipt" required>
         <br>
         <img id="expense_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
         <br>
     </fieldset> 
-    <br> 
+    <br>
+    
+    <input type="hidden" id="creditorId" name="creditorId">
 
     <input type="submit" value="เพิ่มค่าใช้จ่าย" class="button" id="save_button">
-
 </form>
 
 

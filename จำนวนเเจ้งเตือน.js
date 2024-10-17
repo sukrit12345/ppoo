@@ -1,7 +1,14 @@
 // ฟังก์ชันสำหรับดึงจำนวนการแจ้งเตือนจาก API
 async function fetchNotificationCount() {
     try {
-        const response = await fetch('/api/notifications/count'); // URL ของ API ที่ดึงจำนวนแจ้งเตือน
+        const creditorId = localStorage.getItem('id_shop'); // ดึง creditorId จาก localStorage
+
+        if (!creditorId) {
+            console.error('creditorId is required');
+            return;
+        }
+
+        const response = await fetch(`/api/notifications/count?creditorId=${encodeURIComponent(creditorId)}`); // ส่ง creditorId ใน query parameters
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -11,6 +18,7 @@ async function fetchNotificationCount() {
         console.error('Error fetching notification count:', error);
     }
 }
+
 
 // ฟังก์ชันสำหรับอัปเดตจำนวนการแจ้งเตือนใน DOM
 function updateNotificationCount(count) {

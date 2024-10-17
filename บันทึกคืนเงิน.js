@@ -1,3 +1,92 @@
+// ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => { // เพิ่ม async เพื่อเรียกใช้ฟังก์ชันแบบ asynchronous
+    // ดึงค่า ID จาก localStorage
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
+
+    // ใส่ค่า ID ลงในฟิลด์ input ที่มี id เป็น 'creditorId'
+    if (id) {
+        document.getElementById('creditorId').value = id;
+    }
+
+    const managerSelect = document.getElementById('receiver_name');
+
+    if (nickname) {
+        // สร้าง option ใหม่ที่มี value และข้อความตรงกับ nickname
+        const option = document.createElement('option');
+        option.value = nickname;
+        option.textContent = nickname;
+        option.selected = true; // ตั้งค่าให้ option นี้ถูกเลือกโดยอัตโนมัติ
+        managerSelect.appendChild(option);
+
+        // ปิดการเลือกถ้ามีค่า nickname
+        managerSelect.disabled = true; // ไม่สามารถเปลี่ยนตัวเลือกอื่นได้
+
+        // ตั้งค่าให้ hidden input เก็บค่า nickname
+        document.getElementById('managerValue').value = nickname;
+    }
+
+    // แสดงค่า ID ในคอนโซลสำหรับการดีบัก
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Creditor Value:', document.getElementById('creditorId').value); // ตรวจสอบค่าที่ตั้งใน input
+    console.log('Manager Value:', nickname);
+
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname); // เรียกใช้ฟังก์ชันเช็คสิทธิ์โดยใช้ nickname
+});
+
+
+
+
+// จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
+
+
+
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
     // เมื่อ DOM โหลดเสร็จสมบูรณ์
     var urlParams = new URLSearchParams(window.location.search);
@@ -121,6 +210,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+//เลือกชื่อเเอดมินรับเงิน
+document.addEventListener('DOMContentLoaded', function() {
+    const creditorId = localStorage.getItem('id_shop'); // ดึง creditorId จาก localStorage
+
+    if (!creditorId) {
+        console.error('creditorId is not defined');
+        return;
+    }
+
+    fetch(`/api/receiver_name?creditorId=${creditorId}`) // ส่ง creditorId ไปยัง API
+      .then(response => response.json())
+      .then(data => {
+        const receiver_nameSelect = document.getElementById('receiver_name');
+        data.forEach(receiver_name => {
+          const option = document.createElement('option');
+          option.value = receiver_name.nickname;
+          option.textContent = receiver_name.nickname;
+          receiver_nameSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+});
+
+
+
+
+
+
+
+
+
 //เเสดงไฟล์ภาพที่กำลังบันทึก
 function handleFileSelect(event) {
     const input = event.target;
@@ -173,6 +293,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('contract_number').value = refund.contract_number || '';
             document.getElementById('bill_number').value = refund.bill_number || '';
             document.getElementById('principal').value = refund.principal || '';
+            document.getElementById('receiver_name').value = refund.receiver_name || '';
             document.getElementById('totalInterest4').value = refund.totalInterest4 || '';
             document.getElementById('totalRefund').value = refund.totalRefund || '';
             document.getElementById('refund_interest').value = refund.refund_interest || '';
@@ -182,18 +303,34 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // แสดงภาพถ่ายสลิปเงินคืนถ้ามี
             const receiptPreview = document.getElementById('refund_receipt_photo_preview');
+            const fileInput = document.getElementById('refund_receipt_photo');
             if (refund.refund_receipt_photo && refund.refund_receipt_photo.length > 0) {
                 const file = refund.refund_receipt_photo[0]; // ใช้ไฟล์แรกที่พบในอาร์เรย์
                 const imageUrl = `data:${file.mimetype};base64,${file.data}`;
-                receiptPreview.style.display = 'block';
                 receiptPreview.src = imageUrl;
+                receiptPreview.style.display = 'block';
             } else {
                 receiptPreview.style.display = 'none'; // ซ่อนรูปถ้าข้อมูลไม่มี
             }
 
-            // ทำให้ฟิลด์ทั้งหมดเป็น readonly
-            document.querySelectorAll('input, select, textarea').forEach(element => {
-                element.setAttribute('readonly', 'readonly');
+            // ทำให้ฟิลด์ทั้งหมดเป็น readonly และจัดการ z-index
+            document.querySelectorAll('input, select').forEach(element => {
+                if (element.tagName.toLowerCase() === 'select') {
+                    element.setAttribute('disabled', 'disabled');
+                    element.style.position = 'relative'; // หรือ static ถ้าต้องการ
+                    element.style.zIndex = '0'; // ค่าต่ำกว่าของ .navbar
+                } else if (element.type !== 'file') { // ยกเว้นฟิลด์ไฟล์
+                    element.setAttribute('readonly', 'readonly');
+                }
+            });
+
+            // ซ่อนฟิลด์ไฟล์และจัดการ z-index
+            fileInput.style.display = 'none';
+            fileInput.setAttribute('disabled', 'disabled'); // เพิ่มการตั้งค่าฟิลด์ไฟล์
+
+            // ปรับตำแหน่งของฟิลด์ที่ disabled
+            document.querySelectorAll('select:disabled').forEach(select => {
+                select.style.marginTop = '10px'; // ปรับระยะห่างด้านบนของฟิลด์ที่ disabled
             });
 
             // ปิดการทำงานของปุ่มบันทึก
@@ -204,3 +341,5 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 });
+
+

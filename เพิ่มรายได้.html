@@ -137,13 +137,20 @@ form input[type="file"] {
     width: 100%; /* ขนาดของฟิลด์เต็มความกว้างของฟอร์ม */
     margin-bottom: 10px; /* ระยะห่างระหว่างฟิลด์ */
 }
-
+    /* ทำให้ฟิลด์ readonly ดูคล้ายกับ disabled */
+    input[readonly], textarea[readonly], select:disabled  {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
 
 </style>
 </head>
 <body>
   <div class="navbar">
-    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้เงินกู้</a>
+    <a href="ข้อมูลลูกหนี้ผ่อนทรัพย์.html">ข้อมูลลูกหนี้ผ่อนทรัพย์</a>
     <a class="active" href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
@@ -159,20 +166,28 @@ form input[type="file"] {
 <div class="container">
 
 
-  <form action="/save-income" method="post" enctype="multipart/form-data">
+  <form id="incomeForm" action="/save-income" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
     <fieldset>
         <legend>ข้อมูลเพิ่มรายได้</legend>
         <br> 
         <label for="record_date">วันที่บันทึก (เดือน-วัน-ปี):</label>
         <input type="date" id="record_date" name="record_date" placeholder="เลือกวันที่" required>
-        <br> 
-        <br> 
-        
+        <br><br>
+
+        <label for="admin">เเอดมินเพิ่มรายได้:</label>
+        <select id="admin" name="admin" required>
+            <option value="admin">เลือกชื่อเอดมิน</option>
+        </select>
+        <input type="hidden" id="managerValue" name="managerValue">
+        <br><br>
+
         <label for="income_amount">ยอดรายได้:</label>
         <input type="number" id="income_amount" name="income_amount" placeholder="กรอกยอดรายได้" required>
+        <br><br>
 
         <label for="details">รายละเอียด:</label>
         <textarea id="details" name="details" placeholder="กรอกรายละเอียด" required rows="10" cols="50"></textarea>
+        <br><br>
 
         <label for="income_receipt">รูปสลิปรายได้:</label>
         <input type="file" id="income_receipt" name="income_receipt" required>
@@ -180,9 +195,13 @@ form input[type="file"] {
         <img id="income_receipt_preview" alt="income_receipt" style="display: none; max-width: 500px; max-height: 500px;">
         <br>
     </fieldset> 
-    <br> 
+    <br>
+
+
+    <input type="hidden" id="creditorId" name="creditorId">
     <input type="submit" value="เพิ่มรายได้" class="button" id="save_button">
 </form>
+
 
 
 

@@ -127,7 +127,23 @@ input[type=text] {
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
   
-  
+    input[readonly] {
+    background-color: #f0f0f0; /* สีเทาอ่อนสำหรับพื้นหลัง */
+    border: 1px solid #ccc; /* ขอบสีเทาอ่อน */
+    color: #666; /* สีข้อความ */
+    cursor: not-allowed; /* เปลี่ยนเคอร์เซอร์เป็นแบบไม่อนุญาต */
+  }  
+  .hidden {
+        display: none;
+    }
+    select:disabled {
+    background-color: #f0f0f0; /* สีพื้นหลังที่ต้องการ */
+    color: #666; /* สีตัวอักษรที่ต้องการ */
+    border: 1px solid #ccc; /* กำหนดสีของขอบ */
+    cursor: not-allowed; /* แสดงเคอร์เซอร์เมื่อพ้อยเตอร์อยู่เหนือ <select> */
+    position: relative;
+    z-index: -100; 
+}
 
 </style>
 </head>
@@ -140,7 +156,6 @@ input[type=text] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -152,7 +167,7 @@ input[type=text] {
 
 
   
-  <form action="/AddLoanInformation/submit" method="post" enctype="multipart/form-data">
+  <form id="loanForm" action="/AddLoanInformation/submit" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
     <fieldset>
       <legend>ข้อมูลรหัสสัญญา</legend>
       <br> 
@@ -182,7 +197,7 @@ input[type=text] {
     
       <label for="loanType">ประเภทการกู้:</label>
       <select id="loanType" name="loanType" required onchange="toggleFields()">
-        <option value="">เลือกประเภทการกู้</option>
+        <option value="" disabled selected>เลือกประเภทการกู้</option>
         <option value="loanCash">ใส่ไอคราวร้าน</option>
         <option value="loanProperty">วางทรัพย์สิน</option>
         <option value="loanSecurities">ไม่มีหลักทรัพย์</option>
@@ -211,10 +226,13 @@ input[type=text] {
         <label for="code_icloud">รหัสไอคราวร้านที่พึ่งเปลี่ยนล่าสุด:</label>
         <input type="text" id="code_icloud" name="code_icloud" placeholder="กรอกรหัสไอคราวร้านที่พึ่งเปลี่ยนล่าสุด" >
 
-        <label for="icloud_assets">ทรัพย์สินที่ใส่ไอคราวร้าน (ทรัพย์ที่เป็นชื่อตัวเอง อธิบายให้ละเอียด):</label>
+        <label for="icloud_assets">ทรัพย์สินที่ใส่ไอคราวร้าน (ทรัพย์ที่เป็นชื่อตัวเอง อธิบายให้ละเอียด ประเภท รุ่น ความจุ ประสิทธิภาพเเบต สี):</label>
         <input type="text" id="icloud_assets" name="icloud_assets" placeholder="กรอกทรัพย์สินที่ใส่ไอคราวร้าน">
 
-    
+        <label for="findmyName">ชื่อใน Find My:</label>
+        <input type="text" id="findmyName" name="findmyName" placeholder="กรอกชื่อใน Find My">
+        
+
         <label for="icloud_asset_photo">รูปที่ใส่ไอคราวร้าน (แคปหน้าตั้งค่า):</label>
         <input type="file" id="icloud_asset_photo" name="icloud_asset_photo" accept="image/*">
         <br>
@@ -259,10 +277,10 @@ input[type=text] {
       <input type="number" id="interestRate" name="interestRate" placeholder="กรอกอัตราดอกเบี้ยต่อวัน (%)" required>
     
       <label for="totalInterest">ดอกเบี้ยทั้งหมด (บาท):</label>
-      <input type="number" id="totalInterest" name="totalInterest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมด" required>
+      <input type="number" id="totalInterest" name="totalInterest" placeholder="กรอกจำนวนดอกเบี้ยทั้งหมด" required readonly>
    
       <label for="totalRefund">รวมเงินที่ต้องคืน:</label>
-      <input type="number" id="totalRefund" name="totalRefund" placeholder="กรอกจำนวนเงินที่ต้องคืนทั้งหมด" required>
+      <input type="number" id="totalRefund" name="totalRefund" placeholder="กรอกจำนวนเงินที่ต้องคืนทั้งหมด" required readonly>
   
       <label for="refund_receipt_photo">รูปสลิปเงินต้น:</label>
       <input type="file" id="refund_receipt_photo" name="refund_receipt_photo" accept="image/*">
@@ -295,12 +313,15 @@ input[type=text] {
       <br>
 
     </fieldset> 
-    <br> 
+    <br>
+    
   
     
     <input type="hidden" id="icloud_records" name="icloud_records">
+    <input type="hidden" id="creditorId" name="creditorId">
   
-    <input id="updateButton" type="submit" value="บันทึกสัญญา" class="button">
+    <input id="save_button" type="submit" value="บันทึกสัญญา" class="button">
+
   </form>
   
     

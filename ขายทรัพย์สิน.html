@@ -6,6 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <title>ตารางขายทรัพย์สิน</title>
 
 <style>
@@ -108,13 +109,6 @@ tr:nth-child(even) {
   margin-bottom: 20px;
 }
 
-.search-container2 input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-right: 5px; /* เพิ่มระยะห่างของ input กับปุ่มค้นหา */
-}
 
 .search-container2 button {
   background-color: #4CAF50;
@@ -123,6 +117,7 @@ tr:nth-child(even) {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 183px;
 }
 
 .search-container2 button:hover {
@@ -134,9 +129,9 @@ tr:nth-child(even) {
   border: 1px solid #ccc;
   border-radius: 4px;
   outline: none;
-  margin-left: 5px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+  margin-left: 1px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+  width: 190px;
 }
-
 
 .button-container {
     text-align: center;
@@ -194,22 +189,19 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
     height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
 }
 
-.s {
-   color: green;
+/* Column Layout */
+.column {
+    float: left;
+    width: 33.33%;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204)
+/* Clear Floats */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 </style>
@@ -224,7 +216,6 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -234,10 +225,44 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 <h2 style="text-align:center;">ตารางขายทรัพย์สิน</h2>
 
 
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
-    <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
+<div class="row">
+
+
+  <div class="column">
+    <div class="search-container2">
+      <select id="nameFilter">
+        <option value="" selected>ทั้งหมด</option>
+        <option value="ทรัพย์1">ทรัพย์1</option>
+        <option value="ทรัพย์2">ทรัพย์2</option>
+        <!-- เพิ่มตัวเลือกอื่น ๆ ตามต้องการ -->
+      </select>
+      <button type="button" onclick="searchIdCard2()"><i class="fas fa-search"></i> ค้นหาชื่อทรัพย์</button>
+    </div>
   </div>
+
+
+
+  <div class="column">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน">
+      <button type="button" onclick="searchTable()"><i class="fas fa-search"></i> ค้นหาเลขบัตรประชาชน</button>
+    </div>
+  </div>
+
+
+
+  <div class="column">
+    <div class="search-container2">
+      <select id="statusFilter">
+        <option value="" selected>ทั้งหมด</option>
+        <option value="<span style='color: green;'>กำไร</span>">กำไร</option>
+        <option value="<span style='color: red;'>ขาดทุน</span>">ขาดทุน</option>
+        <option value="<span style='color: orange;'>คุ้มทุน</span>">คุ้มทุน</option>
+      </select>
+      <button type="button" onclick="searchIdCard2()"><i class="fas fa-search"></i> ค้นหาสถานะ</button>
+    </div>
+  </div>
+</div>
 
 
 
@@ -246,10 +271,10 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
 
 <div class="button-container3">
     <div class="column3">
-        <button class="custom-button3" onclick="redirectToContractPage2()">คลังทรัพย์</button>
+        <button class="custom-button3" onclick="redirectToContractPage2()"><i class="fas fa-shopping-bag"></i> คลังทรัพย์</button>
     </div>
     <div class="column3">
-        <button class="custom-button1" onclick="redirectToContractPage3()">ขายทรัพย์</button>
+        <button class="custom-button1" onclick="redirectToContractPage3()"><i class="fas fa-tag"></i> ขายทรัพย์</button>
     </div>
 </div>
 
@@ -268,8 +293,9 @@ height: 40px; /* ปรับขนาดสูงตามที่ต้อง
           <th>รวมต้นทุนทรัพย์</th>
           <th>ชื่อทรัพย์</th>
           <th>รายละเอียดทรัพย์</th>
-          <th>เงินขายทรัพย์</th>
+          <th>ราคาขาย</th>
           <th>กำไรสุทธิ</th>
+          <th>สถานะ</th>
           <th>จัดการ</th>
       </tr>
   </thead>

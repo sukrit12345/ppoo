@@ -10,14 +10,16 @@
 
 <style>
 .navbar {
-        overflow: hidden;
-        background-color: #333;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        left: 0;
-        right: 0;
-    }
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* ค่าที่สูงพอสมควร */
+}
+
 .navbar a {
         float: left;
         display: block;
@@ -37,10 +39,11 @@
     
 
 body {
-        font-family: Arial, sans-serif;
-        background-color: #ffffff;
-        margin-top: 100px;
-    }
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding-top: 60px; /* ปรับให้พอดีกับความสูงของ .navbar */
+}
 
 .container {
   width: 60%;
@@ -106,7 +109,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 89%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -145,7 +148,28 @@ input[type=text] {
       font-size: 18px; /* ขนาดตัวอักษร */
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
-    }    
+    }
+    input[readonly] {
+    background-color: #f0f0f0; /* สีเทาอ่อนสำหรับพื้นหลัง */
+    border: 1px solid #ccc; /* ขอบสีเทาอ่อน */
+    color: #666; /* สีข้อความ */
+    cursor: not-allowed; /* เปลี่ยนเคอร์เซอร์เป็นแบบไม่อนุญาต */
+  }
+  select:disabled {
+    background-color: #f0f0f0;
+    color: #666;
+    border: 1px solid #ccc;
+    cursor: not-allowed;
+    position: relative; /* ใช้ relative หรือ static แทน absolute */
+    z-index: 1; /* ต้องต่ำกว่าค่า z-index ของ .navbar */
+}
+
+
+
+
+
+
+             
 
 </style>
 </head>
@@ -158,7 +182,6 @@ input[type=text] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -169,11 +192,11 @@ input[type=text] {
 
 
 
-  <form action="/profit-sharing" method="post" enctype="multipart/form-data" oninput="calculateShares()">
+  <form id="profitsharingForm" action="/profit-sharing" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)" oninput="calculateShares()">
     <fieldset>
         <legend>ข้อมูลรหัสส่วนเเบ่ง</legend>
         <br>
-        <label for="manager">เเอดมินดูเเล:</label>
+        <label for="manager">เเอดมินรับเงิน:</label>
         <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required readonly>
 
         <label for="id_card_number">เลขบัตรประชาชน:</label>
@@ -205,7 +228,7 @@ input[type=text] {
         <label for="collector_name">ชื่อคนทวง:</label>
         <input type="text" id="collector_name" name="collector_name" placeholder="กรอกชื่อคนทวง" required>
 
-        <label for="collector_share_percent">ส่วนแบ่งคนทวง (%):</label>
+        <label for="collector_share_percent">อัตราส่วนแบ่งคนทวง (%):</label>
         <input type="number" id="collector_share_percent" name="collector_share_percent" placeholder="กรอกจำนวนเงินส่วนแบ่งคนทวง(%)" required>
 
         <label for="collector_share">ส่วนแบ่งคนทวง (บาท):</label>
@@ -229,7 +252,7 @@ input[type=text] {
         <label for="manager_name">ชื่อเเอดมินดูแล:</label>
         <input type="text" id="manager_name" name="manager_name" placeholder="กรอกชื่อเเอดมินดูแล" required readonly>
 
-        <label for="manager_share2">ส่วนแบ่งเเอดมินดูเเล (%):</label>
+        <label for="manager_share2">อัตราส่วนแบ่งเเอดมินดูเเล (%):</label>
         <input type="number" id="manager_share2" name="manager_share2" placeholder="กรอกจำนวนเงินส่วนแบ่งเเอดมินดูเเล(%)" required>
 
         <label for="manager_share">ส่วนแบ่งเเอดมินดูเเล (บาท):</label>
@@ -244,7 +267,7 @@ input[type=text] {
     <br>
 
     <fieldset>
-        <legend>ข้อมูลการแบ่งเงินเเอดมินรับเงิน</legend>
+        <legend>ข้อมูลการแบ่งเงินเเอดมินรับ</legend>
         <br>
         <label for="receiver_profit">เงินที่ต้องแบ่งเเอดมินรับเงิน:</label>
         <input type="number" id="receiver_profit" name="receiver_profit" placeholder="กรอกจำนวนเงินที่ต้องแบ่งเเอดมินรับเงิน" required>
@@ -252,11 +275,12 @@ input[type=text] {
 
         <label for="receiver_name">ชื่อเเอดมินรับเงิน:</label>
         <select id="receiver_name" name="receiver_name" required>
-          <option value="">เลือกชื่อเอดมิน</option>
+          <option value="" disabled selected>เลือกชื่อเอดมิน</option>
         </select>
+        <input type="hidden" id="managerValue" name="managerValue">
         <br><br>
 
-        <label for="receiver_share_percent">ส่วนแบ่งเเอดมินรับเงิน (%):</label>
+        <label for="receiver_share_percent">อัตราส่วนแบ่งเเอดมินรับเงิน (%):</label>
         <input type="number" id="receiver_share_percent" name="receiver_share_percent" placeholder="กรอกจำนวนเงินส่วนแบ่งเเอดมินรับเงิน(%)" required>
 
         <label for="receiver_share">ส่วนแบ่งเเอดมินรับเงิน (บาท):</label>
@@ -280,8 +304,10 @@ input[type=text] {
         <input type="number" id="net_profit" name="net_profit" placeholder="กรอกจำนวนกำไรสุทธิ" required readonly>
     </fieldset>
     <br>
-
+    <input type="hidden" id="creditorId" name="creditorId">
     <input type="hidden" id="refundId" name="refundId">
+
+
     <input type="submit" value="บันทึกส่วนเเบ่ง" class="button">
 </form>
 

@@ -1,6 +1,71 @@
+//ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => {
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
+  
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Nickname:', nickname);
+  
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname);
+  
+    // เรียกใช้ฟังก์ชัน fetchLoanData โดยส่ง id เป็นพารามิเตอร์
+    fetchLoanData(id);
+});
+  
+  
+  
+  // จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+  const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const response = await fetch('/api/managersList');
+        // ดึง creditorId จาก localStorage
+        const creditorId = localStorage.getItem('id_shop');
+        
+        if (!creditorId) {
+            throw new Error('creditorId is not available in localStorage');
+        }
+
+        // เรียกข้อมูลจาก API พร้อมกับส่ง creditorId
+        const response = await fetch(`/api/managersList?creditorId=${creditorId}`);
         const managers = await response.json();
 
         console.log('Managers Data:', managers); // ตรวจสอบข้อมูลที่ได้รับจาก API
@@ -12,9 +77,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         for (let index = 0; index < managers.length; index++) {
             const manager = managers[index];
-            // api เดิมที่ใช้ ก่อนจะเเก้โค้ด
-            // /api/loan/count?nickname=${manager.nickname}
-            // `/api/loan/in-contract?nickname=${manager.nickname}`
+
             const row = document.createElement('tr');
 
             // คำนวณสถานะของ manager โดยใช้ lateContractCount และ loanCount
@@ -25,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 status = "<span style='color: red;'>ปรับปรุง</span>";
             } else if (lateRatio <= 0.1) {
                 status = "<span style='color: green;'>ดี</span>";
-            } else {
+            } else { 
                 status = "<span style='color: orange;'>ปานกลาง</span>";
             }
 
@@ -42,8 +105,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                 <td>${manager.debtor.lateContractCount}</td>
                 <td>${status}</td>
                 <td>
-                    <button onclick="editManager('${manager._id}')">แก้ไข</button>
-                    <button onclick="deleteManager('${manager._id}')">ลบ</button>
+                    <button onclick="editManager('${manager._id}')"><i class="fas fa-pencil-alt"></i>แก้ไข</button>
+                    <button onclick="confirmDeleteManager('${manager._id}')"><i class="fas fa-trash-alt"></i>ลบ</button>
                 </td>
             `;
 
@@ -55,9 +118,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 });
 
 
+
 //เเก้ไข
+// ฟังก์ชันสำหรับเปิด popup เมื่อกด editManager
 function editManager(managerId) {
-    // นำผู้ใช้ไปยังหน้า "บันทึกข้อมูลเเอดมิน.html" พร้อมพารามิเตอร์ที่มี ID ของผู้จัดการ
+    // นำผู้ใช้ไปยังหน้า "บันทึกข้อมูลแอดมิน.html" โดยไม่ตรวจสอบข้อมูล
     window.location.href = `บันทึกข้อมูลเเอดมิน.html?_id=${managerId}`;
 }
 
@@ -66,45 +131,36 @@ function editManager(managerId) {
 
 
 
+// ลบข้อมูลพนักงาน
+// ฟังก์ชันยืนยันการลบข้อมูลผู้จัดการ
+async function confirmDeleteManager(managerId) {
+    // ยืนยันการลบด้วยการแสดงกล่องโต้ตอบ
+    const confirmation = confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลพนักงานคนนี้?");
 
-// ลบข้อมูลผู้จัดการ
-async function deleteManager(managerId) {
-    const confirmation = confirm(`คุณต้องการลบผู้จัดการหรือไม่?`);
-    if (!confirmation) return; // ถ้ายกเลิก ออกจากฟังก์ชัน
+    if (confirmation) {
+        try {
+            console.log('กำลังลบ managerId:', managerId); // Log ข้อมูลก่อนลบ
 
-    try {
-        const response = await fetch(`/api/managers/${managerId}`, {
-            method: 'DELETE'
-        });
+            // ส่งคำขอ DELETE ไปยัง API
+            const response = await fetch(`/api/delete-manager/${managerId}`, {
+                method: 'DELETE',
+            });
 
-        if (!response.ok) {
-            throw new Error('Failed to delete manager');
+            if (!response.ok) {
+                throw new Error('เกิดข้อผิดพลาดในการลบข้อมูล');
+            }
+
+            const result = await response.json(); // รับผลลัพธ์จากเซิร์ฟเวอร์
+            console.log(result.message); // แสดงข้อความที่ได้รับจากเซิร์ฟเวอร์
+
+            // โหลดหน้าใหม่หลังจากลบเสร็จสิ้น
+            window.location.reload();
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาด:', error); // แสดงข้อผิดพลาดในคอนโซล
+            alert('เกิดข้อผิดพลาดในการลบข้อมูลผู้จัดการ'); // แสดงข้อความข้อผิดพลาดให้ผู้ใช้ทราบ
         }
-
-        console.log('ลบข้อมูลเเอดมินสำเร็จ');
-        // ลบแถวที่เกี่ยวข้องในตาราง
-        const row = document.getElementById(`manager-${managerId}`);
-        if (row) {
-            row.remove();
-        }
-
-        // เรียกใช้ฟังก์ชัน displayLoanData เพื่อแสดงข้อมูลใหม่
-        displayLoanData();
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการลบข้อมูลผู้จัดการ:', error);
     }
 }
-
-function displayLoanData() {
-    // เรียกหน้าเว็บไซต์อีกครั้งเพื่อแสดงข้อมูลใหม่
-    window.location.reload();
-}
-
-
-
-
-
-
 
 
 //ค้นหาเลขบัตรประชาชน13หลัก

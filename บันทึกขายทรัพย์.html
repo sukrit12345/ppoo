@@ -109,6 +109,29 @@ input[type=text] {
     margin-left: 87%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
+    /* ทำให้ฟิลด์ readonly ดูคล้ายกับ disabled */
+    input[readonly], textarea[readonly] {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
+
+    select[disabled] {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
+
+    /* ปรับสีของปุ่ม disabled */
+    button[disabled] {
+        background-color: #f0f0f0; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+        color: #888; /* เปลี่ยนสีข้อความตามต้องการ */
+        border: 1px solid #ccc; /* เปลี่ยนสีกรอบตามต้องการ */
+        cursor: not-allowed;
+    }
+
 .popup {
       background-color: #4caf50; /* สีพื้นหลัง */
       border-radius: 10px; /* รูปร่าง */
@@ -127,6 +150,7 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
+    
  
 
 </style>
@@ -140,7 +164,6 @@ input[type=text] {
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -148,71 +171,86 @@ input[type=text] {
 
 <div class="container">
 
-    <form action="/submit-sale" method="post" enctype="multipart/form-data">
+  <form id="saleForm" action="/submit-sale" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
 
-
-      <fieldset>
-        <legend>ข้อมูลรหัสขายทรัพย์</legend>
-        <br> 
-        <label for="id_card_number">เลขบัตรประชาชน:</label>
-        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required  readonly>
-        
-        <label for="contract_number">หมายเลขสัญญา:</label>
-        <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required  readonly>
-        
-        <label for="bill_number">หมายเลขบิล:</label>
-        <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required  readonly>
-
-      </fieldset>
-      <br>
-
-      <fieldset>
-        <legend>ข้อมูลยึดทรัพย์</legend>
-        <br> 
-        
-        <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
-        <input type="number" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required  readonly>
-
-        <label for="assetName">ชื่อทรัพย์:</label>
-        <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์" required  readonly>
-        
-        <label for="assetDetails">รายละเอียดทรัพย์:</label>
-        <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required readonly>
-
-      </fieldset>
-      <br>
-        
-      <fieldset>
-        <legend>ข้อมูลขายทรัพย์</legend>
-        <br> 
-
-        <label for="sell_date">วันที่ขาย (เดือน-วัน-ปี):</label>
-        <input type="date" id="sell_date" name="sell_date" placeholder="กรอกวันที่ขาย" required><br><br>
+    <fieldset>
+      <legend>ข้อมูลรหัสขายทรัพย์</legend>
+      <br> 
+      <label for="receiver_name">แอดมินยึดทรัพย์:</label>
+      <input type="text" id="receiver_name" name="receiver_name" placeholder="กรอกชื่อแอดมิน" required readonly>
+      
+      <label for="id_card_number">เลขบัตรประชาชน:</label>
+      <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required readonly>
+      
+      <label for="fname">ชื่อจริง:</label>
+      <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required readonly>
+      
+      <label for="lname">นามสกุล:</label>
+      <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required readonly>
+      
+      <label for="contract_number">หมายเลขสัญญา:</label>
+      <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required readonly>
+      
+      <label for="bill_number">หมายเลขบิล:</label>
+      <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required readonly>
+    </fieldset>
+    
   
-        
-        <label for="sellamount">เงินขายทรัพย์:</label>
-        <input type="number" id="sellamount" name="sellamount" placeholder="กรอกเงินขายทรัพย์" required>
+    <br>
+  
+    <fieldset>
+      <legend>ข้อมูลยึดทรัพย์</legend>
+      <br> 
+      <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
+      <input type="number" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required readonly>
+  
+      <label for="assetName">ชื่อทรัพย์:</label>
+      <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์" required readonly>
+      
+      <label for="assetDetails">รายละเอียดทรัพย์:</label>
+      <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required readonly>
+    </fieldset>
+  
+    <br>
     
-        <label for="netprofit">กำไรสุทธิ:</label>
-        <input type="number" id="netprofit" name="netprofit" placeholder="กรอกกำไรสุทธิ" required readonly>
-        
-        <label for="sell_slip">รูปสลิปเงินขายทรัพย์:</label>
-        <input type="file" id="sell_slip" name="sell_slip">
-        <br>
-        <img  id="sell_slip_preview" alt="sell_slip" style="display: none; max-width: 500px; max-height: 500px;">
-        <br>
-    
-      </fieldset>
-      <br>
-        
-    
-        <!-- Input hidden สำหรับเก็บ ID ของการยึดทรัพย์ -->
-        <input type="hidden" id="seizure_id" name="seizure_id"> 
-        
-        <input type="submit" id="submit_button" value="บันทึกขายทรัพย์สิน" class="button" disabled>
+    <fieldset>
+      <legend>ข้อมูลขายทรัพย์</legend>
+      <br> 
+  
+      <label for="sell_date">วันที่ขาย (เดือน-วัน-ปี):</label>
+      <input type="date" id="sell_date" name="sell_date" placeholder="กรอกวันที่ขาย" required><br><br>
 
-    </form>
+
+      <label for="salesadmin">เเอดมินขายทรัพย์:</label>
+      <select id="salesadmin" name="salesadmin" required>
+        <option value="" disabled selected>เลือกชื่อเอดมิน</option>
+      </select>
+      <input type="hidden" id="managerValue" name="managerValue">
+      <br><br>
+  
+      <label for="sellamount">ราคาขายทรัพย์:</label>
+      <input type="number" id="sellamount" name="sellamount" placeholder="กรอกราคาขายทรัพย์" required>
     
+      <label for="netprofit">กำไรสุทธิ:</label>
+      <input type="number" id="netprofit" name="netprofit" placeholder="กรอกกำไรสุทธิ" required readonly>
+      
+      <label for="sell_slip">รูปสลิปเงินขายทรัพย์:</label>
+      <input type="file" id="sell_slip" name="sell_slip" style="display: none;">
+      <br>
+      <img id="sell_slip_preview" alt="sell_slip" style="display: none; max-width: 500px; max-height: 500px;">
+      <br>
+    </fieldset>
+  
+    <br>
+  
+    
+    <!-- Input hidden สำหรับเก็บ ID ของการยึดทรัพย์ -->
+    <input type="hidden" id="seizure_id" name="seizure_id"> 
+    <input type="hidden" id="creditorId" name="creditorId">
+  
+    <input type="submit" id="submit_button" value="บันทึกขายทรัพย์สิน" class="button" disabled>
+  
+  </form>
     
 
 

@@ -6,6 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <title>ตารางไอคราว</title>
 
 <style>
@@ -146,7 +147,7 @@ tr:nth-child(even) {
 .custom-button {
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 13px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -165,7 +166,7 @@ tr:nth-child(even) {
 /* Common styles */
 .column {
         float: left;
-        width: 33.33%;
+        width: 25%;
         padding: 0 15px;
         box-sizing: border-box;
     }
@@ -268,23 +269,7 @@ tr:nth-child(even) {
 
 
 
-.s {
-   color: green;
-}
 
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204)
-}
 
 </style>
 
@@ -299,7 +284,6 @@ tr:nth-child(even) {
     <a class="active" href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -317,35 +301,38 @@ tr:nth-child(even) {
     <div class="column">
         <div class="search-container">
             <input type="text" id="newSearchInput3" placeholder="พิมพ์เลขเครื่องโทรศัพท์">
-            <button type="button" onclick="customSearch3()">ค้นหาเลขเครื่องโทรศัพท์</button>
+            <button type="button" onclick="customSearch3()"><i class="fas fa-search"></i> ค้นหาเลขเครื่องโทรศัพท์</button>
         </div>
     </div>
     <div class="column">
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="พิมพ์เบอร์โทรศัพท์">
-            <button type="button" onclick="searchTable()">ค้นหาเบอร์โทรศัพท์</button>
+            <button type="button" onclick="searchTable()"><i class="fas fa-search"></i> ค้นหาเบอร์โทรศัพท์</button>
         </div>   
     </div>
     <div class="column">
         <div class="search-container">
-            <input type="text" id="newSearchInput1" placeholder="พิมพ์ยูสอีเมล/ไอคราว">
-            <button type="button" onclick="customSearch1()">ค้นหายูสอีเมล/ไอคราว</button>
+            <input type="text" id="newSearchInput1" placeholder="พิมพ์ยูสอีเมลหรือไอคราว">
+            <button type="button" onclick="customSearch1()"><i class="fas fa-search"></i> ค้นหายูสอีเมลหรือไอคราว</button>
         </div>      
+    </div>
+    <div class="column">
+        <div class="search-container">
+            <input type="text" id="userCountRange" placeholder="พิมพ์จำนวนผู้ใช้">
+            <button type="button" onclick="searchIdCard2()"><i class="fas fa-search"></i> ค้นหาจำนวนผู้ใช้</button>
+        </div>   
     </div>
 
 </div>
   
 
-<div class="search-container">
-    <input type="text" id="userCountRange" placeholder="พิมพ์จำนวนผู้ใช้">
-    <button type="button" onclick="searchIdCard2()">ค้นหาจำนวนผู้ใช้</button>
-</div>
+
   
 
 
 <div class="button-container">
     <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลไอคราว.html';">
-        <a href="บันทึกข้อมูลไอคราว.html" class="button-link">เพิ่มข้อมูลไอคราว</a>
+        <a href="บันทึกข้อมูลไอคราว.html" class="button-link"><i class="fas fa-plus"></i> เพิ่มข้อมูลไอคราว</a>
     </button>
 </div>
 
@@ -364,6 +351,7 @@ tr:nth-child(even) {
             <th>รหัสเมล</th>
             <th>รหัสไอคราว</th>
             <th>จำนวนผู้ใช้</th>
+            <th>สัญญาที่เชื่อม</th>
             <th>จัดการ</th>
         </tr>
     </thead>

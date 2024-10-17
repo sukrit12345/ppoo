@@ -3,29 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Management</title>
+    <title>หน้าหลักลูกหนี้</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-start; /* ขยับข้อความทั้งหมดชิดซ้าย */
+    align-items: center; /* จัดกึ่งกลางในแนวตั้ง */
+    z-index: 1000; /* เพื่อให้ navbar อยู่บนสุดเสมอ */
+}
+
+.navbar h3 {
+    color: white;
+    margin: 0;
+    padding: 14px 20px; /* ปรับเป็นค่าคงที่เพื่อไม่ให้ขยับ */
+    display: inline-block; /* ทำให้ h3 อยู่ในบรรทัดเดียวกัน */
+}
+
+body {
+    padding-top: 60px; /* เว้นระยะห่างจากด้านบนสำหรับเนื้อหาหลังจาก navbar */
+}
+
+
+
         body {
             margin: 0;
             padding: 20px;
             font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #ddd;
-
+            background-color: #ffffff;
         }
 
         .container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* แนวนอน */
             gap: 20px;
-            align-items: center;
+            flex-wrap: wrap; /* อนุญาตให้ wrap เมื่อพื้นที่ไม่พอ */
+            justify-content: center; /* จัดตำแหน่งให้อยู่กลาง */
             width: 100%;
-            max-width: 800px; /* ขนาดสูงสุดของ container */
+            max-width: 1200px; /* ขนาดสูงสุดของ container */
+            margin-bottom: 200px;
         }
 
         .section {
@@ -33,15 +61,15 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 200px; /* ขนาดสูงสุดของ div */
-            height: 200px; /* ขนาดสูงสุดของ div */
+            width: 200px; /* ความกว้างของแต่ละ div */
+            height: 200px; /* ความสูงของแต่ละ div */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             transition: transform 0.3s ease;
+            cursor: pointer; /* แสดงว่าเป็นคลิกได้ */
         }
 
         .section:hover {
@@ -50,27 +78,27 @@
 
         .section i {
             font-size: 80px; /* ขนาดของไอคอน */
-            color: #333; /* สีของไอคอน */
+            color: #ffffff; /* สีของไอคอน */
             margin-bottom: 10px; /* เว้นระยะห่างระหว่างไอคอนและข้อความ */
         }
 
         .section h2 {
             margin: 0;
-            color: #333;
+            color: #ffffff;
             font-size: 1.2rem;
         }
 
         /* กำหนดสีพื้นหลังที่แตกต่างกันสำหรับแต่ละ div */
         .contracts {
-            background-color: #ff9933; /* สีพื้นหลังของ div รายการสัญญา */
+            background-color: #66BB6A; /* สีพื้นหลังของ div รายการสัญญา */
         }
 
         .payment-methods {
-            background-color: #41ae2e; /* สีพื้นหลังของ div ช่องทางคืนเงิน */
+            background-color: #AB47BC; /* สีพื้นหลังของ div ช่องทางคืนเงิน */ 
         }
 
         .profile {
-            background-color: #39adf0; /* สีพื้นหลังของ div โปรไฟล์ */
+            background-color: #42A5F5; /* สีพื้นหลังของ div โปรไฟล์ */
         }
 
         /* การปรับแต่งสำหรับหน้าจอเล็ก */
@@ -93,25 +121,38 @@
 </head>
 <body>
 
+
+    <div class="navbar">
+        <h3><i class="fas fa-id-card"></i> เลขบัตรประชาชน: <span id="id_card_number"></span></h3>
+        <h3><i class="fas fa-university"></i> ชื่อร้าน: <span id="store_name"></span></h3>
+    </div>
+    
+
     <div class="container">
         <!-- รายการสัญญา -->
-        <div class="section contracts">
-            <i class="fas fa-book"></i> <!-- ใช้ Font Awesome ไอคอนหนังสือ -->
-            <h2>รายการสัญญา</h2>
+        <div class="section contracts" onclick="goToLoanList()">
+            <i class="fas fa-coins"></i>
+            <h2>รายการกู้</h2>
         </div>
 
-        <!-- ช่องทางคืนเงิน -->
-        <div class="section payment-methods">
-            <i class="fas fa-credit-card"></i> <!-- ใช้ Font Awesome ไอคอนบัตรเครดิต -->
-            <h2>ช่องทางคืนเงิน</h2>
-        </div>
 
-        <!-- โปรไฟล์ -->
-        <div class="section profile">
+        <div class="section profile" onclick="goToProfile()">
             <i class="fas fa-user"></i> <!-- ใช้ Font Awesome ไอคอนผู้ใช้ -->
             <h2>โปรไฟล์</h2>
         </div>
+
+        <!-- ช่องทางคืนเงิน -->
+        <div class="section payment-methods" onclick="goToPaymentMethods()">
+            <i class="fas fa-university"></i> <!-- ใช้ Font Awesome ไอคอนธนาคาร -->
+            <h2>ช่องทางคืนเงิน</h2>
+        </div>
+        
+        <!-- โปรไฟล์ -->
+
     </div>
+
+
+    <script src="หน้าหลักลูกหนี้.js"></script>
 
 </body>
 </html>

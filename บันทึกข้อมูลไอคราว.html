@@ -106,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 89.5%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 89.75%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -133,7 +133,16 @@ input[type=text] {
         font-size: 16px;
         margin-top: 5px;
     }    
-  
+
+    
+    select:disabled {
+    background-color: #f0f0f0; /* สีพื้นหลังที่ต้องการ */
+    color: #666; /* สีตัวอักษรที่ต้องการ */
+    border: 1px solid #ccc; /* กำหนดสีของขอบ */
+    cursor: not-allowed; /* แสดงเคอร์เซอร์เมื่อพ้อยเตอร์อยู่เหนือ <select> */
+    position: relative;
+    z-index: -100; 
+}    
 
 </style>
 </head>
@@ -146,7 +155,6 @@ input[type=text] {
     <a class="active" href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -154,12 +162,19 @@ input[type=text] {
 
 <div class="container">
 
-    <form id="icloudForm" action="/save_record" method="post">
+    <form id="icloudForm" action="/save_record" method="post" onsubmit="validateForm(event)">
         <fieldset>
             <br>
             <legend>ข้อมูลไอคราว</legend>
             <label for="record_date">วันที่บันทึก:</label>
             <input type="date" id="record_date" name="record_date"required ><br><br>
+
+            <label for="admin">เเอดมินดูแล:</label>
+            <select id="admin" name="admin" required>
+                <option value="">เลือกชื่อเเอดมิน</option>
+            </select>
+            <input type="hidden" id="managerValue" name="managerValue"> <!-- Hidden input สำหรับเก็บค่า manager -->
+            <br><br>
 
             <label for="phone_number">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></span></label>
             <input type="number" id="phone_number" name="phone_number"  placeholder="กรอกเบอร์โทรศัพท์" required>
@@ -178,8 +193,12 @@ input[type=text] {
 
         </fieldset>
         <br>
-
+        
+        
+        
         <input type="hidden" id="loan" name="loan">
+        
+        <input type="hidden" id="creditorId" name="creditorId">
 
         <input type="hidden" id="record_id" name="_id">
 

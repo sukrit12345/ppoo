@@ -1,3 +1,69 @@
+//ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => {
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
+  
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Nickname:', nickname);
+  
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname);
+  
+    // เรียกใช้ฟังก์ชัน fetchLoanData โดยส่ง id เป็นพารามิเตอร์
+    fetchLoanData(id);
+});
+  
+  
+  
+  // จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+  const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
+
+
+
+
+
+
+
+
+
 $(document).ready(function() {
     let chartInstance; // ตัวแปรเก็บอินสแตนซ์ของกราฟ
 
@@ -5,6 +71,24 @@ $(document).ready(function() {
     function addToTable(filteredData) {
         console.log('filteredData:', filteredData); // แสดงข้อมูลที่กรองแล้วในคอนโซลสำหรับการตรวจสอบ
     
+        // ขั้นตอน 1: กรองข้อมูลที่ไม่เป็น 0 ก่อน
+        let filteredDataWithoutZeros = filteredData.filter(item => {
+            let a = parseFloat(item.a) || 0;
+            let b = parseFloat(item.b) || 0;
+            let c = parseFloat(item.c) || 0;
+            let c2 = parseFloat(item.c2) || 0;
+            let d = parseFloat(item.d) || 0;
+            let d2 = parseFloat(item.d2) || 0;
+
+            // กรองข้อมูลที่มีค่าเป็น 0 ออก
+            return a !== 0 || b !== 0 || c !== 0 || c2 !== 0 || d !== 0 || d2 !== 0;
+        });
+
+        // ขั้นตอน 2: เรียงข้อมูลตามวันที่ (Descending)
+        filteredDataWithoutZeros.sort((a, b) => {
+            return new Date(b.date) - new Date(a.date); // เรียงจากใหม่ไปเก่า (Descending)
+        });
+
         // ตัวแปรสำหรับเก็บข้อมูลรวม
         let totalIncome = 0;
         let totalExpense = 0;
@@ -15,31 +99,46 @@ $(document).ready(function() {
         // ล้างข้อมูลเดิมในตาราง
         $('#accountingTableBody').empty();
     
-        // ตรวจสอบข้อมูลใน filteredData และเพิ่มลงในตาราง
-        filteredData.forEach((item, index) => {
+        // ขั้นตอน 3: เพิ่มข้อมูลลงในตาราง
+        filteredDataWithoutZeros.forEach((item, index) => {
             let a = parseFloat(item.a) || 0;
             let b = parseFloat(item.b) || 0;
             let c = parseFloat(item.c) || 0;
             let c2 = parseFloat(item.c2) || 0;
             let d = parseFloat(item.d) || 0;
             let d2 = parseFloat(item.d2) || 0;
-    
+
             // คำนวณข้อมูลรวม
             totalIncome += a;
             totalExpense += b;
             debtorMoney += (c - c2);
             cashMoney += (d - d2);
-    
+
             // เพิ่มข้อมูลลงในตาราง
             $('#accountingTableBody').append(`
                 <tr>
-                    <td>${filteredData.length - index}</td> <!-- แสดงลำดับที่ในตาราง -->
-                    <td>${item.date}</td> <!-- วันที่ -->
-                    <td>${item.description}</td> <!-- คำอธิบาย -->
-                    <td>${a !== 0 ? `<span style="color: green;">${a > 0 ? '+' : ''}${a}</span>` : ''}</td> <!-- รายได้ -->
-                    <td>${b !== 0 ? `<span style="color: red;">${b > 0 ? '+' : ''}${b}</span>` : ''}</td> <!-- ค่าใช้จ่าย -->
-                    <td>${c !== 0 ? `<span style="color: green;">${c > 0 ? '+' : ''}${c}</span>` : ''}${c2 !== 0 ? `<span style="color: red;">${c2 > 0 ? '-' : ''}${c2}</span>` : ''}</td> <!-- เงินที่ลูกหนี้ -->
-                    <td>${d !== 0 ? `<span style="${d < 0 ? 'color: red;' : 'color: green;'}">${d > 0 ? '+' : ''}${d}</span>` : ''}${d2 !== 0 ? `<span style="color: red;">${d2 > 0 ? '-' : ''}${d2}</span>` : ''}</td> <!-- เงินสด -->
+                    <!-- แสดงลำดับที่ในตาราง -->
+                    <td>${filteredDataWithoutZeros.length - index}</td> <!-- ลำดับที่ -->
+                    <td>${item.date ? item.date : ''}</td> <!-- วันที่ -->
+                    <td>${item.description ? item.description : ''}</td> <!-- คำอธิบาย -->
+
+                    <td>
+                        ${a !== 0 ? `<span style="color: green;">${a > 0 ? '+' : ''}${a}</span>` : ''}
+                    </td> <!-- รายรับ -->
+
+                    <td>
+                        ${b !== 0 ? `<span style="color: green;">${b > 0 ? '+' : ''}${b}</span>` : ''}
+                    </td> <!-- รายจ่าย -->
+
+                    <td>
+                        ${c !== 0 ? `<span style="color: green;">${c > 0 ? '+' : ''}${c}</span>` : ''}
+                        ${c2 !== 0 ? `<span style="color: red;">${c2 > 0 ? '-' : ''}${c2}</span>` : ''}
+                    </td> <!-- เงินที่ลูกหนี้ -->
+
+                    <td>
+                        ${d !== 0 ? `<span style="${d < 0 ? 'color: red;' : 'color: green;'}">${d > 0 ? '+' : ''}${d}</span>` : ''}
+                        ${d2 !== 0 ? `<span style="color: red;">${d2 > 0 ? '-' : ''}${d2}</span>` : ''}
+                    </td> <!-- เงินสด -->
                 </tr>
             `);
         });
@@ -158,13 +257,12 @@ $(document).ready(function() {
                     filteredData.push({
                         date: txtValue,
                         description: tr[i].getElementsByTagName("td")[2].textContent, // คำอธิบาย
-                        a: income,
-                        b: expense,
-                        c: debtor,
-                        c2: parseFloat(tr[i].getElementsByTagName("td")[5].textContent.replace(/[^0-9.-]+/g, '')) || 0, // เงินที่ลูกหนี้
-                        d: cash,
-                        d2: parseFloat(tr[i].getElementsByTagName("td")[6].textContent.replace(/[^0-9.-]+/g, '')) || 0 // เงินสด
+                        a: income, // รายรับ
+                        b: expense, // รายจ่าย
+                        c: debtor, // เงินที่ลูกหนี้
+                        d: cash, // เงินสด
                     });
+                    
                 } else {
                     tr[i].style.display = "none"; // ซ่อนแถวที่ไม่ตรงกับช่วงเวลา
                 }
@@ -180,20 +278,24 @@ $(document).ready(function() {
 
     
 
-    // สร้างสัญญาเพื่อเรียกใช้ API
-    let promises = [
-        $.get('/getLoanInformation1'),
-        $.get('/getLoanInformation2'),
-        $.get('/getRefundInformation1'),
-        $.get('/getRefundInformation2'),
-        $.get('/getRefunds'),
-        $.get('/getProfitSharings'),
-        $.get('/getSeizures'),
-        $.get('/getSales'),
-        $.get('/getExpenses'),
-        $.get('/getIncomes'),
-        $.get('/getCapitals')
-    ];
+// ดึง creditorId จาก localStorage
+const creditorId = localStorage.getItem('id_shop');
+
+// สร้างสัญญาเพื่อเรียกใช้ API โดยเพิ่ม creditorId เป็นพารามิเตอร์
+let promises = [
+    $.get('/getLoanInformation1', { creditorId }),
+    $.get('/getLoanInformation2', { creditorId }),
+    $.get('/getRefundInformation1', { creditorId }),
+    $.get('/getRefundInformation2', { creditorId }),
+    $.get('/getRefunds', { creditorId }),
+    $.get('/getProfitSharings', { creditorId }),
+    $.get('/getSeizures', { creditorId }),
+    $.get('/getSales', { creditorId }),
+    $.get('/getExpenses', { creditorId }),
+    $.get('/getIncomes', { creditorId }),
+    $.get('/getCapitals', { creditorId })
+];
+
 
     // รวบรวมข้อมูลจาก API ทั้งหมด
     $.when(...promises).done(function(...results) {

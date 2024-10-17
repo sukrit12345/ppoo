@@ -1,128 +1,212 @@
-document.addEventListener("DOMContentLoaded", async function() {
-    // ดึงค่าจาก URL query string
-    const urlParams = new URLSearchParams(window.location.search);
+// ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => { // เพิ่ม async เพื่อเรียกใช้ฟังก์ชันแบบ asynchronous
+    // ดึงค่า ID จาก localStorage
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
 
-    // ดึงค่าตามชื่อพารามิเตอร์ที่ต้องการ
-    const refundId = urlParams.get('refundId');
-    const idCardNumber = urlParams.get('id_card_number');
-    const firstName = urlParams.get('fname');
-    const lastName = urlParams.get('lname');
-    const manager = urlParams.get('manager');
-    const contractNumber = urlParams.get('contract_number');
-    const billNumber = urlParams.get('bill_number');
-    const initial_profit = urlParams.get('initial_profit');
+    // ใส่ค่า ID ลงในฟิลด์ input ที่มี id เป็น 'creditorId'
+    if (id) {
+        document.getElementById('creditorId').value = id;
+    }
 
-    // ตรวจสอบค่าที่ดึงได้
-    console.log("Refund ID:", refundId);
-    console.log("ID Card Number:", idCardNumber);
-    console.log("First Name:", firstName);
-    console.log("Last Name:", lastName);
-    console.log("Manager:", manager);
-    console.log("Contract Number:", contractNumber);
-    console.log("Bill Number:", billNumber);
-    console.log("initial_profit:", initial_profit);
+    const managerSelect = document.getElementById('receiver_name');
 
-    // ใช้ค่าที่ดึงได้ในการปรับแต่งหรือใช้งานต่อไป
-    document.getElementById("initial_profit").value = initial_profit || '';
-    document.getElementById("id_card_number").value = idCardNumber || '';
-    document.getElementById("fname").value = firstName || '';
-    document.getElementById("lname").value = lastName || '';
-    document.getElementById("manager").value = manager || '';
-    document.getElementById("contract_number").value = contractNumber || '';
-    document.getElementById("bill_number").value = billNumber || '';
-    document.getElementById("refundId").value = refundId || ''; // อัปเดตตรงนี้
-    document.getElementById("manager_name").value = manager || '';
+    if (nickname) {
+        // สร้าง option ใหม่ที่มี value และข้อความตรงกับ nickname
+        const option = document.createElement('option');
+        option.value = nickname;
+        option.textContent = nickname;
+        option.selected = true; // ตั้งค่าให้ option นี้ถูกเลือกโดยอัตโนมัติ
+        managerSelect.appendChild(option);
 
-    // ค้นหาข้อมูลจากฐานข้อมูล Manager
-    const managerData = await Manager.findOne({ nickname: manager });
+        // ปิดการเลือกถ้ามีค่า nickname
+        managerSelect.disabled = true; // ไม่สามารถเปลี่ยนตัวเลือกอื่นได้
 
-    if (managerData) {
-        console.log("Manager Data:", managerData);
-        document.getElementById("bankName").value = managerData.bankName || '';
-        document.getElementById("accountNumber").value = managerData.accountNumber || '';
-    } else {
-        console.log('Manager not found!');
-        // Clear bankName and accountNumber if manager data is not found
-        document.getElementById("bankName").value = '';
-        document.getElementById("accountNumber").value = '';
+        // ตั้งค่าให้ hidden input เก็บค่า nickname
+        document.getElementById('managerValue').value = nickname;
+    }
+
+    // แสดงค่า ID ในคอนโซลสำหรับการดีบัก
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Creditor Value:', document.getElementById('creditorId').value); // ตรวจสอบค่าที่ตั้งใน input
+    console.log('Manager Value:', nickname);
+
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname); // เรียกใช้ฟังก์ชันเช็คสิทธิ์โดยใช้ nickname
+});
+
+
+
+
+// จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refundId = urlParams.get('refundId');
+        const manager = urlParams.get('manager');
+        const initial_profit = urlParams.get('initial_profit');
+
+        if (!refundId) {
+            throw new Error('ไม่พบค่าพารามิเตอร์ refundId ใน URL');
+        }
+
+        const response = await fetch(`/api/refunddd/${refundId}`);
+        if (!response.ok) {
+            throw new Error('ไม่สามารถดึงข้อมูลได้');
+        }
+
+        const refundData = await response.json();
+
+        // ตรวจสอบและแสดงข้อมูลลงในฟอร์ม
+        if (refundData) {
+            document.getElementById('manager').value = refundData.receiver_name || ''; 
+            document.getElementById('initial_profit').value = initial_profit || '';
+            document.getElementById('id_card_number').value = refundData.id_card_number || '';
+            document.getElementById('fname').value = refundData.fname || '';
+            document.getElementById('lname').value = refundData.lname || '';
+            document.getElementById('contract_number').value = refundData.contract_number || '';
+            document.getElementById('bill_number').value = refundData.bill_number || '';
+            document.getElementById('manager_name').value = manager || ''; 
+            document.getElementById('refundId').value = refundId;
+        } else {
+            console.error('ข้อมูลที่ดึงมาไม่ถูกต้องหรือไม่ครบถ้วน');
+        }
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาด:', error.message);
     }
 });
 
 
 
 
+
+
 //วันที่ปัจจุบัน
-window.onload = setDate;
-
-
-
 function setDate() {
-    // Create current date
     var today = new Date();
-
-    // Format month and day to have leading zero if needed
     var month = (today.getMonth() + 1).toString().padStart(2, '0');
     var day = today.getDate().toString().padStart(2, '0');
-
-    // Set the value of the date input field
-    document.getElementById('return_date_input').value = today.getFullYear() + '-' + month + '-' + day;
+    var dateStr = today.getFullYear() + '-' + month + '-' + day;    
+    // ตั้งค่าที่ช่องป้อนข้อมูล
+    document.getElementById('return_date_input').value = dateStr;
 }
 
-function calculateShares() {
-    // Get the input values
-    const initialProfit = parseFloat(document.getElementById('initial_profit').value) || 0;
-    const collectorSharePercent = parseFloat(document.getElementById('collector_share_percent').value) || 0;
-    const managerSharePercent = parseFloat(document.getElementById('manager_share2').value) || 0;
-    const receiverSharePercent = parseFloat(document.getElementById('receiver_share_percent').value) || 0;
-    
-    // Get direct inputs for shares
-    const collectorShareInput = parseFloat(document.getElementById('collector_share').value) || 0;
-    const managerShareInput = parseFloat(document.getElementById('manager_share').value) || 0;
-    const receiverShareInput = parseFloat(document.getElementById('receiver_share').value) || 0;
-
-    // Calculate collector share if not set directly
-    let collectorShare = collectorShareInput;
-    if (collectorShare === 0) {
-        collectorShare = (initialProfit * collectorSharePercent) / 100;
-    }
-
-    const initialProfit2 = initialProfit - Math.abs(collectorShare);
-
-    // Calculate manager share if not set directly
-    let managerShare = managerShareInput;
-    if (managerShare === 0) {
-        managerShare = (initialProfit2 * managerSharePercent) / 100;
-    }
-
-    // Calculate receiver profit and share if not set directly
-    const receiverProfit = initialProfit2 - managerShare;
-    let receiverShare = receiverShareInput;
-    if (receiverShare === 0) {
-        receiverShare = (receiverProfit * receiverSharePercent) / 100;
-    }
-
-    // Calculate total share and net profit
-    const totalShare = Math.abs(collectorShare) + Math.abs(managerShare) + Math.abs(receiverShare);
-    const netProfit = initialProfit - Math.abs(totalShare);
-
-    // Set the calculated values
-    document.getElementById('collector_share').value = collectorShare.toFixed(0);
-    document.getElementById('initial_profit2').value = initialProfit2.toFixed(0);
-    document.getElementById('manager_share').value = managerShare.toFixed(0);
-    document.getElementById('receiver_profit').value = receiverProfit.toFixed(0);
-    document.getElementById('receiver_share').value = receiverShare.toFixed(0);
-    document.getElementById('total_share').value = totalShare.toFixed(0);
-    document.getElementById('net_profit').value = netProfit.toFixed(0);
-}
-
-// Call calculateShares() initially and on input change events
+// เรียกใช้ฟังก์ชัน setDate เมื่อโหลดหน้าเสร็จ
 document.addEventListener('DOMContentLoaded', (event) => {
     setDate();
-    calculateShares(); // Initial calculation
+});
+
+
+
+
+// ฟังก์ชันคำนวณส่วนที่ต้องแบ่ง
+function calculateShares() {
+    // ดึงค่าจากอินพุต
+    const initialProfit = parseFloat(document.getElementById('initial_profit').value) || 0; // กำไรเริ่มต้น
+    const collectorSharePercent = parseFloat(document.getElementById('collector_share_percent').value) || 0; // เปอร์เซ็นต์ส่วนแบ่งของผู้เก็บ
+    const managerSharePercent = parseFloat(document.getElementById('manager_share2').value) || 0; // เปอร์เซ็นต์ส่วนแบ่งของผู้จัดการ
+    const receiverSharePercent = parseFloat(document.getElementById('receiver_share_percent').value) || 0; // เปอร์เซ็นต์ส่วนแบ่งของผู้รับ
+
+    // ดึงค่าของส่วนแบ่งที่ป้อนตรงๆ
+    const collectorShareInput = parseFloat(document.getElementById('collector_share').value) || 0; // ส่วนแบ่งของผู้เก็บที่ป้อนตรงๆ
+    const managerShareInput = parseFloat(document.getElementById('manager_share').value) || 0; // ส่วนแบ่งของผู้จัดการที่ป้อนตรงๆ
+    const receiverShareInput = parseFloat(document.getElementById('receiver_share').value) || 0; // ส่วนแบ่งของผู้รับที่ป้อนตรงๆ
+
+    // คำนวณส่วนแบ่งของผู้เก็บหากไม่ได้ป้อนตรงๆ
+    let collectorShare;
+    if (collectorShareInput > 0) {
+        collectorShare = collectorShareInput; // ใช้ค่าที่ป้อนตรงๆ
+    } else {
+        collectorShare = (initialProfit * collectorSharePercent) / 100; // คำนวณจากเปอร์เซ็นต์
+    }
+
+    const initialProfit2 = initialProfit - collectorShare; // กำไรหลังจากหักส่วนแบ่งของผู้เก็บ
+
+    // คำนวณส่วนแบ่งของผู้จัดการหากไม่ได้ป้อนตรงๆ
+    let managerShare;
+    if (managerShareInput > 0) {
+        managerShare = managerShareInput; // ใช้ค่าที่ป้อนตรงๆ
+    } else {
+        managerShare = (initialProfit2 * managerSharePercent) / 100; // คำนวณจากเปอร์เซ็นต์
+    }
+
+    // คำนวณกำไรและส่วนแบ่งของผู้รับหากไม่ได้ป้อนตรงๆ
+    const receiverProfit = initialProfit2 - managerShare; // กำไรหลังจากหักส่วนแบ่งของผู้จัดการ
+    let receiverShare;
+    if (receiverShareInput > 0) {
+        receiverShare = receiverShareInput; // ใช้ค่าที่ป้อนตรงๆ
+    } else {
+        receiverShare = (receiverProfit * receiverSharePercent) / 100; // คำนวณจากเปอร์เซ็นต์
+    }
+
+    // คำนวณรวมส่วนแบ่งและกำไรสุทธิ
+    const totalShare = collectorShare + managerShare + receiverShare; // รวมส่วนแบ่งทั้งหมด
+    const netProfit = initialProfit - totalShare; // กำไรสุทธิ
+
+    // ตั้งค่าที่คำนวณได้
+    document.getElementById('collector_share').value = collectorShare.toFixed(0); // ส่วนแบ่งของผู้เก็บ
+    document.getElementById('initial_profit2').value = initialProfit2.toFixed(0); // กำไรหลังจากหักส่วนแบ่งของผู้เก็บ
+    document.getElementById('manager_share').value = managerShare.toFixed(0); // ส่วนแบ่งของผู้จัดการ
+    document.getElementById('receiver_profit').value = receiverProfit.toFixed(0); // กำไรหลังจากหักส่วนแบ่งของผู้จัดการ
+    document.getElementById('receiver_share').value = receiverShare.toFixed(0); // ส่วนแบ่งของผู้รับ
+    document.getElementById('total_share').value = totalShare.toFixed(0); // รวมส่วนแบ่งทั้งหมด
+    document.getElementById('net_profit').value = netProfit.toFixed(0); // กำไรสุทธิ
+}
+
+// เรียกใช้ฟังก์ชัน calculateShares() ครั้งแรกและเมื่อมีการเปลี่ยนแปลงข้อมูล
+document.addEventListener('DOMContentLoaded', () => {
+    calculateShares(); // การคำนวณเริ่มต้น
+
+    // เพิ่มเหตุการณ์การเปลี่ยนแปลงสำหรับเปอร์เซ็นต์ส่วนแบ่ง
     document.getElementById('initial_profit').addEventListener('input', calculateShares);
     document.getElementById('collector_share_percent').addEventListener('input', calculateShares);
     document.getElementById('manager_share2').addEventListener('input', calculateShares);
     document.getElementById('receiver_share_percent').addEventListener('input', calculateShares);
+    
+    // เพิ่มเหตุการณ์การเปลี่ยนแปลงสำหรับส่วนแบ่งที่ป้อนตรงๆ
     document.getElementById('collector_share').addEventListener('input', calculateShares);
     document.getElementById('manager_share').addEventListener('input', calculateShares);
     document.getElementById('receiver_share').addEventListener('input', calculateShares);
@@ -134,9 +218,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 
+
+
+
 //เลือกชื่อเเอดมินรับเงิน
 document.addEventListener('DOMContentLoaded', function() {
-    fetch('/api/receiver_name')
+    const creditorId = localStorage.getItem('id_shop'); // ดึง creditorId จาก localStorage
+
+    if (!creditorId) {
+        console.error('creditorId is not defined');
+        return;
+    }
+
+    fetch(`/api/receiver_name?creditorId=${creditorId}`) // ส่ง creditorId ไปยัง API
       .then(response => response.json())
       .then(data => {
         const receiver_nameSelect = document.getElementById('receiver_name');
@@ -149,6 +243,10 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => console.error('Error:', error));
 });
+
+
+
+
 
 
 
@@ -226,7 +324,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             // ข้อมูลการแบ่งเงินแอดมินดูแล
             document.getElementById('initial_profit2').value = profitSharing.initialProfit2 || '';
             document.getElementById('manager_name').value = profitSharing.managerName || '';
-            document.getElementById('manager_share2').value = profitSharing.managerShare2 || '';
+            document.getElementById('manager_share2').value = profitSharing.managerSharePercent || '';
             document.getElementById('manager_share').value = profitSharing.managerShare || '';
 
             // แสดงภาพถ่ายสลิปแอดมินดูแลถ้ามี
@@ -261,9 +359,20 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('total_share').value = profitSharing.totalShare || '';
             document.getElementById('net_profit').value = profitSharing.netProfit || '';
 
+            // ซ่อนฟิลด์ไฟล์และทำให้ไม่สามารถเลือกไฟล์ได้
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                input.disabled = true; // ทำให้ฟิลด์ไฟล์ไม่สามารถเลือกไฟล์ได้
+                input.style.display = 'none'; // ซ่อนฟิลด์ไฟล์
+            });
+
             // ทำให้ฟิลด์ทั้งหมดเป็น readonly
-            document.querySelectorAll('input, select, textarea').forEach(element => {
-                element.setAttribute('readonly', 'readonly');
+            document.querySelectorAll('input, select').forEach(element => {
+                if (element.tagName.toLowerCase() === 'select') {
+                    element.setAttribute('disabled', 'disabled');
+                } else {
+                    element.setAttribute('readonly', 'readonly');
+                }
             });
 
             // ปิดการทำงานของปุ่มบันทึก
@@ -274,5 +383,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 });
+
+
 
 

@@ -6,7 +6,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
-<title>ตารางกำไรขาดทุน</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<title>ตารางกำไรขาดทุนเงินกู้รายบุคคล</title>
 
 <style>
 .navbar {
@@ -94,6 +95,11 @@ tr:nth-child(even) {
     width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
     height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
 }
+
+.custom-button:hover {
+    background-color: #555;
+}
+
 .custom-button1 {
     background-color: #555;
     color: white;
@@ -112,24 +118,7 @@ tr:nth-child(even) {
 }
 
 
-.s {
-   color: green;
-}
 
-
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204);
-}
 
 
 
@@ -140,47 +129,46 @@ tr:nth-child(even) {
 
   
 
-<div class="navbar">
-    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
-    <a href="รายงานผล.html">รายงานผล</a>
-    <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
-    <a href="ไอคราว.html">ไอคราว</a>
-    <a href="เเอดมิน.html">เเอดมิน</a>
-    <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
-    <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
-    <a href="ตั้งค่า.html">ตั้งค่า</a>
-</div> 
+    <div class="navbar">
+        <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+        <a href="รายงานผล.html">รายงานผล</a>
+        <a href="เช็คเครดิต.html">เช็คเครดิต</a>
+        <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+        <a href="ไอคราว.html">ไอคราว</a>
+        <a href="เเอดมิน.html">เเอดมิน</a>
+        <a href="คนทวง.html">คนทวง</a>
+        <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
+        <a class="active2" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+        <a href="ตั้งค่า.html">ตั้งค่า</a>
+    </div>
 
-<h2 style="text-align:center;">ตารางกำไรขาดทุนรายบุคคล</h2>
-
+<h2 style="text-align:center;">ตารางกำไรขาดทุนเงินกู้รายบุคคล</h2>
 
 
-<div style="text-align: center;">เลขบัตรประชาชน:<span id="id-card-number"></span></div>
+
+<div style="text-align: center;"><i class="fas fa-id-card"></i> เลขบัตรประชาชน:<span id="id-card-number"></span></div>
 <div style="text-align: center;">ชื่อ:<span id="first-name"></span></div>
 <div style="text-align: center;">นามสกุล:<span id="last-name"></span></div>
 
 <br>
 
-<div style="text-align: center;">เเอดมินดูเเล:<span id="manager"></span></div>
+<div style="text-align: center;"><i class="fas fa-user"></i> เเอดมินดูเเล:<span id="manager"></span></div>
 <br>
 <br>
 
 
 <div class="button-container">
     <div class="column">
-        <button class="custom-button" onclick="redirectToContractPage2()">สัญญา</button>
+        <button class="custom-button" onclick="redirectToContractPage2()"><i class="fas fa-file-alt"></i> สัญญา</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="redirectToContractPage3()">คืนเงิน</button>
+        <button class="custom-button" onclick="redirectToContractPage3()"><i class="fas fa-dollar-sign"></i> คืนเงิน</button>
     </div>
     <div class="column">
-        <button class="custom-button" onclick="redirectToContractPage4()">ส่วนเเบ่ง</button>
+        <button class="custom-button" onclick="redirectToContractPage4()"><i class="fas fa-users"></i> ส่วนเเบ่ง</button>
     </div>
     <div class="column">
-        <button class="custom-button1" onclick="redirectToContractPage5()">กำไร/ขาดทุน</button>
+        <button class="custom-button1" onclick="redirectToContractPage5()"><i class="fas fa-chart-line"></i> กำไร/ขาดทุน</button>
     </div>
 </div>
 
