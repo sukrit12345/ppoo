@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>ตารางคนทวงเเนะนำ</title>
 
 <style>
@@ -266,24 +268,6 @@ tr:nth-child(even) {
 
 
 
-.s {
-   color: green;
-}
-
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204)
-}
-
 </style>
 
 </head>
@@ -296,7 +280,6 @@ tr:nth-child(even) {
         <a href="ไอคราว.html">ไอคราว</a>
         <a href="เเอดมิน.html">เเอดมิน</a>
         <a class="active" href="คนทวง.html">คนทวง</a>
-        <a href="กองทุน.html">กองทุน</a>
         <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
         <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
         <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -307,7 +290,7 @@ tr:nth-child(even) {
 
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
+    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน">
     <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
 </div>
 
@@ -331,9 +314,53 @@ tr:nth-child(even) {
             <th>จังหวัด</th>
         </tr>
     </thead>
-    
+    <tbody>
+        <!-- ข้อมูลเรียงลำดับจากมากไปน้อย -->
+        <tr>
+            <td>3</td>
+            <td>2024-08-15</td>
+            <td>3456789012345</td>
+            <td>กรรณิกา</td>
+            <td>ศิริภาณี</td>
+            <td>แป้ง</td>
+            <td>0934567890</td>
+            <td>paeng_789</td>
+            <td>karunika.fb</td>
+            <td>karunika.line</td>
+            <td>เชียงราย</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2024-09-25</td>
+            <td>2345678901234</td>
+            <td>ณัฐชา</td>
+            <td>ธีรพิพัฒน์</td>
+            <td>น้ำฝน</td>
+            <td>0923456789</td>
+            <td>namfon_456</td>
+            <td>natasha.fb</td>
+            <td>natasha.line</td>
+            <td>เชียงใหม่</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2024-10-10</td>
+            <td>1234567890123</td>
+            <td>สมชาย</td>
+            <td>พงศ์ภัทร</td>
+            <td>มิก</td>
+            <td>0912345678</td>
+            <td>mix_123</td>
+            <td>somchai.fb</td>
+            <td>somchai.line</td>
+            <td>กรุงเทพ</td>
+        </tr>
+    </tbody>
 </table>
 
+
+
+<script src="คนทวง.js"></script>
 
 
 

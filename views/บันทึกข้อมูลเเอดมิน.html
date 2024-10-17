@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>บันทึกข้อมูลผู้จัดการ</title>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
+<title>บันทึกข้อมูลพนักงาน</title>
 
 <style>
 .navbar {
@@ -104,28 +106,21 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 86.5%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
-.popup {
-      background-color: #4caf50; /* สีพื้นหลัง */
-      border-radius: 10px; /* รูปร่าง */
-      padding: 20px; /* ขอบเขตของเนื้อหา */
-      position: fixed; /* ตำแหน่งที่แน่นอน */
-      top: 50%; /* ตำแหน่งของป๊อปอัพด้านบน */
-      left: 50%; /* ตำแหน่งของป๊อปอัพด้านซ้าย */
-      transform: translate(-50%, -50%); /* การย้ายป๊อปอัพไปตรงกลางของหน้าจอ */
-      z-index: 1000; /* ลำดับการแสดงผล */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เงา */
-    }
+
+    .error-message {
+        color: red;
+        font-size: 16px;
+        margin-top: 5px;
+    }    
+     
   
-    /* สไตล์สำหรับข้อความในป๊อปอัพ */
-    .popup-text {
-      font-size: 18px; /* ขนาดตัวอักษร */
-      color: white; /* สีข้อความ */
-      text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
-    }
-  
+
+
+
+
 
 </style>
 </head>
@@ -135,9 +130,9 @@ input[type=text] {
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
     <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a href="ไอคราว.html">ไอคราว</a>
     <a class="active" href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
     <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -145,44 +140,61 @@ input[type=text] {
 
 <div class="container">
 
-  <form action="/submit" method="post" onsubmit="validateForm(event)">
-    <label for="record_date">วันที่บันทึก:</label>
-    <input type="date" id="record_date" name="record_date" required><br><br>
+  <form id="adminForm" action="/submitadmin" method="post">
+    <fieldset>
+        <legend>ข้อมูลพนักงาน</legend>
+        <br>
+        <label for="record_date">วันที่บันทึก:</label>
+        <input type="date" id="record_date" name="record_date" required><br><br>
 
-    <label for="id_card_number">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
-    
+        <label for="job_position">ตำแหน่งงาน:</label>
+        <select id="job_position" name="job_position" required>
+            <option value="" disabled selected>เลือกตำแหน่งงาน</option>
+            <option value="manager">ผู้จัดการ</option>
+            <option value="assistant_manager">รองผู้จัดการ</option>
+            <option value="admin">แอดมิน</option>
+        </select><br><br>
 
-    <label for="fname">ชื่อจริง:</label>
-    <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
+        <label for="id_card_number">เลขบัตรประชาชน:<span id="idCardError" class="error-message"></span></label>
+        <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required>
+        
+        <label for="phone">เบอร์โทรศัพท์:<span id="error_message" class="error-message"></label>
+        <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+        
+        <label for="authentication">รหัสยืนยันตัวตน:<span id="authenticationerror" class="error-message"></label>
+        <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
 
-    <label for="lname">นามสกุล:</label>
-    <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
 
-    <label for="nickname">ชื่อเล่น:</label>
-    <input type="text" id="nickname" name="nickname" placeholder="กรอกชื่อเล่น" required>
+        <label for="fname">ชื่อจริง:</label>
+        <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required>
 
-    <label for="phone">เบอร์โทรศัพท์:</label>
-    <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+        <label for="lname">นามสกุล:</label>
+        <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required>
 
-    <label for="ig">ไอจี:</label>
-    <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี" required>
+        <label for="nickname">ชื่อเล่น:</label>
+        <input type="text" id="nickname" name="nickname" placeholder="กรอกชื่อเล่น" required>
 
-    <label for="facebook">เฟสบุ๊ค:</label>
-    <input type="text" id="facebook" name="facebook" placeholder="กรอกชื่อเฟสบุ๊ค" required>
+        <label for="ig">ไอจี:</label>
+        <input type="text" id="ig" name="ig" placeholder="กรอกชื่อไอจี" required>
 
-    <label for="line">ไลน์:</label>
-    <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
+        <label for="facebook">เฟสบุ๊ค:</label>
+        <input type="text" id="facebook" name="facebook" placeholder="กรอกชื่อเฟสบุ๊ค" required>
 
-    <label for="authentication">รหัสยืนยันตัวตน:</label>
-    <input type="text" id="authentication" name="authentication" placeholder="กรอกรหัสยืนยันตัวตน" required>
+        <label for="line">ไลน์:</label>
+        <input type="text" id="line" name="line" placeholder="กรอกไลน์" required>
+    </fieldset>
+    <br>
+    <input type="hidden" id="manager_id" name="_id">
+    <input type="hidden" id="creditorId" name="creditorId">
 
-   
-
-    <span id="idCardError" style="color: red;"></span>
-
-    <input type="submit" value="บันทึกคืนเงิน" class="button">
+    <input type="submit" value="บันทึกข้อมูลเเอดมิน" class="button">
 </form>
+
+
+</div>
+
+
+
 
 </div> 
 
@@ -193,3 +205,6 @@ input[type=text] {
 
 </body>
 </html>
+
+
+

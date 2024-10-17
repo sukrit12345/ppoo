@@ -1,3 +1,60 @@
+//ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => {
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
+  
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Nickname:', nickname);
+  
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname);
+  
+    // เรียกใช้ฟังก์ชัน fetchLoanData โดยส่ง id เป็นพารามิเตอร์
+    fetchLoanData(id);
+});
+  
+  
+  
+  // จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+  const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
 //รับข้อมูล เลขบปชช ชื่อ นามสกุล
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -121,9 +178,17 @@ async function displayProfitSharingData() {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const idCardNumber = urlParams.get('id_card_number');
-        const response = await fetch(`/get-profit-sharing-data/${idCardNumber}`); // เรียกข้อมูลจากเซิร์ฟเวอร์
-        const data = await response.json(); // แปลงข้อมูลที่ได้รับมาเป็น JSON
+        const creditorId = localStorage.getItem('id_shop'); // ดึง creditorId จาก localStorage
 
+        if (!idCardNumber || !creditorId) {
+            throw new Error('id_card_number or creditorId is missing');
+        }
+
+        const response = await fetch(`/get-profit-sharing-data/${idCardNumber}?creditorId=${creditorId}`); // เรียกข้อมูลจากเซิร์ฟเวอร์
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json(); // แปลงข้อมูลที่ได้รับมาเป็น JSON
 
         const tableBody = document.querySelector('#c tbody');
 
@@ -140,14 +205,14 @@ async function displayProfitSharingData() {
                 <td>${profit.collectorName ? profit.collectorName : '-'}</td>
                 <td>${profit.collectorShare ? profit.collectorShare : 0}</td>
                 <td>${profit.managerName ? profit.managerName : '-'}</td>
-                <td>${profit.managerShare ? profit.managerShare : 0 }</td>
+                <td>${profit.managerShare ? profit.managerShare : 0}</td>
                 <td>${profit.receiverName ? profit.receiverName : '-'}</td>
                 <td>${profit.receiverShare ? profit.receiverShare : 0}</td>
                 <td>${profit.totalShare ? profit.totalShare : 0}</td>
                 <td>${profit.netProfit}</td>
-                <td> 
-                    <button onclick="redirectToEdit('${profit._id}', '${profit.id_card_number}', '${profit.fname}', '${profit.lname}', '${profit.manager}', '${profit.contract_number}', '${profit.bill_number}')">แก้ไข</button>
-                    <button onclick="redirectToDelete('${profit._id}', '${profit.id_card_number}')">ลบ</button>
+                <td>
+                    <button onclick="redirectToEdit('${profit._id}')"><i class="fas fa-eye"></i>ดู</button>
+                    <button onclick="redirectToDelete('${profit._id}', '${profit.id_card_number}')"><i class="fas fa-trash-alt"></i>ลบ</button>
                 </td>
             `;
         });
@@ -155,6 +220,24 @@ async function displayProfitSharingData() {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
     }
 }
+
+
+
+
+
+function redirectToEdit(id) {
+    // เปลี่ยนเส้นทางไปยังหน้าบันทึกส่วนเเบ่ง พร้อมกับส่ง id เป็นพารามิเตอร์ใน URL
+    window.location.href = `บันทึกส่วนเเบ่ง.html?_id=${id}`;
+}
+
+
+
+
+
+
+
+
+
 
 
 // ลบข้อมูลส่วนแบ่ง

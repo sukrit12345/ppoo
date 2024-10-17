@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
 <title>บันทึกยึดทรัพย์</title>
 
 <style>
@@ -104,7 +106,7 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
-    margin-left: 90%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
+    margin-left: 89%; /* ย้ายปุ่มไปทางขวาสุดของ form-container */
 }
 
 .popup {
@@ -125,41 +127,65 @@ input[type=text] {
       color: white; /* สีข้อความ */
       text-align: center; /* การจัดข้อความให้อยู่ตรงกลาง */
     }
-  
+
+    input[readonly] {
+    background-color: #f0f0f0; /* สีเทาอ่อนสำหรับพื้นหลัง */
+    border: 1px solid #ccc; /* ขอบสีเทาอ่อน */
+    color: #666; /* สีข้อความ */
+    cursor: not-allowed; /* เปลี่ยนเคอร์เซอร์เป็นแบบไม่อนุญาต */
+  }
+  .hidden {
+        display: none;
+    }
+    select:disabled {
+    background-color: #f0f0f0; /* สีพื้นหลังที่ต้องการ */
+    color: #666; /* สีตัวอักษรที่ต้องการ */
+    border: 1px solid #ccc; /* กำหนดสีของขอบ */
+    cursor: not-allowed; /* แสดงเคอร์เซอร์เมื่อพ้อยเตอร์อยู่เหนือ <select> */
+    position: relative;
+    z-index: -100; 
+}      
 
 </style>
 </head>
 <body>
   <div class="navbar">
-    <a class="active" href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
+    <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
     <a href="รายงานผล.html">รายงานผล</a>
     <a href="เช็คเครดิต.html">เช็คเครดิต</a>
-    <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
+    <a class="active" href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
     <a href="ไอคราว.html">ไอคราว</a>
     <a href="เเอดมิน.html">เเอดมิน</a>
     <a href="คนทวง.html">คนทวง</a>
-    <a href="กองทุน.html">กองทุน</a>
     <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-    <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+    <a class="active2" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
     <a href="ตั้งค่า.html">ตั้งค่า</a>
- </div> 
-
+</div>
 <div class="container">
 
-  <form id="seizureForm" action="/api/seize-assets" method="POST" enctype="multipart/form-data">
+  <form id="seizureForm" action="/api/seize-assets" method="POST" enctype="multipart/form-data" onsubmit="validateForm(event)">
 
     <fieldset>
       <legend>ข้อมูลรหัสยึดทรัพย์</legend>
       <br>
 
-    <label for="id_card_number">เลขบัตรประชาชน:</label>
-    <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required  readonly >
+      <label for="manager">เเอดมินดูเเล:</label>
+      <input type="text" id="manager" name="manager" placeholder="กรอกชื่อเเอดมิน" required readonly>
 
-    <label for="contract_number">หมายเลขสัญญา:</label>
-    <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required  readonly>
+      <label for="id_card_number">เลขบัตรประชาชน:</label>
+      <input type="text" id="id_card_number" name="id_card_number" placeholder="กรอกเลขบัตรประชาชน" required readonly>
 
-    <label for="bill_number">หมายเลขบิล:</label>
-    <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required  readonly>
+      <label for="fname">ชื่อจริง:</label>
+      <input type="text" id="fname" name="fname" placeholder="กรอกชื่อ" required readonly>
+
+      <label for="lname">นามสกุล:</label>
+      <input type="text" id="lname" name="lname" placeholder="กรอกนามสกุล" required readonly>
+
+      <label for="contract_number">หมายเลขสัญญา:</label>
+      <input type="text" id="contract_number" name="contract_number" placeholder="กรอกหมายเลขสัญญา" required readonly>
+
+      <label for="bill_number">หมายเลขบิล:</label>
+      <input type="text" id="bill_number" name="bill_number" placeholder="กรอกหมายเลขบิล" required readonly>
 
   </fieldset>
   <br>
@@ -184,6 +210,12 @@ input[type=text] {
     <input type="date" id="seizureDate" name="seizureDate" required>
     <br><br>
 
+    <label for="receiver_name">เเอดมินยึดทรัพย์:</label>
+    <select id="receiver_name" name="receiver_name" required>
+      <option value="" disabled selected>เลือกชื่อเอดมิน</option>
+    </select>
+    <input type="hidden" id="managerValue" name="managerValue">
+    <br><br>
 
     <label for="collector_name_input">ชื่อคนทวง:</label>
     <input type="text" id="collector_name" name="collector_name" placeholder="กรอกชื่อคนทวง"required>
@@ -192,25 +224,50 @@ input[type=text] {
     <input type="text" id="seizureCost" name="seizureCost" placeholder="กรอกค่าตามทรัพย์" required>
 
     <label for="totalproperty">รวมต้นทุนทรัพย์:</label>
-    <input type="text" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required >
+    <input type="text" id="totalproperty" name="totalproperty" placeholder="กรอกรวมต้นทุนทรัพย์" required readonly >
 
+    <label for="seizedAssetType">ประเภททรัพย์ที่ยึด:</label>
+    <select id="seizedAssetType" name="seizedAssetType" onchange="updateAssetNameOptions()" required>
+      <option value="">เลือกประเภทชื่อทรัพย์ที่ยึด</option>
+    </select>
+    <button type="button" onclick="addOption('seizedAssetType')">เพิ่มตัวเลือกใหม่</button>
+    <button type="button" onclick="removeOption('seizedAssetType')">ลบตัวเลือก</button>
+    <br><br>
+    
     <label for="assetName">ชื่อทรัพย์ที่ยึด:</label>
-    <input type="text" id="assetName" name="assetName" placeholder="กรอกชื่อทรัพย์ที่ยึด" required>
+    <select id="assetName" name="assetName" required>
+      <option value="">เลือกชื่อทรัพย์ที่ยึด</option>
+    </select>
+    <button type="button" onclick="addOption('assetName')">เพิ่มตัวเลือกใหม่</button>
+    <button type="button" onclick="removeOption('assetName')">ลบตัวเลือก</button>
+    <br><br>
 
-    <label for="assetDetails">รายละเอียดทรัพย์:</label>
+    <label for="assetDetails">รายละเอียดทรัพย์ (อธิบายให้ละเอียด):</label>
     <input type="text" id="assetDetails" name="assetDetails" placeholder="กรอกรายละเอียดทรัพย์" required>
 
     <label for="assetPhoto">รูปทรัพย์ที่ยึด:</label>
     <input type="file" id="assetPhoto" name="assetPhoto">
+    <br>
+    <img  id="assetPhoto_preview" alt="assetPhoto" style="display: none; max-width: 500px; max-height: 500px;">
+    <br>
 
     <label for="seizureCost2">รูปสลิปค่ายึดทรัพย์:</label>
     <input type="file" id="seizureCost2" name="seizureCost2">
+    <br>
+    <img  id="seizureCost2_preview" alt="seizureCost2" style="display: none; max-width: 500px; max-height: 500px;">
+    <br>
     
   </fieldset>
   <br>
-  <input type="hidden" id="loan" name="loan">
+
   
-    <input type="submit" value="บันทึกยึดทรัพย์" class="button">
+  <input type="hidden" id="loan" name="loan">
+  <input type="hidden" id="assetPhotoBase64" name="assetPhotoBase64">
+  <input type="hidden" id="seizureCost2Base64" name="seizureCost2Base64">
+  <input type="hidden" id="creditorId" name="creditorId">
+
+  
+    <input id="save_button" type="submit" value="บันทึกยึดทรัพย์" class="button">
  </form>
 
   <script src="บันทึกยึดทรัพย์.js"></script>

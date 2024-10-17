@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <title>ตารางเเอดมิน</title>
 
 <style>
@@ -106,13 +109,6 @@ tr:nth-child(even) {
   margin-bottom: 20px;
 }
 
-.search-container2 input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-right: 5px; /* เพิ่มระยะห่างของ input กับปุ่มค้นหา */
-}
 
 .search-container2 button {
   background-color: #4CAF50;
@@ -121,6 +117,7 @@ tr:nth-child(even) {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 183px;
 }
 
 .search-container2 button:hover {
@@ -132,8 +129,38 @@ tr:nth-child(even) {
   border: 1px solid #ccc;
   border-radius: 4px;
   outline: none;
-  margin-left: 5px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+  margin-left: 1px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+  width: 190px;
 }
+
+.search-container3 {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-container3 input[type=text] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  width: 170px;
+}
+
+.search-container3 button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 183px;
+}
+
+.search-container3 button:hover {
+  background-color: #45a049;
+}
+
 
 
 .button-container {
@@ -144,7 +171,7 @@ tr:nth-child(even) {
 .custom-button {
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 13px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -265,24 +292,83 @@ tr:nth-child(even) {
     }
 
 
-
-.s {
-   color: green;
+/* Column Layout */
+.column {
+    float: left;
+    width: 33.33%; /* ความกว้างของแต่ละคอลัมน์ */
+    padding: 0 15px; /* ระยะห่างด้านข้างของคอลัมน์ */
+    box-sizing: border-box; /* รวม padding และ border ในความกว้าง */
 }
 
-.b {
+/* Clear Floats */
+.row:after {
+    content: "";
+    display: table;
+    clear: both; /* ล้าง float เพื่อให้คอลัมน์ถูกจัดเรียงอย่างถูกต้อง */
+}
+
+
+
+
+
+
+.overlay {
+    display: none; /* ซ่อน overlay โดยค่าเริ่มต้น */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* สีพื้นหลังแบบโปร่งใส */
+    z-index: 1000; /* ให้ overlay อยู่เหนือทุกอย่าง */
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* ให้ป๊อปอัพอยู่เหนือ overlay */
+    width: 300px; /* กำหนดความกว้าง */
+}
+
+.button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+.error-message2 {
     color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
+    font-size: 0.9em;
+    display: none; /* ซ่อนข้อความผิดพลาดเริ่มต้น */
 }
 
-.l {
-    color: rgb(242, 160, 9);
+
+
+
+.custom-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
 }
-.d{
-    color:rgb(248, 7, 204)
-}
+
 
 </style>
 
@@ -297,7 +383,6 @@ tr:nth-child(even) {
         <a href="ไอคราว.html">ไอคราว</a>
         <a class="active" href="เเอดมิน.html">เเอดมิน</a>
         <a href="คนทวง.html">คนทวง</a>
-        <a href="กองทุน.html">กองทุน</a>
         <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
         <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
         <a href="ตั้งค่า.html">ตั้งค่า</a>
@@ -307,38 +392,41 @@ tr:nth-child(even) {
 <h2 style="text-align:center;">ตารางเเอดมิน</h2>
 
 
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
-    <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
-</div>
-
-
-<div class="search-container">
-    <input type="text" id="newSearchInput1" placeholder="พิมพ์เเอดมิน">
-    <button type="button" onclick="customSearch1()">ค้นหาเเอดมิน</button>
-</div>
-
+<div class="row">
+    <div class="column">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน">
+        <button type="button" onclick="searchTable()"><i class="fas fa-search"></i> ค้นหาเลขบัตรประชาชน</button>
+      </div>
+    </div>
   
-
-<div class="search-container2">
-  <select id="statusFilter">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="ดี">ดี</option>
-    <option value="ปานกลาง">ปานกลาง</option>
-    <option value="ปรับปรุง">ปรับปรุง</option>
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
+    <div class="column">
+      <div class="search-container3">
+        <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อเล่นเเอดมิน">
+        <button type="button" onclick="customSearch1()"><i class="fas fa-search"></i> ค้นหาเเอดมิน</button>
+      </div>
+    </div>
+  
+    <div class="column">
+      <div class="search-container2">
+        <select id="statusFilter">
+          <option value="" selected>ทั้งหมด</option>
+          <option value="ดี">ดี</option>
+          <option value="ปานกลาง">ปานกลาง</option>
+          <option value="ปรับปรุง">ปรับปรุง</option>
+        </select>
+        <button type="button" onclick="searchIdCard2()"><i class="fas fa-search"></i> ค้นหาสถานะ</button>
+      </div>
+    </div>
 </div>
-
-
+  
+  
 <div class="button-container">
     <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลเเอดมิน.html';">
-        <a href="บันทึกข้อมูลเเอดมิน.html" class="button-link">บันทึกข้อมูลเเอดมิน</a>
+        <a href="บันทึกข้อมูลเเอดมิน.html" class="button-link"><i class="fas fa-plus"></i> เพิ่มข้อมูลเเอดมิน</a>
     </button>
 </div>
 
-  
-  
 
 
 <table id="f">
@@ -360,6 +448,31 @@ tr:nth-child(even) {
     </thead>
     <tbody id="managerData"></tbody>
 </table>
+
+
+<div class="overlay" id="overlay" style="display:none;">
+  <div class="popup">
+      <h3 style="text-align: center;">ตรวจสอบข้อมูล</h3>
+      <form id="checkForm">
+          <label for="nickname2">ชื่อเล่น (ชื่อเล่นผู้จัดการหรือรองผู้จัดการ):</label>
+          <input type="text" id="nickname2" name="nickname2" class="custom-input" placeholder="กรอกชื่อเล่น" required>
+
+          <label for="authentication2">รหัสยืนยันตัวตน:</label>
+          <input type="text" id="authentication2" name="authentication2" class="custom-input" placeholder="กรอกรหัสยืนยันตัวตน" required>
+          
+          <span id="authenticationError" class="error-message" style="display:none; color:red;"></span>
+          <span id="successMessage"></span>
+
+          <button type="submit" class="button">ตรวจสอบข้อมูล</button>
+          <button type="button" id="closePopup" class="button">ปิด</button>
+      </form>
+  </div>
+</div>
+
+
+
+
+
 
 
 <script src="เเอดมิน.js"></script>  

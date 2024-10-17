@@ -11,147 +11,208 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
 <script src="จำนวนเเจ้งเตือน.js"></script>
-<title>ตารางลูกหนี้</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<title>ตารางลูกหนี้เงินกู้</title>
 
 <style>
+/* Navbar */
 .navbar {
-        overflow: hidden;
-        background-color: #333;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        left: 0;
-        right: 0;
-    }
-
-.navbar a {
-        float: left;
-        display: block;
-        color: white;
-        text-align: center;
-        padding: 14px 20px;
-        text-decoration: none;
-    }
-.navbar a:hover {
-        background-color: #ddd;
-        color: black;
-    }
-.navbar a.active {
-        background-color: #555;
-        color: white;
-    }
-    
-
-body {
-        font-family: Arial, sans-serif;
-        background-color: #ffffff;
-        margin-top: 100px;
-    }
-
-.container {
-  width: 60%;
-  margin: auto;
-  margin-top: 50px;
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
 }
 
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.navbar a.active {
+    background-color: #555;
+    color: white;
+}
+
+/* Body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    margin-top: 100px; /* ให้เนื้อหาเริ่มต้นหลัง navbar */
+}
+
+/* Container */
+.container {
+    width: 60%;
+    margin: auto;
+    margin-top: 50px;
+}
+
+/* Table */
 table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: auto;
-        margin-top: 80px;
-    }
+    border-collapse: collapse;
+    width: 100%;
+    margin: auto;
+    margin-top: 30px;
+}
 
 th, td {
-        border: 1px solid #dddddd;
-        text-align: center;
-        padding: 8px;
-    }
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
 
 th {
-        background-color: #333;
-        color: white;
-    }
+    background-color: #333;
+    color: white;
+}
 
 tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }    
+    background-color: #f2f2f2;
+}
+/* Search Container3 */
+.search-container3 {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin-left: -2px;
+}
+
+.search-container3 input[type=text] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    width: 170px;
+}
+
+.search-container3 button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 182px;
+}
+
+.search-container3 button:hover {
+    background-color: #45a049;
+}
 
 
-
+/* Search Container */
 .search-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .search-container input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
 }
 
 .search-container button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .search-container button:hover {
-  background-color: #45a049;
+    background-color: #45a049;
 }
 
 
 
+/* Search Container 2 */
 .search-container2 {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
-  margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
+    margin-bottom: 2px;
 }
 
-.search-container2 input[type=text] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-right: 5px; /* เพิ่มระยะห่างของ input กับปุ่มค้นหา */
-}
+
 
 .search-container2 button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 152px;
+    
 }
 
 .search-container2 button:hover {
-  background-color: #45a049;
+    background-color: #45a049;
+}
+
+
+.search-container2 {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
+    margin-bottom: 2px;
+}
+
+
+
+.search-container2 button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 152px;
+    
+}
+
+.search-container2 button:hover {
+    background-color: #45a049;
 }
 
 .search-container2 select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  margin-left: 5px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    margin-left: 5px;
+    width: 192px; /* เพิ่มระยะห่างของปุ่มค้นหา กับ dropdown */
+    margin-left: -2px;
+    
 }
 
-
+/* Button Container */
 .button-container {
     text-align: center;
     margin-top: 20px;
 }
 
+/* Custom Button */
 .custom-button {
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 13px 25px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -166,169 +227,87 @@ tr:nth-child(even) {
     color: white;
 }
 
-
-/* Common styles */
+/* Column Layout */
 .column {
-        float: left;
-        width: 33.33%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    /* Style for totalDebtorsInContract */
-    #totalDebtorsInContract {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalIDCard */
-    #totalIDCard {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsWithInterest */
-    #debtorsWithInterest {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsWithContracts */
-    #debtorsWithContracts {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-    #debtorsWhoExceededContracts {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for fullyPaidDebtors */
-    #fullyPaidDebtors {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for debtorsBlacklist */
-    #debtorsBlacklist {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalPrincipalAmount */
-    #totalPrincipalAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalInterestAmount */
-    #totalInterestAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalRefundAmount */
-    #totalRefundAmount {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalPrincipal */
-    #totalPrincipal {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalShare */
-    #totalAccumulatedInterest {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Style for totalNetProfit */
-    #totalNetProfit {
-        font-size: 16px;
-        color: #000000;
-        margin-top: 5px;
-    }
-
-    /* Clear floats after the columns */
-    .row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-
-
-.s {
-   color: green;
-}
-
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204)
+    float: left;
+    width: 33.33%;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
 
+/* Clear Floats */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+
+
+          
+          
 .daterangepicker {
             transform: translateX(-5%);
-            font-size: 18px; /* Adjust font size */
+            font-size: 18px;
         }
         .daterangepicker .calendar-table {
-            font-size: 18px; /* Adjust font size for calendar table */
+            font-size: 18px;
         }
         .daterangepicker .ranges li {
-            font-size: 18px; /* Adjust font size for ranges */
+            font-size: 18px;
         }
         .daterangepicker .drp-calendar {
-            width: 350px; /* Adjust width of the calendar */
+            width: 350px;
         }
         .daterangepicker .drp-calendar.left,
         .daterangepicker .drp-calendar.right {
-            width: 350px; /* Adjust width of both left and right calendars */
+            width: 350px;
         }
         .daterangepicker .drp-calendar .calendar-table table {
-            width: 100%; /* Make table width 100% */
+            width: 100%;
         }
         .daterangepicker .drp-calendar .calendar-table table tbody tr td,
         .daterangepicker .drp-calendar .calendar-table table thead tr th {
-            width: 14.28%; /* Adjust cell width for full calendar view */
+            width: 14.28%;
         }
-        .daterangepicker .drp-calendar.single .drp-calendar-table {
-            max-width: 600px; /* Adjust max-width for single calendar */
-        }
-        .daterangepicker .drp-calendar .drp-calendar-table {
-            max-width: 600px; /* Adjust max-width for calendar table */
-        }
+        .daterangepicker .drp-calendar.single .drp-calendar-table,
+        .daterangepicker .drp-calendar .drp-calendar-table,
         .daterangepicker .drp-calendar {
-            max-width: 600px; /* Adjust max-width for calendar */
+            max-width: 600px;
         }
         .chart-container {
             max-width: 220px;
             margin: 0 auto;
-        }        
+        }
+
+
+.chart-container {
+    position: relative;
+    height: 100%;
+    max-width: 300.5px; /* ปรับขนาดกราฟสูงสุด */
+    margin: auto;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.chart-container2 {
+    position: relative;
+    height: 100%;
+    max-width: 282px; /* ปรับขนาดกราฟสูงสุด */
+    margin: auto;
+}
+.chart-container3 {
+    position: relative;
+    height: 100%;
+    max-width: 282px; /* ปรับขนาดกราฟสูงสุด */
+    margin: auto;
+}
+
 </style>
 
 </head>
@@ -340,42 +319,95 @@ tr:nth-child(even) {
         <a href="เช็คเครดิต.html">เช็คเครดิต</a>
         <a href="คลังทรัพย์สิน.html">คลังทรัพย์สิน</a>
         <a href="ไอคราว.html">ไอคราว</a>
-        <a href="เเอดมิน.html">เเอดมิน</a>
+        <a href="เเอดมิน.html">เเอดมิน</a> 
         <a href="คนทวง.html">คนทวง</a>
-        <a href="กองทุน.html">กองทุน</a>
         <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
-        <a class="active2" href="เเจ้งเตือน.html">เเจ้งเตือน</a>
+        <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
         <a href="ตั้งค่า.html">ตั้งค่า</a>
     </div>
 
+    
+    
+    
+    
 
-<h2 style="text-align:center;">ตารางลูกหนี้</h2>
+<h2 style="text-align:center;">ตารางลูกหนี้เงินกู้</h2>
 
 
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน...">
-    <button type="button" onclick="searchTable()">ค้นหาเลขบัตรประชาชน</button>
-</div>
+
 
 
 
 <div class="row">
     <div class="column">
         <div class="search-container">
-            <input type="text" id="newSearchInput3" placeholder="พิมพ์ชื่อจังหวัด">
-            <button type="button" onclick="customSearch3()">ค้นหาจังหวัด</button>
-        </div>
+            <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อเเอดมิน">
+            <button type="button" onclick="customSearch1()">
+            <i class="fas fa-search"></i> ค้นหาเเอดมิน
+            </button>
+        </div>  
     </div>
+
+
     <div class="column">
         <div class="search-container">
-            <input type="text" id="newSearchInput1" placeholder="พิมพ์ชื่อเเอดมิน">
-            <button type="button" onclick="customSearch1()">ค้นหาเเอดมิน</button>
+            <input type="text" id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน">
+            <button type="button" onclick="searchTable()">
+                <i class="fas fa-search"></i> ค้นหาเลขบัตรประชาชน
+            </button>
+        </div>  
+    </div>
+
+    <div class="column">
+        <div class="search-container2">
+            <select id="statusFilter" onchange="updateTotalPrincipal()">
+                <option value="ทั้งหมด" selected>ทั้งหมด</option>
+                <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
+                <option value="เลยสัญญา">เลยสัญญา</option>
+                <option value="ครบสัญญา">ครบสัญญา</option>
+                <option value="ชำระครบ">ชำระครบ</option>
+                <option value="ยึดทรัพย์">ยึดทรัพย์</option>
+                <option value="เเบล็คลิช">เเบล็คลิช</option>
+            </select>
+            <button type="button" onclick="updateTotalPrincipal()">
+                <i class="fas fa-search"></i> ค้นหาสถานะ
+            </button>
+        </div>
+    </div>
+    
+</div>
+  
+
+
+<div class="row">
+    <div class="column">
+        <div class="search-container">
+            <input type="text" id="newSearchInput3" placeholder="พิมพ์ชื่อจังหวัด">
+            <button type="button" onclick="customSearch3()">
+            <i class="fas fa-search"></i> ค้นหาจังหวัด
+            </button>
+        </div>
+    </div>
+
+
+    <div class="column">
+        <div class="search-container3">
+            <input type="text" id="searchInput2" placeholder="พิมพ์ชื่อลูกหนี้หรือนามสกุล">
+            <button type="button" onclick="customSearch4()">
+                <i class="fas fa-search"></i> ค้นหาชื่อหรือนามสกุล
+            </button>
         </div>          
     </div>
+
+
+
+
     <div class="column">
         <div class="search-container">
             <input type="text" id="dateRange" placeholder="เลือกช่วงเวลาที่ต้องคืน">
-            <button onclick="customSearch2()">ค้นหาวันที่ต้องคืน</button>
+            <button onclick="customSearch2()">
+            <i class="fas fa-calendar-alt"></i> ค้นหาวันที่ต้องคืน
+            </button>
         </div>   
     </div>
 
@@ -386,53 +418,45 @@ tr:nth-child(even) {
 
 
 
-<div class="search-container2">
-  <select id="statusFilter" onchange="searchIdCard2()">
-    <option value="" selected>ทั้งหมด</option>
-    <option value="อยู่ในสัญญา">อยู่ในสัญญา</option>
-    <option value="เลยสัญญา">เลยสัญญา</option>
-    <option value="ครบสัญญา">ครบสัญญา</option>
-    <option value="ชำระครบ">ชำระครบ</option>
-    <option value="ยึดทรัพย์">ยึดทรัพย์</option>
-    <option value="เเบล็คลิช">เเบล็คลิช</option>
-  </select>
-  <button type="button" onclick="searchIdCard2()">ค้นหาสถานะ</button>
-</div>
+
+
 
 
 
   
 <div class="row">
     <div class="column">
-        <div style="text-align: center;">ยอดเงินรวมตามสถานะ</div>
+
+        <div class="chart-container3">
+            <canvas id="loanPieChart"></canvas>
+        </div>
+
+    </div>
+
+    <div class="column">
         <div class="chart-container">
-            <canvas id="myPieChart"></canvas>
+            <canvas id="statusChart"></canvas>
         </div>
     </div>
-  <div class="column">
-    <div id="totalid_card" style="text-align: center;"></div>
-    <div id="totalDebtorsInContract" style="text-align: center;"></div>
-    <div id="debtorsWithContracts" style="text-align: center;"></div>
-    <div id="debtorsWhoExceededContracts" style="text-align: center;"></div>
-    <div id="fullyPaidDebtors" style="text-align: center;"></div>
-    <div id="debtorsBlacklist" style="text-align: center;"></div>
-  </div>
-  <div class="column">
-    <div style="text-align: center;">ยอดเงินรวมสะสม</div>
-    <div id="totalAccumulatedPrincipal" style="text-align: center;"></div>
-    <div id="totalAccumulatedInterest" style="text-align: center;"></div>
-    <div id="totalNetProfit" style="text-align: center;"></div>
-  </div>
+
+    <div class="column">
+        
+        <div class="chart-container2">
+            <canvas id="loanChart"></canvas>
+        </div>
+    </div>
 </div>
+
 
 
 
 
 <div class="button-container">
     <button class="custom-button" onclick="window.location.href='บันทึกข้อมูลลูกหนี้.html';">
-        <a href="บันทึกข้อมูลลูกหนี้.html" class="button-link">บันทึกข้อมูลลูกหนี้</a>
+        <a href="บันทึกข้อมูลลูกหนี้.html" class="button-link"><i class="fas fa-plus"></i> เพิ่มข้อมูลลูกหนี้</a>
     </button>
 </div>
+
 
 
 
@@ -465,7 +489,12 @@ tr:nth-child(even) {
  <tbody id="debtor-table-body"></tbody>
 </table>
 
+
+
+
+
 <script src="ข้อมูลลูกหนี้.js"></script>
+
 
 
 

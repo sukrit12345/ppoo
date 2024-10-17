@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<title>ตารางสัญญารายบุคคล</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
+<title>ตั้งค่า</title>
 
 <style>
 .navbar {
@@ -32,124 +35,83 @@
         background-color: #555;
         color: white;
     }
-    
 
 body {
         font-family: Arial, sans-serif;
         background-color: #ffffff;
-        margin-top: 100px;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh; /* ทำให้หน้าจอเต็มสูง */
     }
 
 .container {
-  width: 60%;
-  margin: auto;
-  margin-top: 50px;
-}
-
-table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: auto;
-        margin-top: 80px;
-    }
-
-th, td {
-        border: 1px solid #dddddd;
-        text-align: center;
-        padding: 8px;
-    }
-
-th {
-        background-color: #333;
-        color: white;
-    }
-
-tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }    
-
-
-
-
-.button-container {
     display: flex;
+    flex-direction: row; /* เปลี่ยนเป็นแนวนอน */
+    gap: 20px;
+    flex-wrap: wrap; /* อนุญาตให้ wrap เมื่อพื้นที่ไม่พอ */
+    justify-content: center; /* จัดตำแหน่งให้อยู่กลาง */
+    align-items: center; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
+    width: 100%;
+    max-width: 1200px; /* ขนาดสูงสุดของ container */
+    margin: auto; /* จัดให้อยู่กลางหน้าจอ */
+}
+
+.section {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 200px; /* ความกว้างของแต่ละ div */
+    height: 200px; /* ความสูงของแต่ละ div */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    margin-top: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    cursor: pointer; /* แสดงว่าเป็นคลิกได้ */
 }
 
-.column {
-
-    margin: 10px; /* Adjust the margin as needed */
-}
-
-.custom-button {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
-    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
-}
-.custom-button1 {
-    background-color: #555;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
-    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
+.section:hover {
+    transform: scale(1.02);
 }
 
 
-
-.button-link {
-    text-decoration: none;
-    color: white;
+.section i {
+    font-size: 80px; /* ขนาดของไอคอน */
+    color: #ffffff; /* สีของไอคอน */
+    margin-bottom: 10px; /* เว้นระยะห่างระหว่างไอคอนและข้อความ */
 }
 
-.custom-button2 {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
-    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
-    
+.section h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.2rem;
 }
 
+/* การปรับปรุงสีพื้นหลังให้เข้มขึ้น */
+.contracts2 {
+    background-color: #66BB6A; /* สีเขียวสำหรับรายการสัญญา */
+}
 
+.payment-methods {
+    background-color: #AB47BC; /* สีน้ำเงินสำหรับช่องทางการชำระเงิน */
+}
 
+.profile {
+    background-color: #42A5F5; /* สีม่วงสำหรับโปรไฟล์ */
+}
 
-.s {
-   color: green;
-}
-.b {
-    color: red;
-}
-.w {
-    color: rgb(26, 133, 233);
-}
-.l {
-    color: rgb(242, 160, 9);
-}
-.d{
-    color:rgb(248, 7, 204);
-}
 
 
 
 </style>
 </head>
 
-
 <body>
-
-
     <div class="navbar">
         <a href="ข้อมูลลูกหนี้.html">ข้อมูลลูกหนี้</a>
         <a href="รายงานผล.html">รายงานผล</a>
@@ -158,58 +120,30 @@ tr:nth-child(even) {
         <a href="ไอคราว.html">ไอคราว</a>
         <a href="เเอดมิน.html">เเอดมิน</a>
         <a href="คนทวง.html">คนทวง</a>
-        <a href="กองทุน.html">กองทุน</a>
         <a href="ประวัติการทำรายการ.html">ประวัติการทำรายการ</a>
         <a href="เเจ้งเตือน.html">เเจ้งเตือน</a>
         <a class="active" href="ตั้งค่า.html">ตั้งค่า</a>
     </div>
 
+    <div class="container">
+        <div class="section contracts2" onclick="window.location.href='ค่าเช่า.html';">
+            <i class="fas fa-file-invoice-dollar"></i><!-- ใช้ Font Awesome ไอคอนหนังสือ -->
+            <h2>ค่าเช่า</h2>
+        </div>
 
 
-<div class="button-container">
-    <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage()">บัญชี</button>
+        <div class="section profile" onclick="window.location.href='โปรไฟล์เจ้าหนี้.html';">
+            <i class="fas fa-bank"></i><!-- ใช้ Font Awesome ไอคอนผู้ใช้ -->
+            <h2>โปรไฟล์</h2>
+        </div>
+
+
+        <div class="section payment-methods" onclick="window.location.href='ติดต่อเจ้าหน้าที่.html';">
+            <i class="fas fa-user-tie"></i> <!-- ใช้ Font Awesome ไอคอนบัตรเครดิต -->
+            <h2>ติดต่อเจ้าหน้าที่</h2>
+        </div>
     </div>
-</div>
-
-
-<div class="button-container">
-    <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage()">ค่าเช่า</button>
-    </div>
-</div>
-
-
-<div class="button-container">
-    <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage()">ติดต่อเจ้าหน้าที่</button>
-    </div>
-</div>
-
-
-
-<div class="button-container">
-    <div class="column">
-        <button class="custom-button2" onclick="redirectToContractPage()">ออกจากระบบ</button>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
+
+<script src="ตั้งค่า.js"></script>
 </html>
-
-
-
-

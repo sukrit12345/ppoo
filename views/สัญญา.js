@@ -1,3 +1,60 @@
+//ไอดีร้าน
+document.addEventListener('DOMContentLoaded', async () => {
+    const id = localStorage.getItem('id_shop');
+    const shopName = localStorage.getItem('shop_name');
+    const nickname = localStorage.getItem('nickname');
+  
+    console.log('ID:', id);
+    console.log('Shop Name:', shopName);
+    console.log('Nickname:', nickname);
+  
+    // เรียกใช้ฟังก์ชันเช็คสิทธิ์
+    await checkAdminAccess(nickname);
+  
+    // เรียกใช้ฟังก์ชัน fetchLoanData โดยส่ง id เป็นพารามิเตอร์
+    fetchLoanData(id);
+});
+  
+  
+  
+  // จัดการหน้าที่ใช้งานได้ตามตำแหน่ง
+  const checkAdminAccess = async (nickname) => {
+    try {
+        const creditorId = localStorage.getItem('id_shop'); // รับค่า creditorId จาก localStorage
+        const response = await fetch(`/check_manager/${nickname}?creditorId=${creditorId}`); // ส่งค่า creditorId เป็น query parameter
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+  
+        console.log('Manager data:', data); // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูล
+  
+        if (data.job_position === 'admin') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ admin
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const icloudLink = document.querySelector('a[href="ไอคราว.html"]');
+            const adminLink = document.querySelector('a[href="เเอดมิน.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // เพิ่มการค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (icloudLink) icloudLink.style.display = 'none'; // ซ่อนลิงก์ไอคราว
+            if (adminLink) adminLink.style.display = 'none'; // ซ่อนลิงก์เเอดมิน
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        } else if (data.job_position === 'assistant_manager') {
+            // ปิดลิงก์ที่ไม่อนุญาตสำหรับ manager
+            const reportLink = document.querySelector('a[href="รายงานผล.html"]');
+            const settingsLink = document.querySelector('a[href="ตั้งค่า.html"]'); // ค้นหาลิงก์ตั้งค่า
+  
+            if (reportLink) reportLink.style.display = 'none'; // ซ่อนลิงก์รายงานผล
+            if (settingsLink) settingsLink.style.display = 'none'; // ซ่อนลิงก์ตั้งค่า
+        }
+    } catch (error) {
+        console.error('Error checking manager access:', error);
+    }
+};
+
 //รับข้อมูล เลขบปชช ชื่อ นามสกุล
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -142,18 +199,33 @@ async function displayLoanData() {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const idCardNumber = urlParams.get('id_card_number');
+        const creditorId = localStorage.getItem('id_shop');
 
-        const response = await fetch(`/api/loan-data?id_card_number=${idCardNumber}`);
+        if (!idCardNumber || !creditorId) {
+            throw new Error('id_card_number and creditorId are required in URL');
+        }
+
+        const response = await fetch(`/api/loan-data?id_card_number=${idCardNumber}&creditorId=${creditorId}`);
         const data = await response.json();
-        console.log(data)
+        console.log(data);
+
         const tableBody = document.getElementById("loanData");
         tableBody.innerHTML = ''; // Clear table before adding new data
-
-
 
         data.forEach(loan => {
             const row = tableBody.insertRow(); // Add a new row to the beginning of tableBody
             row.id = `row-${loan._id}`; // Set id for the row
+
+            // ตรวจสอบสถานะของ loan.status
+            const isRefundDisabled = loan.status === "<span style='color: green;'>ต่อดอก</span>" || 
+                                      loan.status === "<span style='color: green;'>ชำระครบ</span>";
+            const isSeizeDisabled = loan.status === "<span style='color: red;'>ยึดทรัพย์</span>";
+
+            const refundButtonText = isRefundDisabled ? "คืนแล้ว" : "คืนเงิน";
+            const refundButtonState = isRefundDisabled || isSeizeDisabled ? 'disabled' : '';
+
+            const seizeButtonText = isSeizeDisabled ? "ยึดแล้ว" : "ยึดทรัพย์";
+            const seizeButtonState = isSeizeDisabled || isRefundDisabled ? 'disabled' : ''; // ปิดปุ่ม seizeAssets หากสถานะเป็น isRefundDisabled
 
             row.innerHTML = `
                 <td>${loan.contract_number}</td>
@@ -172,19 +244,18 @@ async function displayLoanData() {
                 <td>${loan.status}</td>
                 <td>${loan.daysUntilReturn === '-' ? loan.daysUntilReturn : loan.daysUntilReturn + ' วัน'}</td>
                 <td> 
-                    <button onclick="redirectToEdit('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}')">แก้ไข</button>
-                    <button onclick="redirectToDelete('${loan._id}', '${loan.id_card_number}')">ลบ</button>
-                    <button onclick="redirectToclose('${loan._id}', '${loan.id_card_number}')">ปิด</button>
+                    <button onclick="redirectToview('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}')"><i class="fas fa-eye"></i>ดู</button>
+                    <button onclick="redirectToDelete('${loan._id}', '${loan.id_card_number}')"><i class="fas fa-trash-alt"></i>ลบ</button>
+                    <button onclick="redirectToclose('${loan._id}', '${loan.id_card_number}')"><i class="fas fa-ban"></i>ปิด</button>
                 </td>
-                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}')">ยึดทรัพย์</button></td>
-                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}', '${loan.totalInterest4}', '${loan.totalRefund}')">คืนเงิน</button></td>
+                <td><button onclick="seizeAssets('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}')" ${seizeButtonState}><i class="fas fa-lock"></i>${seizeButtonText}</button></td>
+                <td><button onclick="refundMoney('${loan._id}', '${loan.id_card_number}', '${loan.fname}', '${loan.lname}', '${loan.manager}', '${loan.contract_number}', '${loan.bill_number}', '${loan.principal}', '${loan.totalInterest4}', '${loan.totalRefund}')" ${refundButtonState}><i class="fas fa-plus"></i>${refundButtonText}</button></td>
             `;
         });
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error.message);
     }
 }
-
 
 
 window.onload = function () {
@@ -195,8 +266,13 @@ window.onload = function () {
 
 
 
-// แก้ไขสัญญา
-function redirectToEdit(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number) {
+
+
+
+
+
+// ดูสัญญา
+function redirectToview(loanId, idCardNumber, fname, lname, manager, contract_number, bill_number) {
     window.location.href = `/บันทึกสัญญา.html?loan_id=${encodeURIComponent(loanId)}&id_card_number=${encodeURIComponent(idCardNumber)}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}&manager=${encodeURIComponent(manager)}&contract_number=${encodeURIComponent(contract_number)}&bill_number=${encodeURIComponent(bill_number)}`;
 }
 

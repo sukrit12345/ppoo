@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="จำนวนเเจ้งเตือน.css">
+<script src="จำนวนเเจ้งเตือน.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<title>ตารางสัญญาเงินกู้รายบุคคล</title>
+
+<style>
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-start; /* ขยับข้อความทั้งหมดชิดซ้าย */
+    align-items: center; /* จัดกึ่งกลางในแนวตั้ง */
+    z-index: 1000; /* เพื่อให้ navbar อยู่บนสุดเสมอ */
+}
+
+.navbar h3 {
+    color: white;
+    margin: 0;
+    padding: 14px 20px; /* ปรับเป็นค่าคงที่เพื่อไม่ให้ขยับ */
+    display: inline-block; /* ทำให้ h3 อยู่ในบรรทัดเดียวกัน */
+}
+    
+
+body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        margin-top: 100px;
+    }
+
+.container {
+  width: 60%;
+  margin: auto;
+  margin-top: 50px;
+}
+
+table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: auto;
+        margin-top: 80px;
+    }
+
+th, td {
+        border: 1px solid #dddddd;
+        text-align: center;
+        padding: 8px;
+    }
+
+th {
+        background-color: #333;
+        color: white;
+    }
+
+tr:nth-child(even) {
+        background-color: #f2f2f2;
+}    
+
+
+
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.column {
+
+    margin: 10px; /* Adjust the margin as needed */
+}
+
+.custom-button {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
+    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
+}
+.custom-button:hover {
+    background-color: #555;
+}
+
+.custom-button1 {
+    background-color: #555;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
+    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
+}
+
+
+
+.button-link {
+    text-decoration: none;
+    color: white;
+}
+
+.custom-button2 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 150px; /* ปรับขนาดกว้างตามที่ต้องการ */
+    height: 40px; /* ปรับขนาดสูงตามที่ต้องการ */
+    
+}
+.custom-button2:hover {
+    background-color: #45a049;
+}
+
+
+
+
+
+
+</style>
+</head>
+
+
+<body>
+
+
+    <div class="navbar">
+        <h3><i class="fas fa-id-card"></i> เลขบัตรประชาชน: <span id="id_card_number"></span></h3>
+        <h3><i class="fas fa-university"></i> ชื่อร้าน: <span id="store_name"></span></h3>
+    </div>
+
+
+    <h2 style="text-align:center;">ตารางสัญญาเเละคืนเงิน</h2>
+
+
+
+
+
+
+<table id="tbody">
+    <thead>
+        <tr>
+            <th>รหัส</th>
+            <th>บิล</th>
+            <th>วันที่กู้</th>
+            <th>วันที่ต้องคืน</th>
+            <th>เงินต้น</th>
+            <th>ดอกเบี้ย</th>
+            <th>ดอกปรับ</th>
+            <th>ดอกยกมา</th>
+            <th>รวมดอก</th>
+            <th>รวมเงินที่ต้องคืน</th>
+            <th>สถานะ</th>
+            <th>วันที่คืน</th>
+            <th>เงินต้นคืน</th>
+            <th>ดอกเบี้ยคืน</th>
+            <th>ค่าทวงเงินคืน</th>
+            <th>รวมเงินคืน</th>
+            <th>ดอกเบี้ยค้าง</th>
+        </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+</table>
+
+
+
+
+
+
+
+<script src="รายการกู้.js"></script>
+
+
+</body>
+</html>
+
+
+
+
